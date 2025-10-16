@@ -1,10 +1,11 @@
+from django.contrib.auth import login as auth_login
+from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import redirect, render
 
-from .forms import CustomUserCreationForm, CustomUserChangeForm
+from .forms import CustomUserChangeForm, CustomUserCreationForm
+
 
 # Create your views here.
-
-
 def test(request):
     return render(request, "accounts/test.html")
 
@@ -35,15 +36,41 @@ def signup(request):
     return render(request, "accounts/signup.html", context)
 
 
+# 로그인 기능 구현
+def login_view(request):
+    if request.method == "POST":
+        form = AuthenticationForm(request, request.POST)
+        if form.is_valid():
+            auth_login(request, form.get_user())
+            return redirect("accounts:test")
+    else:
+        form = AuthenticationForm()
+    context = {
+        "form": form,
+    }
+    return render(request, "accounts/login.html", {"form": form})
+
+
 def update(request):
-    if request.method == 'POST':
-        form - CustomUserChangeForm(request.POST, instance=request.user)
+    """
+    현재 로그인한 사용자의 프로필 정보를 수정하는 뷰 함수
+    
+    Args:
+        request (HttpRequest): 클라이언트의 HTTP 요청 객체
+
+    Returns:
+        HttpResponse: 
+            - GET 요청일 경우, 프로필 수정 페이지(`accounts/update.html`)를 렌더링합니다.
+            - POST 요청에서 폼이 유효하면, 프로필 수정 후 해당 페이지로 리다이렉트합니다.
+    """
+    if request.method == "POST":
+        form = CustomUserChangeForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            return redirect('accounts/update')
+            return redirect("accounts:update")
     else:
         form = CustomUserChangeForm(instance=request.user)
     context = {
-        'form': form,
+        "form": form,
     }
-    return render(request, 'accounts/update.html', context)
+    return render(request, "accounts/update.html", context)
