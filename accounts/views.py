@@ -1,5 +1,5 @@
 from django.contrib.auth import login as auth_login
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.shortcuts import redirect, render
 
 from .forms import CustomUserChangeForm, CustomUserCreationForm
@@ -54,12 +54,12 @@ def login_view(request):
 def update(request):
     """
     현재 로그인한 사용자의 프로필 정보를 수정하는 뷰 함수
-    
+
     Args:
         request (HttpRequest): 클라이언트의 HTTP 요청 객체
 
     Returns:
-        HttpResponse: 
+        HttpResponse:
             - GET 요청일 경우, 프로필 수정 페이지(`accounts/update.html`)를 렌더링합니다.
             - POST 요청에서 폼이 유효하면, 프로필 수정 후 해당 페이지로 리다이렉트합니다.
     """
@@ -74,3 +74,27 @@ def update(request):
         "form": form,
     }
     return render(request, "accounts/update.html", context)
+
+
+def password(request):
+    """
+    현재 로그인한 사용자의 비밀번호를 변경하는 함수
+    Args:
+        request (HttpRequest): 클라이언트의 HTTP 요청 객체
+
+    Returns:
+        HttpResponse:
+            - GET 요청일 경우, 비밀번호 수정 페이지(`accounts/password.html`)를 렌더링합니다.
+            - POST 요청에서 폼이 유효하면, 비밀번호 변경 후 테스트 페이지로 리다이렉트합니다.
+    """
+    if request.method == "POST":
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            return redirect("accounts:test")
+    else:
+        form = PasswordChangeForm(request.user)
+    context = {
+        "form": form,
+    }
+    return render(request, "accounts/password.html", context)
