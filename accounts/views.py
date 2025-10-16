@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render
 
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, CustomUserChangeForm
 
 # Create your views here.
 
@@ -33,3 +33,17 @@ def signup(request):
         "form": form,
     }
     return render(request, "accounts/signup.html", context)
+
+
+def update(request):
+    if request.method == 'POST':
+        form - CustomUserChangeForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('accounts/update')
+    else:
+        form = CustomUserChangeForm(instance=request.user)
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/update.html', context)

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<h1>프로필 수정 페이지</h1>
+<form action="{% url "accounts:update" %}" method="POST">
+  {% csrf_token %}
+  {{ form }}
+  <input type="submit">
+</form>
+{% endblock content %}
