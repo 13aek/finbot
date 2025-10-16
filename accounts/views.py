@@ -1,10 +1,9 @@
 from django.shortcuts import redirect, render
-
+from django.contrib.auth import login as auth_login
+from django.contrib.auth.forms import AuthenticationForm
 from .forms import CustomUserCreationForm
 
 # Create your views here.
-
-
 def test(request):
     return render(request, "accounts/test.html")
 
@@ -33,3 +32,17 @@ def signup(request):
         "form": form,
     }
     return render(request, "accounts/signup.html", context)
+
+# 로그인 기능 구현
+def login_view(request):
+    if request.method == "POST":
+        form = AuthenticationForm(request, request.POST)
+        if form.is_valid():
+            auth_login(request, form.get_user())
+            return redirect("accounts:test")
+    else:
+        form = AuthenticationForm()
+    context = {
+        "form": form,
+    }
+    return render(request, "accounts/login.html", {"form": form})
