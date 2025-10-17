@@ -1,4 +1,5 @@
 from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.shortcuts import redirect, render
 
@@ -98,3 +99,20 @@ def password(request):
         "form": form,
     }
     return render(request, "accounts/password.html", context)
+
+
+def logout(request):
+    """
+    현재 로그인한 사용자를 로그아웃시키는 뷰 함수
+
+    Django의 `logout()` 함수를 호출하여 세션 정보를 삭제하고,
+    로그아웃 후 로그인 페이지로 리다이렉트합니다.
+
+    Args:
+        request (HttpRequest): 클라이언트의 HTTP 요청 객체
+
+    Returns:
+        HttpResponseRedirect: 로그아웃 처리 후 로그인 페이지(`accounts:login`)로 리다이렉트합니다.
+    """
+    auth_logout(request)
+    return redirect("accounts:login")
