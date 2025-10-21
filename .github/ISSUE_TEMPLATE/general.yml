@@ -1,0 +1,45 @@
+name: General Issue
+description: 일반적인 작업 이슈를 생성합니다.
+title: "[분류] 작업내용"
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Issue 제목 예시
+        [Feat] 로그인 기능 구현  
+        [Fix] 회원가입 오류 수정  
+        [Docs] README 업데이트  
+        [Chore] 환경 세팅 변경  
+        [Refactor] 코드 구조 개선  
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: 작업 목표
+      description: 이번 작업의 주요 목적을 간단히 작성해주세요.
+      placeholder: 예) 로그인 기능 구현 및 에러 핸들링 개선
+    validations:
+      required: true
+
+  - type: textarea
+    id: tasks
+    attributes:
+      label: 세부 작업 내용
+      description: 수행할 세부 작업 항목을 작성해주세요.
+      placeholder: |
+        - [ ] 로그인 API 작성
+        - [ ] JWT 인증 로직 추가
+        - [ ] 예외 처리 통합
+    validations:
+      required: true
+
+  - type: textarea
+    id: reference
+    attributes:
+      label: 참고 사항
+      description: 관련 이슈나 참고 문서를 작성해주세요.
+      placeholder: |
+        - 관련 이슈: #10
+        - 참고 링크: https://example.com/spec
+        - 기타: DB 연결 설정은 .env.example 참고
