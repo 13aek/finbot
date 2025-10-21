@@ -47,8 +47,8 @@ item_dict = {
     "dcls_end_day": "공시종료일",  # 공시종료일
     "dcls_month": "공시제출월",  # 공시제출월
 }
-
-load_dotenv()  # .env 파일을 읽어 환경 변수로 설정합니다.
+# .env 파일을 읽어 환경 변수로 설정합니다.
+load_dotenv("../.env.example")  # 프로젝트 폴더의 .env.example에 환경변수 입력
 
 # dotenv를 활용하여 API 키 가져오기
 FINAPI_KEY = os.getenv("FINAPI_KEY")
@@ -163,3 +163,6 @@ def fetch_findata() -> List[Dict]:
     pprint(data[0])
     print("*" * 63)
     return data
+
+
+fetch_findata()
