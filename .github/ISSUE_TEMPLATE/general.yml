@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## Issue 제목 예시
+        **Issue 제목 예시**
         [Feat] 로그인 기능 구현  
         [Fix] 회원가입 오류 수정  
         [Docs] README 업데이트  
