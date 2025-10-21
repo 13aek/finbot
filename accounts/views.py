@@ -35,6 +35,11 @@ def signup(request):
 
 # 로그인 기능 구현
 def login_view(request):
+    """
+    사용자의 http 메서드 요청에 따라 로그인 페이지를 응답하거나
+    사용자가 입력한 정보를 검증해 로그인 세션을 생성하는 함수
+    """
+
     if request.method == "POST":
         form = AuthenticationForm(request, request.POST)
         if form.is_valid():
