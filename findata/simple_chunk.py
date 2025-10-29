@@ -8,6 +8,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 def make_embedding_ready_text_deposit(product: Dict) -> str:
     """
     JSON 데이터 -> 자연어 문장으로 변환하는 함수
+    arguments : (Dict) 금융 데이터 한건 json
+    return : (str) json을 자연어로 풀어쓴 string
     """
 
     text = f"{product['금융회사명']}의 {product['금융상품명']}은 {product['가입대상']}이 가입할 수 있습니다. "
@@ -27,14 +29,21 @@ def make_embedding_ready_text_deposit(product: Dict) -> str:
 def make_embedding_ready_sentence_deposit(data_list: List[Dict]) -> List[str]:
     """
     JSON 데이터 -> 문장을 리스트로 반환하는 함수
-    아마 안 쓸 것 같음
+    (아마 안 쓸 것 같음)
+    arguments : (List[Dict]) 금융 데이터 json List[Dict]
+    return : (List[str]) json을 자연어로 풀어 쓴 List[str]
     """
 
     return [make_embedding_ready_text_deposit(data) for data in data_list]
 
 
 def chunk(json_data_list: List[Dict]) -> List[str]:
-    """ """
+    """
+    모든 금융데이터 List[Dict]를 chunk하는 함수
+    후에 조정 필요
+    arguments : (List[Dict]) 모든 금융 데이터 json List[Dict]
+    return : (List[str]) 모든 금융 데이터의 chunk data List
+    """
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=150, chunk_overlap=30, separators=["\n\n", ",", ".", " "]
     )
