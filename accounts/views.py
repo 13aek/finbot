@@ -1,5 +1,6 @@
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.shortcuts import redirect, render
 
@@ -121,3 +122,25 @@ def logout(request):
     """
     auth_logout(request)
     return redirect("accounts:login")
+
+
+@login_required
+def delete(request):
+    """
+    회원 탈퇴 기능
+    현재 로그인한 사용자를 삭제(회원탈퇴)하는 뷰 함수
+
+    사용자의 요청에 따라 DB에서 해당 User 객체를 삭제하고,
+    로그아웃 처리 후 테스트 페이지(`accounts/test.html`)로 리다이렉트
+
+    Args:
+        request (HttpRequest): 클라이언트의 HTTP 요청 객체
+
+    Returns:
+        HttpResponse:
+            - POST 요청일 경우, 현재 로그인한 사용자를 삭제하고 로그아웃 처리 후 테스트 페이지로 리다이렉트
+            - GET 요청으로 접근 시, 직접적인 렌더링은 없으며 보통 탈퇴 버튼(Form action)으로 요청
+
+    """
+    request.user.delete()
+    return redirect("accounts:test")
