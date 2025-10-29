@@ -31,3 +31,21 @@ def make_embedding_ready_sentence_deposit(data_list: List[Dict]) -> List[str]:
     """
 
     return [make_embedding_ready_text_deposit(data) for data in data_list]
+
+
+def chunk(json_data_list: List[Dict]) -> List[str]:
+    """ """
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=150, chunk_overlap=30, separators=["\n\n", ",", ".", " "]
+    )
+    docs = []
+    for json_product in json_data_list:
+        text = make_embedding_ready_text_deposit(json_product)
+        base_doc = Document(page_content=text, metadata=json_product)
+        # chunk 분리
+        chunks = splitter.split_documents([base_doc])
+        docs.extend(chunks)
+
+    print(f"Chunked Documents: {len(docs)}개 생성 완료\n")
+    print("Chunked Documents sample : ", docs[0])
+    return docs
