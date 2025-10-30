@@ -57,7 +57,7 @@ def login_view(request):
     }
     return render(request, "accounts/login.html", {"form": form})
 
-
+@login_required
 def update(request):
     """
     현재 로그인한 사용자의 프로필 정보를 수정하는 뷰 함수
