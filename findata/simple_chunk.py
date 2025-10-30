@@ -1,6 +1,7 @@
-from typing import Dict, List
-from call_findata_api import fetch_findata
 from pprint import pprint
+from typing import Dict, List
+
+from call_findata_api import fetch_findata
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
