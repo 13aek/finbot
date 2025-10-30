@@ -1,9 +1,10 @@
+import uuid
 from typing import Dict, List
+
 from FlagEmbedding import BGEM3FlagModel
 from qdrant_client import QdrantClient
-from qdrant_client.models import PointStruct, VectorParams, Distance
+from qdrant_client.models import Distance, PointStruct, VectorParams
 from tqdm import tqdm
-import uuid
 
 
 def get_qdrant_local(
