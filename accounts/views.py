@@ -1,5 +1,6 @@
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.shortcuts import redirect, render
@@ -104,6 +105,7 @@ def password(request):
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             user = form.save()
+            update_session_auth_hash(request, user)  # 비밀번호 변경시 세션 유지
             return redirect("accounts:test")
     else:
         form = PasswordChangeForm(request.user)
