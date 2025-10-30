@@ -1,5 +1,6 @@
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.shortcuts import redirect, render
@@ -17,6 +18,8 @@ def signup(request):
     사용자의 http 메서드 요청에 따라 회원가입 페이지를 응답하거나
     사용자가 입력한 정보를 DB에 저장하는 함수
     """
+    if request.user.is_authenticated:
+        return redirect("accounts:test")
 
     # 사용자가 정보를 입력하고 회원가입을 요청했을 때
     if request.method == "POST":
@@ -44,6 +47,8 @@ def login_view(request):
     사용자의 http 메서드 요청에 따라 로그인 페이지를 응답하거나
     사용자가 입력한 정보를 검증해 로그인 세션을 생성하는 함수
     """
+    if request.user.is_authenticated:
+        return redirect("accounts:test")
 
     if request.method == "POST":
         form = AuthenticationForm(request, request.POST)
@@ -58,6 +63,7 @@ def login_view(request):
     return render(request, "accounts/login.html", {"form": form})
 
 
+@login_required
 def update(request):
     """
     현재 로그인한 사용자의 프로필 정보를 수정하는 뷰 함수
@@ -83,6 +89,7 @@ def update(request):
     return render(request, "accounts/update.html", context)
 
 
+@login_required
 def password(request):
     """
     현재 로그인한 사용자의 비밀번호를 변경하는 함수
@@ -98,6 +105,7 @@ def password(request):
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             user = form.save()
+            update_session_auth_hash(request, user)  # 비밀번호 변경시 세션 유지
             return redirect("accounts:test")
     else:
         form = PasswordChangeForm(request.user)
@@ -107,6 +115,7 @@ def password(request):
     return render(request, "accounts/password.html", context)
 
 
+@login_required
 def logout(request):
     """
     현재 로그인한 사용자를 로그아웃시키는 뷰 함수
