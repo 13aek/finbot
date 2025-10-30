@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
 <h1>프로필 수정 페이지</h1>
 <form action="{% url "accounts:update" %}" method="POST">
@@ -8,11 +7,11 @@
   {{ form }}
   <input type="submit">
 </form>
- <hr>
+<hr>
 
-  <!-- 회원 탈퇴 -->
-  <form action="{% url 'accounts:delete' %}" method="POST">
-    {% csrf_token %}
-    <input type="submit" value="회원탈퇴">
-  </form>
+<!-- 회원 탈퇴 -->
+<form action="{% url 'accounts:delete' %}" method="POST">
+  {% csrf_token %}
+  <input type="submit" value="회원탈퇴">
+</form>
 {% endblock content %}

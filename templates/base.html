@@ -6,10 +6,35 @@
   <title>Document</title>
 </head>
 <body>
-  <form action="{% url 'accounts:logout' %}" method="POST">
-  {% csrf_token %}
-  <input type="submit" value='Logout'>
-</form>
+  
+  {% if request.user.is_authenticated %}
+
+    {% comment %} 로그아웃 버튼 {% endcomment %}
+    <form action="{% url 'accounts:logout' %}" method="POST">
+      {% csrf_token %}
+      <input type="submit" value='Logout'>
+    </form>
+
+    {% comment %} 회원정보 수정 버튼 {% endcomment %}
+    <form action="{% url 'accounts:update' %}" method="POST">
+      {% csrf_token %}
+      <input type="submit" value='Update'>
+    </form>
+
+  {% else %}
+    {% comment %} 회원가입 버튼 {% endcomment %}
+    <form action="{% url 'accounts:signup' %}" method="POST">
+      {% csrf_token %}
+      <input type="submit" value='Signup'>
+    </form>
+
+    {% comment %} 로그인 버튼 {% endcomment %}
+    <form action="{% url 'accounts:login' %}" method="POST">
+      {% csrf_token %}
+      <input type="submit" value='Login'>
+    </form>
+  {% endif %}
+  
   {% block content %}
   
   {% endblock content %}

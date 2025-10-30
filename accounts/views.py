@@ -17,6 +17,8 @@ def signup(request):
     사용자의 http 메서드 요청에 따라 회원가입 페이지를 응답하거나
     사용자가 입력한 정보를 DB에 저장하는 함수
     """
+    if request.user.is_authenticated:
+        return redirect("accounts:test")
 
     # 사용자가 정보를 입력하고 회원가입을 요청했을 때
     if request.method == "POST":
@@ -44,6 +46,8 @@ def login_view(request):
     사용자의 http 메서드 요청에 따라 로그인 페이지를 응답하거나
     사용자가 입력한 정보를 검증해 로그인 세션을 생성하는 함수
     """
+    if request.user.is_authenticated:
+        return redirect("accounts:test")
 
     if request.method == "POST":
         form = AuthenticationForm(request, request.POST)
@@ -56,6 +60,7 @@ def login_view(request):
         "form": form,
     }
     return render(request, "accounts/login.html", {"form": form})
+
 
 @login_required
 def update(request):
@@ -82,6 +87,7 @@ def update(request):
     }
     return render(request, "accounts/update.html", context)
 
+
 @login_required
 def password(request):
     """
@@ -105,6 +111,7 @@ def password(request):
         "form": form,
     }
     return render(request, "accounts/password.html", context)
+
 
 @login_required
 def logout(request):
