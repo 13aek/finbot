@@ -14,3 +14,4 @@ class CustomUserChangeForm(UserChangeForm):
         # Todo: 출력 필드 상의 후 재정의 필요
         # ex)
         # fields = ('first_name', 'last_name')
+        fields = ["name", "gender", "age", "job", "earnings", "life_area",]
