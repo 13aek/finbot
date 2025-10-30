@@ -55,9 +55,10 @@ class User(AbstractUser):
     # null=True 를 해놓으면 migrate 시 필드가 null값으로 인한
     # 기본 값 설정이나 오류가 발생하지 않습니다.
     # 차후 필드 수정사항이 있다면 동일하게 진행해주세요.
-    name = models.CharField(max_length=20, null=True)
-    gender = models.BooleanField(null=True, choices=GENDER_CHOICES)
-    age = models.IntegerField(null=True)
-    job = models.CharField(null=True, choices=JOB_CHOICES)
-    earnings = models.CharField(max_length=20, null=True, choices=EARNINGS_CHOICES)
-    life_area = models.CharField(max_length=20, null=True, choices=LIFE_AREA_CHICES)
+    # verbose_name의 인자로 넣는 문자열이 해당 필드의 이름으로 출력됩니다.
+    name = models.CharField(max_length=20, null=True, verbose_name="이름")
+    gender = models.BooleanField(null=True, choices=GENDER_CHOICES, verbose_name="성별")
+    age = models.IntegerField(null=True, verbose_name="나이")
+    job = models.CharField(null=True, choices=JOB_CHOICES, verbose_name="직업")
+    earnings = models.CharField(max_length=20, null=True, choices=EARNINGS_CHOICES, verbose_name="소득")
+    life_area = models.CharField(max_length=20, null=True, choices=LIFE_AREA_CHICES, verbose_name="거주지역")

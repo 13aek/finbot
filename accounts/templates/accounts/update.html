@@ -6,7 +6,10 @@
 <form action="{% url "accounts:update" %}" method="POST">
   {% csrf_token %}
   {{ form }}
-  
+  <input type="submit">
+</form>
+ <hr>
+
   <!-- 회원 탈퇴 -->
   <form action="{% url 'accounts:delete' %}" method="POST">
     {% csrf_token %}
