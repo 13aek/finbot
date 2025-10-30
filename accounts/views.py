@@ -57,7 +57,7 @@ def login_view(request):
     }
     return render(request, "accounts/login.html", {"form": form})
 
-
+@login_required
 def update(request):
     """
     현재 로그인한 사용자의 프로필 정보를 수정하는 뷰 함수
@@ -82,7 +82,7 @@ def update(request):
     }
     return render(request, "accounts/update.html", context)
 
-
+@login_required
 def password(request):
     """
     현재 로그인한 사용자의 비밀번호를 변경하는 함수
@@ -106,7 +106,7 @@ def password(request):
     }
     return render(request, "accounts/password.html", context)
 
-
+@login_required
 def logout(request):
     """
     현재 로그인한 사용자를 로그아웃시키는 뷰 함수
