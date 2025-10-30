@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>비밀번호 인증 페이지</h2>
+<form action="{% url "accounts:verify" %}" method="POST">
+  {% csrf_token %}
+  {% if "error" %}
+  {{ error }}
+  {% endif %} <br>
+  <input type="password" name="password">
+  <input type="submit">
+</form>
+{% endblock content %}
