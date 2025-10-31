@@ -214,14 +214,13 @@
 
     /* 전송 버튼 */
     #send-btn {
-        height: 40px; 
-        width: 40px; 
+        height: 30px; 
+        width: 35px; 
         background-color: transparent; 
         color: #8B8B8B; 
         border: none;
         border-radius: 0; 
         cursor: pointer;
-        font-size: 24px; 
         display: flex;
         align-items: center;
         justify-content: center;
