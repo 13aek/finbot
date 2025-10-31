@@ -1,0 +1,39 @@
+<!-- 검색 메인 페이지 -->
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finbot</title>
+
+    <link rel="stylesheet" href="css/search.css">
+
+    <!-- 구글 폰트 불러오기 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header class="header-buttons">
+        <a href="mypage.html" class="mypage-btn">회원 정보</a>
+        <!-- 로그아웃은 POST 요청이 필요하지만, HTML 구조상 임시로 a 태그 사용 -->
+        <a href="logout/" class="logout-btn">로그아웃</a> 
+    </header>
+
+    <main class="main-content">
+        <form class="search-form" action="/search" method="get">
+            <div class="search-input-wrapper">
+                <input type="text" placeholder="검색" class="search-input" name="query">
+                <button type="submit" class="search-submit-btn">&#x2315;</button> 
+            </div>
+            <!-- 검색 버튼 (돋보기가 역할을 대신하므로 숨김) -->
+            <button type="submit" style="display: none;">검색</button>
+        </form>
+
+        <!-- 2. AI CHAT 버튼 -->
+        <a href="chat.html" class="ai-chat-btn">AI CHAT</a>
+    </main>
+</body>
+</html>
