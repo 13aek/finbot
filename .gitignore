@@ -280,5 +280,8 @@ pip-selfcheck.json
 # ------------------------
 # VSCODE / LOCAL SETTINGS
 # ------------------------
+
+# 미래 충돌 방지를 위해 추가
+.vscode/
 # Live Server 활용하며 자동 생성된 파일
 .vscode/settings.json
