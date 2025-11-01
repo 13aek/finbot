@@ -276,3 +276,9 @@ pyvenv.cfg
 pip-selfcheck.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python,django,venv
+
+# ------------------------
+# VSCODE / LOCAL SETTINGS
+# ------------------------
+# Live Server 활용하며 자동 생성된 파일
+.vscode/settings.json
