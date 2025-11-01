@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>비밀번호 인증 페이지</h2>
+
+<form action="" method="POST">
+  {% csrf_token %}
+  
+  {#  현재 GET 파라미터로 들어온 next 값을 hidden input으로 전달해줍니다. #}
+  <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+  {% if error %}
+    {{ error }}</p>
+  {% endif %}
+
+  <label for="password">비밀번호</label><br>
+  <input type="password" name="password" id="password" required>
+  <input type="submit" value="확인">
+</form>
+
+{% endblock content %}
