@@ -76,7 +76,7 @@ def update(request):
             - POST 요청에서 폼이 유효하면, 프로필 수정 후 해당 페이지로 리다이렉트합니다.
     """
     # 비밀번호 재확인이 완료되었는지 확인합니다.
-    verified_time = request.session.get("password_verified")
+    verified_time = request.session.get("update")
     # 현재의 초 단위와, 과거에 세션을 저장했던 초 단위를 비교하여 만료 여부를 결정합니다.
     if not verified_time or (timezone.now().timestamp() - verified_time > 300):
         # 세션이 없거나 만료되었다면 비밀번호를 재확인합니다.
@@ -86,7 +86,7 @@ def update(request):
         )
 
     # 인증이 완료되었다면 바로 인증이 필요한 서비스 이용 시 한번 더 인증하도록 세션을 삭제합니다.
-    request.session.pop("password_verified", None)
+    # request.session.pop("password_verified", None)
 
     if request.method == "POST":
         form = CustomUserChangeForm(request.POST, instance=request.user)
@@ -163,7 +163,7 @@ def delete(request):
 
     """
     # 비밀번호 재확인 세션이 없거나 만료된 경우
-    verified_time = request.session.get("password_verified")
+    verified_time = request.session.get("delete")
     if not verified_time or (timezone.now().timestamp() - verified_time > 300):
         # 세션이 없거나 만료된경우 비밀번호 인증 페이지로 이동합니다.
         return redirect(
@@ -191,7 +191,7 @@ def verify(request):
 
     # 다음 목적지를 기본적으로 update 페이지로 설정합니다.
     # 만약 next 값이 들어오지 않았다면 next를 accounts:update로 두겠다는 설정입니다.
-    next_url = request.GET.get("next", reverse("accounts:update"))
+    next_url = request.GET.get("next") or request.POST.get("next") or reverse("accounts:update")
 
     if request.method == "POST":
         # DB에 저장된 사용자 정보에 인증을 시도하기 위해
@@ -204,9 +204,14 @@ def verify(request):
 
         # 인증되었다면 세션이 인증 상태를 저장합니다.
         if user is not None:
+            # 인증 후 사용자의 요청에 맞게 세션을 분기합니다.
+            if "delete" in next_url:
+                session_key = "delete"
+            else:
+                session_key = "update"
             # 인증을 한 시간을 체크합니다.
             # update 함수에서 시간이 지나면 인증이 만료되도록 처리합니다.
-            request.session["password_verified"] = timezone.now().timestamp()
+            request.session[session_key] = timezone.now().timestamp()
 
             # 목적지가 결정되지 않았다면 update, 결정되었다면 결정된 페이지로 리다이렉트합니다.
             return redirect(next_url)
