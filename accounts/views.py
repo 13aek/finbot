@@ -199,7 +199,11 @@ def verify(request):
 
     # 다음 목적지를 기본적으로 update 페이지로 설정합니다.
     # 만약 next 값이 들어오지 않았다면 next를 accounts:update로 두겠다는 설정입니다.
-    next_url = request.GET.get("next") or request.POST.get("next") or reverse("accounts:update")
+    next_url = (
+        request.GET.get("next")
+        or request.POST.get("next")
+        or reverse("accounts:update")
+    )
 
     if request.method == "POST":
         # DB에 저장된 사용자 정보에 인증을 시도하기 위해
