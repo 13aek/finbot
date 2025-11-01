@@ -132,3 +132,16 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # 커스텀 유저 모델 대체
 AUTH_USER_MODEL = "accounts.User"
+
+# 세션 만료 설정
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 60 * 60 * 2  # 2시간
+
+# HTTPS 환경 권장 설정(배포시 활성화)
+"""
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 3600
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+"""

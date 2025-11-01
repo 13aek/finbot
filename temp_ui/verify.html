@@ -1,0 +1,35 @@
+<!-- My Page 접근 시에, 본인 확인을 위해 한 번 더 로그인 인증을 요구하는 화면 -->
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Finbot</title>
+    <link rel="stylesheet" href="css/auth_layout.css">
+    <link rel="stylesheet" href="css/verify.css">
+
+    <!-- 구글 폰트 불러오기 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <p class="verify">계정 정보를 확인하려면<br>
+            <span class="notice">비밀번호를 입력해 주세요</span>
+        </p>
+
+        <form>
+            <!-- 1. ID (Email Address) 입력 칸 -->
+            <input type="email" name="email" placeholder="아이디 입력" required>
+
+            <!-- 2. 비밀번호 (Password) 입력 칸 -->
+            <input type="password" name="password" placeholder="비밀번호 입력" required>
+
+            <!-- 3. 로그인 (Log In) 버튼 -->
+            <button type="submit">로그인</button>
+        </form>
+    </div>
+</body>
+</html>
