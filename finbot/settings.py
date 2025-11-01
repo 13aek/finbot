@@ -82,19 +82,18 @@ WSGI_APPLICATION = "finbot.wsgi.application"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'agent_ai',  # 데이터베이스 이름
-        'USER': 'root',      # 데이터베이스 사용자 이름
-        'PASSWORD': 'password3311!',  # 데이터베이스 사용자 비밀번호
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "agent_ai",  # 데이터베이스 이름
+        "USER": "root",  # 데이터베이스 사용자 이름
+        "PASSWORD": "password3311!",  # 데이터베이스 사용자 비밀번호
+        "HOST": "127.0.0.1",
+        "PORT": "3306",
+        "OPTIONS": {
+            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
         },
     }
 }
-
 
 
 # Password validation
