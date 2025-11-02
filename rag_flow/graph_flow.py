@@ -7,9 +7,13 @@ from functools import partial
 from openai import OpenAI
 import pandas as pd
 from sqlalchemy import create_engine
+from dotenv import load_dotenv
+import os
 
+load_dotenv("../.env.example")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-client = OpenAI()
+client = OpenAI(api_key = OPENAI_API_KEY)
 
 class ChatSession:
     """
@@ -177,8 +181,8 @@ graph.add_node("First_hello", first_conversation)
 graph.add_node("Nth_hello", first_conversation)
 graph.add_node("Normal_chat", first_conversation)
 graph.add_node("add_to_history", add_to_history)
-graph.add_node("conditional_about_query", conditional_about_query)
-graph.add_node("DB_search", DB_search)
+# graph.add_node("conditional_about_query", conditional_about_query)
+# graph.add_node("DB_search", DB_search)
 graph.add_node("RAG_search", RAG_search)
 
 
@@ -198,17 +202,31 @@ graph.add_conditional_edges(
 graph.add_edge("First_hello", END)
 graph.add_edge("Nth_hello", END)
 graph.add_edge("Normal_chat", "add_to_history")
-graph.add_edge("add_to_history", "conditional_about_query")
-graph.add_conditional_edges(
-    "conditional_about_query",
-    method_router,
-    {
-        "DB_search": "DB_search",
-        "RAG_search": "RAG_search",
-    }
-)
-graph.add_edge("DB_search", END)
+graph.add_edge("add_to_history", "RAG_search")
+# graph.add_edge("add_to_history", "conditional_about_query")
+# graph.add_conditional_edges(
+#     "conditional_about_query",
+#     method_router,
+#     {
+#         "DB_search": "DB_search",
+#         "RAG_search": "RAG_search",
+#     }
+# )
+# graph.add_edge("DB_search", END)
 graph.add_edge("RAG_search", END)
 
 # 인스턴스 생성
 app_graph = graph.compile()
+
+
+from IPython.display import Image, display
+from langchain_core.runnables.graph import CurveStyle, MermaidDrawMethod, NodeStyles
+
+display(
+    Image(
+        app_graph.get_graph().draw_mermaid_png(
+            draw_method=MermaidDrawMethod.API,
+            output_file_path="graph_viz2.png",
+        )
+    )
+)
