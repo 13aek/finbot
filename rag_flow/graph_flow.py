@@ -24,7 +24,7 @@ class ChatSession:
     def __init__(self):
         self.state = {"query": "", "history": [], "answer": ""}
         """
-        DB에서 history 들고와서 저장
+        DB에서 history 들고와서 저장해야함
         """
 
     def ask(self, query: str):
