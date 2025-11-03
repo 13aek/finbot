@@ -1,19 +1,19 @@
 # rag_engine/graph.py
-from langgraph.graph import StateGraph, START, END
-from typing import TypedDict, List, Dict, Any
-from typing import Annotated
-from typing import Literal
-from functools import partial
-from openai import OpenAI
-import pandas as pd
-from sqlalchemy import create_engine
-from dotenv import load_dotenv
 import os
+from functools import partial
+from typing import Annotated, Any, Dict, List, Literal, TypedDict
+
+import pandas as pd
+from dotenv import load_dotenv
+from langgraph.graph import END, START, StateGraph
+from openai import OpenAI
+from sqlalchemy import create_engine
 
 load_dotenv("../.env.example")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-client = OpenAI(api_key = OPENAI_API_KEY)
+client = OpenAI(api_key=OPENAI_API_KEY)
+
 
 class ChatSession:
     """
@@ -32,15 +32,15 @@ class ChatSession:
         사용자의 질문을 받고 Langgraph를 거쳐 답변을 생성
 
         Args:
-            query (str): 사용자의 질문 query 
+            query (str): 사용자의 질문 query
         Returns:
             answer (str): Langgraph state의 answer
         """
         self.state["query"] = query
         self.state = app_graph.invoke(self.state)
         return self.state["answer"]
-    
-    
+
+
 def keep_last_n(existing: List[Dict], new: List[Dict], n: int = 10) -> List[Dict]:
     """
     최근 n개 항목만 유지하는 리듀서. State의 history List에 새로운 값을 추가하고 n개의 항목만 반환(유지)
@@ -54,6 +54,7 @@ def keep_last_n(existing: List[Dict], new: List[Dict], n: int = 10) -> List[Dict
     combined = (existing or []) + (new or [])
     return combined[-n:]  # 마지막 n개만 반환
 
+
 keep_last_10 = partial(keep_last_n, n=10)
 
 
@@ -61,19 +62,20 @@ class ChatState(TypedDict):
     """
     graph를 구성할 State Class
     """
-    
-    mode: str # chat mode : (First_hello)first conversation & first meet, (Nth_hello)first conversation & Nth meet, (Normal_chat)Nth conversation
-    search_method: str # search method : DB search, RAG search
-    query: str # user query
+
+    mode: str  # chat mode : (First_hello)first conversation & first meet, (Nth_hello)first conversation & Nth meet, (Normal_chat)Nth conversation
+    search_method: str  # search method : DB search, RAG search
+    query: str  # user query
     history: Annotated[List[Dict[str, str]], keep_last_10]  # user, assistant message 쌍
-    answer: str # LLM answer
+    answer: str  # LLM answer
 
 
 # 노드 정의
 
+
 def conditional_about_history(state: ChatState) -> Dict:
     """
-    history에 따라 분기 발생 
+    history에 따라 분기 발생
 
     Args:
         state (TypedDict): Graph의 state
@@ -84,18 +86,19 @@ def conditional_about_history(state: ChatState) -> Dict:
     if not state["history"]:
         mode = "First_hello"
     elif state["history"]:
-        if state["history"][-1].get("new",False):
+        if state["history"][-1].get("new", False):
             mode = "Normal_chat"
-        elif state["history"][0].get("old",False):
+        elif state["history"][0].get("old", False):
             mode = "Nth_hello"
         else:
-            print('Mode를 찾을 수 없습니다.')
+            print("Mode를 찾을 수 없습니다.")
     else:
-        print('Mode를 찾을 수 없습니다.')
+        print("Mode를 찾을 수 없습니다.")
 
     return {
         "mode": mode,
     }
+
 
 def mode_router(state: ChatState) -> Literal["First_hello", "Nth_hello", "Normal_chat"]:
     """
@@ -116,13 +119,14 @@ def first_conversation(state: ChatState) -> ChatState:
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Dict: state에 업데이트 할 history dict. 
+        Dict: state에 업데이트 할 history dict.
     """
-    
+
     hello = "안녕하세요. 첫 방문이시군요! 무엇을 도와드릴까요?"
     history = {"role": "assistant", "content": hello, "state": "new"}
-    
+
     return {"history": history}
+
 
 def nth_conversation(state: ChatState) -> ChatState:
     """
@@ -132,22 +136,30 @@ def nth_conversation(state: ChatState) -> ChatState:
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Dict: state에 업데이트 할 history dict. 
+        Dict: state에 업데이트 할 history dict.
     """
     histories = state["history"]
-    questions = [ history["content"] for history in histories if history["role"] == "user"]
-    
-    messages = [{"role": "system", "content": "너는 주어지는 몇 개의 문장을 3단어로 요약해야해."}]
-    messages.append({"role": "user", "content": questions})  # 이전 질문들 모두 
+    questions = [
+        history["content"] for history in histories if history["role"] == "user"
+    ]
+
+    messages = [
+        {
+            "role": "system",
+            "content": "너는 주어지는 몇 개의 문장을 3단어로 요약해야해.",
+        }
+    ]
+    messages.append({"role": "user", "content": questions})  # 이전 질문들 모두
 
     completion = client.chat.completions.create(model="gpt-4o-mini", messages=messages)
 
     summary = completion.choices[0].message.content
-    
+
     hello = f"안녕하세요. 지난번에는 {summary}에 대해 물어보셨군요! 오늘은 무엇을 도와드릴까요?"
     history = {"role": "assistant", "content": hello, "state": "new"}
-    
+
     return {"history": history}
+
 
 def conditional_about_query(state: ChatState) -> Dict:
     """
@@ -168,7 +180,8 @@ def conditional_about_query(state: ChatState) -> Dict:
         "search_method": method,
     }
 
-def method_router(state: ChatState) -> Literal["RAG_search"]: #"DB_search", 
+
+def method_router(state: ChatState) -> Literal["RAG_search"]:  # "DB_search",
     """
     Search Method에 따라 라우팅
 
@@ -178,6 +191,7 @@ def method_router(state: ChatState) -> Literal["RAG_search"]: #"DB_search",
         Literal: ["RAG_search"] 중 하나의 값으로 제한
     """
     return state["search_method"]
+
 
 def add_to_history(state: ChatState) -> ChatState:
     """
@@ -204,9 +218,15 @@ def DB_search(state: ChatState) -> ChatState:
     DB_answer = "DB 검색 결과"
     user_query = state["query"]
     messages = [
-        {"role": "system", "content": "너는 금융 도메인 전문가이자 고객 상담 AI야. DB에서 제공된 정보를 근거로만 답변해야 해."},
+        {
+            "role": "system",
+            "content": "너는 금융 도메인 전문가이자 고객 상담 AI야. DB에서 제공된 정보를 근거로만 답변해야 해.",
+        },
         {"role": "user", "content": f"다음은 DB에서 찾은 정보야:\n{DB_answer}"},
-        {"role": "user", "content": f"질문: {user_query}\n이 '정보'만 참고해서 사용자의 질문에 정확히 답변해줘."}
+        {
+            "role": "user",
+            "content": f"질문: {user_query}\n이 '정보'만 참고해서 사용자의 질문에 정확히 답변해줘.",
+        },
     ]
 
     completion = client.chat.completions.create(
@@ -220,9 +240,10 @@ def DB_search(state: ChatState) -> ChatState:
     new_history = {"role": "assistant", "content": answer, "state": "new"}
     return {"answer": answer, "history": new_history}
 
+
 def RAG_search(state: ChatState) -> ChatState:
     """
-    사용자의 query와 유사한 RAG 결과를 생성하고, RAG 결과를 바탕으로 답변 반환 
+    사용자의 query와 유사한 RAG 결과를 생성하고, RAG 결과를 바탕으로 답변 반환
 
     Args:
         state (TypedDict): Graph의 state
@@ -233,12 +254,19 @@ def RAG_search(state: ChatState) -> ChatState:
 
     VectorDB_answer = "VectorDB 검색 결과"
 
-
-
     messages = [
-        {"role": "system", "content": "너는 금융 도메인 전문가이자 고객 상담 AI야. VectorDB에서 제공된 정보를 근거로만 답변해야 해."},
-        {"role": "user", "content": f"다음은 VectorDB에서 찾은 정보야:\n{VectorDB_answer}"},
-        {"role": "user", "content": f"질문: {user_query}\n이 'VectorDB에서 찾은 정보'만 참고해서 사용자의 질문에 정확히 답변해줘."}
+        {
+            "role": "system",
+            "content": "너는 금융 도메인 전문가이자 고객 상담 AI야. VectorDB에서 제공된 정보를 근거로만 답변해야 해.",
+        },
+        {
+            "role": "user",
+            "content": f"다음은 VectorDB에서 찾은 정보야:\n{VectorDB_answer}",
+        },
+        {
+            "role": "user",
+            "content": f"질문: {user_query}\n이 'VectorDB에서 찾은 정보'만 참고해서 사용자의 질문에 정확히 답변해줘.",
+        },
     ]
 
     completion = client.chat.completions.create(
@@ -250,8 +278,6 @@ def RAG_search(state: ChatState) -> ChatState:
     # 히스토리에 assistant 응답 추가
     new_history = {"role": "assistant", "content": answer, "state": "new"}
     return {"answer": answer, "history": new_history}
-
-
 
 
 # Node 정의
@@ -276,8 +302,8 @@ graph.add_conditional_edges(
     {
         "First_hello": "First_hello",
         "Nth_hello": "Nth_hello",
-        "Normal_chat": "Normal_chat"
-    }
+        "Normal_chat": "Normal_chat",
+    },
 )
 
 graph.add_edge("First_hello", END)
@@ -298,16 +324,3 @@ graph.add_edge("RAG_search", END)
 
 # 인스턴스 생성
 app_graph = graph.compile()
-
-
-from IPython.display import Image, display
-from langchain_core.runnables.graph import CurveStyle, MermaidDrawMethod, NodeStyles
-
-display(
-    Image(
-        app_graph.get_graph().draw_mermaid_png(
-            draw_method=MermaidDrawMethod.API,
-            output_file_path="graph_viz2.png",
-        )
-    )
-)
