@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Chatbot</h2>
+<div id="chat-box" style="border:1px solid #ccc; padding:10px; height:300px; overflow:auto;">
+  {% for msg in messages %}
+    <p><b>{{ msg.role|title }}:</b> {{ msg.message }}</p>
+  {% endfor %}
+</div>
+
+<input id="user-input" type="text" placeholder="메시지를 입력하세요" style="width:80%;" />
+<button onclick="sendMessage()">전송</button>
+
+<script>
+function sendMessage() {
+  const message = document.getElementById("user-input").value;
+  if (!message) return alert("메시지를 입력하세요!");
+
+  fetch("/chat/ask/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: message }),
+  })
+  .then(response => response.json())
+  .then(data => {
+    const box = document.getElementById("chat-box");
+    box.innerHTML += `<p><b>User:</b> ${message}</p>`;
+    box.innerHTML += `<p><b>Bot:</b> ${data.reply}</p>`;
+    document.getElementById("user-input").value = "";
+    box.scrollTop = box.scrollHeight;
+  });
+}
+</script>
+
+{% endblock %}
