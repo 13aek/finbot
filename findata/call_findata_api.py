@@ -7,6 +7,9 @@ from typing import Dict, List
 import requests  # HTTP 요청을 보내기 위한 라이브러리
 from dotenv import load_dotenv  # 환경 변수 로드를 위한 라이브러리
 
+# DB 저장 시 사용
+import MySQLdb
+
 """
 <금융상품한눈에 api 데이터 처리 가이드>
 
@@ -15,6 +18,24 @@ from dotenv import load_dotenv  # 환경 변수 로드를 위한 라이브러리
 - 개발 화면에서 페이징 처리 시 현재 페이지 표시는 조회결과 데이터 중 'now_page_no'값을 참조합니다.
 - 페이징 처리 예시는 상단의 관련소스에서 'goPage'함수와 49~59Line을 참조합니다.
 """
+
+# .env 파일을 읽어 환경 변수로 설정
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")  # 프로젝트 폴더의 .env.example에 환경변수 입력
+
+# dotenv를 활용하여 API 키 가져오기
+FINAPI_KEY = os.getenv("FINAPI_KEY")
+# 공식 문서를 참고하여 API 검색 URL 설정하기
+FIXED_DEPOSIT_URL = os.getenv("FIXED_DEPOSIT_URL")
+
+# MySQL 환경 변수 설정
+FINAPI_KEY = os.getenv("FINAPI_KEY")
+FIXED_DEPOSIT_URL = os.getenv("FIXED_DEPOSIT_URL")
+MYSQL_HOST = os.getenv("MYSQL_HOST")
+MYSQL_PORT = os.getenv("MYSQL_PORT")
+MYSQL_USER = os.getenv("MYSQL_USER")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
+MYSQL_DATABASE = os.getenv("MYSQL_DATABASE")
 
 # API 호출에 필요한 파라미터(필수)
 # 금융기관별 코드 list: 데이터 명세 참고
@@ -47,22 +68,31 @@ item_dict = {
     "dcls_end_day": "공시종료일",  # 공시종료일
     "dcls_month": "공시제출월",  # 공시제출월
 }
-# .env 파일을 읽어 환경 변수로 설정합니다.
-load_dotenv("../.env.example")  # 프로젝트 폴더의 .env.example에 환경변수 입력
-
-# dotenv를 활용하여 API 키 가져오기
-FINAPI_KEY = os.getenv("FINAPI_KEY")
-# 공식 문서를 참고하여 API 검색 URL 설정하기
-FIXED_DEPOSIT_URL = os.getenv("FIXED_DEPOSIT_URL")
-
 
 # 금융 데이터를 가져오는 함수 정의
 def fetch_findata() -> List[Dict]:
     """
     일단은 예금만 가져오게 설정. 적금, 연금저축, 주택담보대출, 전세자금대출, 개인신용대출을 불러오려면 develop 필요.
-
-    return : List[Dict(상품)]
+    # 데이터베이스에 저장
+    return : List[Dict(상품)], 데이터 리스트 반환
+            1. MySQL에 financial_product 테이블 생성
+            2. API에서 가져온 데이터를 financial_product 테이블에 저장
     """
+
+    # DB 연결 시작
+    conn = MySQLdb.connect(
+        host=MYSQL_HOST,
+        port=int(MYSQL_PORT),
+        user=MYSQL_USER,
+        passwd=MYSQL_PASSWORD,
+        db=MYSQL_DATABASE,
+        charset="utf8mb4",
+        autocommit=True,
+    )
+    cursor = conn.cursor()
+    print("MySQL 연결 성공")
+
+
     # 현재 날짜 저장
     today = date.today()
     format_today = today.strftime("%Y%m%d")
@@ -93,6 +123,7 @@ def fetch_findata() -> List[Dict]:
         code_dict.setdefault(group, {})
         code_dict[group]["total_count"] = ex_data["result"]["total_count"]
         code_dict[group]["max_page_no"] = ex_data["result"]["max_page_no"]
+    
     # 모든 데이터 조회 및 정리
     # [ requests 문서를 참고하여 응답 데이터를  python의 dict 타입으로 변환하여 data 변수에 저장 ]
     print("금융상품 통합비교공시 '금융상품한눈에' 오픈 API 호출을 시작합니다.")
@@ -162,7 +193,59 @@ def fetch_findata() -> List[Dict]:
     print("*" * 30, "예시", "*" * 30)
     pprint(data[0])
     print("*" * 63)
+
+    # MySQL 테이블 생성 + 데이터 저장
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS fin_products (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            company_type VARCHAR(50),
+            company_name VARCHAR(100),
+            product_name VARCHAR(200),
+            product_code VARCHAR(50),
+            maturity_interest TEXT,
+            conditions TEXT,
+            join_method VARCHAR(255),
+            join_target VARCHAR(255),
+            max_limit VARCHAR(255),
+            disclosure_start VARCHAR(20),
+            disclosure_end VARCHAR(20),
+            disclosure_month VARCHAR(10)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        """
+    )
+    conn.commit()
+
+    print("MySQL 저장을 시작합니다...")
+    insert_query = """
+        INSERT INTO fin_products (
+            company_type, company_name, product_name, product_code,
+            maturity_interest, conditions, join_method, join_target,
+            max_limit, disclosure_start, disclosure_end, disclosure_month
+        ) VALUES (
+            %(회사유형)s, %(금융회사명)s, %(금융상품명)s, %(금융상품코드)s,
+            %(만기후이자율)s, %(우대조건)s, %(가입방법)s, %(가입대상)s,
+            %(최고한도)s, %(공시시작일)s, %(공시종료일)s, %(공시제출월)s
+        )
+    """
+
+    inserted = 0
+    for item in data:
+        try:
+            cursor.execute(insert_query, item)
+            inserted += 1
+        except Exception as e:
+            print("DB Insert 에러:", e)
+            continue
+
+    conn.commit()
+    print(f"MySQL에 {inserted}건 저장 완료!")
+
+    # === 연결 종료 ===
+    cursor.close()
+    conn.close()
+
     return data
 
-
-fetch_findata()
+if __name__ == "__main__":
+    fetch_findata()

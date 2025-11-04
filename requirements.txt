@@ -120,3 +120,4 @@ xxhash==3.6.0
 yarl==1.22.0
 zlib-state==0.1.10
 zstandard==0.25.0
+mysqlclient==2.2.4
