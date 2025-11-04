@@ -4,11 +4,10 @@ from pathlib import Path  # 파일 경로 처리를 위한 라이브러리
 from pprint import pprint
 from typing import Dict, List
 
-import requests  # HTTP 요청을 보내기 위한 라이브러리
-from dotenv import load_dotenv  # 환경 변수 로드를 위한 라이브러리
-
 # DB 저장 시 사용
 import MySQLdb
+import requests  # HTTP 요청을 보내기 위한 라이브러리
+from dotenv import load_dotenv  # 환경 변수 로드를 위한 라이브러리
 
 """
 <금융상품한눈에 api 데이터 처리 가이드>
@@ -69,6 +68,7 @@ item_dict = {
     "dcls_month": "공시제출월",  # 공시제출월
 }
 
+
 # 금융 데이터를 가져오는 함수 정의
 def fetch_findata() -> List[Dict]:
     """
@@ -91,7 +91,6 @@ def fetch_findata() -> List[Dict]:
     )
     cursor = conn.cursor()
     print("MySQL 연결 성공")
-
 
     # 현재 날짜 저장
     today = date.today()
@@ -123,7 +122,7 @@ def fetch_findata() -> List[Dict]:
         code_dict.setdefault(group, {})
         code_dict[group]["total_count"] = ex_data["result"]["total_count"]
         code_dict[group]["max_page_no"] = ex_data["result"]["max_page_no"]
-    
+
     # 모든 데이터 조회 및 정리
     # [ requests 문서를 참고하여 응답 데이터를  python의 dict 타입으로 변환하여 data 변수에 저장 ]
     print("금융상품 통합비교공시 '금융상품한눈에' 오픈 API 호출을 시작합니다.")
@@ -246,6 +245,7 @@ def fetch_findata() -> List[Dict]:
     conn.close()
 
     return data
+
 
 if __name__ == "__main__":
     fetch_findata()
