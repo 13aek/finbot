@@ -29,10 +29,10 @@ class ChatSession:
         DB에 있던 것은 오래된 것이므로 각 history에 'state' key 추가. value 'old'로 지정
         """
         # DB에 history 있으면 True
-        self.state["history"].append(
-            {"role": "user", "content": "저녁 뭐먹을까", "state": "old"}
-        )
-        self.state["visited"] = True
+        # self.state["history"].append(
+        #     {"role": "user", "content": "저녁 뭐먹을까", "state": "old"}
+        # )
+        # self.state["visited"] = True
 
     def ask(self, query: str, visited: bool = True):
         """
