@@ -14,7 +14,6 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-
 class ChatSession:
     """
     Chat Session을 만들 클래스
@@ -22,22 +21,32 @@ class ChatSession:
     """
 
     def __init__(self):
-        self.state = {"query": "", "history": [], "answer": ""}
+        self.state = {"visited": False, "history": []}
         """
-        DB에서 history 들고와서 저장해야함
+        DB에서 history 들고와서 저장해야함. 
+        각 history는 Dict 하나로 저장.
+        DB에 있던 것은 오래된 것이므로 각 history에 'state' key 추가. value 'old'로 지정
         """
+        # DB에 history 있으면 True
+        self.state["history"].append({"role": "user", "content": "저녁 뭐먹을까", "state":"old"})
+        self.state["visited"] = True
 
-    def ask(self, query: str):
+
+    def ask(self, query: str, visited: bool = True):
         """
         사용자의 질문을 받고 Langgraph를 거쳐 답변을 생성
 
         Args:
             query (str): 사용자의 질문 query
+            visited (bool): 사용자 방문여부(history유무)
         Returns:
             answer (str): Langgraph state의 answer
         """
-        self.state["query"] = query
-        self.state = app_graph.invoke(self.state)
+        if not visited:
+            self.state = app_graph.invoke(self.state)
+        else:
+            self.state["query"] = query
+            self.state = app_graph.invoke(self.state)
         return self.state["answer"]
 
 
@@ -62,7 +71,7 @@ class ChatState(TypedDict):
     """
     graph를 구성할 State Class
     """
-
+    visited: bool
     mode: str  # chat mode : (First_hello)first conversation & first meet, (Nth_hello)first conversation & Nth meet, (Normal_chat)Nth conversation
     search_method: str  # search method : DB search, RAG search
     query: str  # user query
@@ -80,18 +89,23 @@ def conditional_about_history(state: ChatState) -> Dict:
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Dict: state에 업데이트 할 mode dict, mode = ("First_hello", "Nth_hello", "Normal_chat")
+        Dict: state에 업데이트 할 mode dict, mode = ("first_hello", "Nth_hello", "normal_chat")
     """
     # 복합 조건 평가
-    if not state["history"]:
-        mode = "First_hello"
-    elif state["history"]:
-        if state["history"][-1].get("new", False):
-            mode = "Normal_chat"
-        elif state["history"][0].get("old", False):
+    if not state["visited"]:
+        mode = "first_hello"
+
+    elif state["visited"]:
+
+        if state["history"][-1]["state"] == "old":
             mode = "Nth_hello"
+
+        elif state["history"][-1]["state"] == "new":
+            mode = "normal_chat"
+
         else:
             print("Mode를 찾을 수 없습니다.")
+
     else:
         print("Mode를 찾을 수 없습니다.")
 
@@ -100,14 +114,14 @@ def conditional_about_history(state: ChatState) -> Dict:
     }
 
 
-def mode_router(state: ChatState) -> Literal["First_hello", "Nth_hello", "Normal_chat"]:
+def mode_router(state: ChatState) -> Literal["first_hello", "Nth_hello", "normal_chat"]:
     """
     Mode에 따라 라우팅
 
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Literal: ["First_hello", "Nth_hello", "Normal_chat"] 중 하나의 값으로 제한
+        Literal: ["first_hello", "Nth_hello", "normal_chat"] 중 하나의 값으로 제한
     """
     return state["mode"]
 
@@ -122,10 +136,9 @@ def first_conversation(state: ChatState) -> ChatState:
         Dict: state에 업데이트 할 history dict.
     """
 
-    hello = "안녕하세요. 첫 방문이시군요! 무엇을 도와드릴까요?"
-    history = {"role": "assistant", "content": hello, "state": "new"}
+    answer = "안녕하세요. 첫 방문이시군요! 무엇을 도와드릴까요?"
 
-    return {"history": history}
+    return {"answer": answer}
 
 
 def nth_conversation(state: ChatState) -> ChatState:
@@ -136,29 +149,29 @@ def nth_conversation(state: ChatState) -> ChatState:
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Dict: state에 업데이트 할 history dict.
+        Dict: state에 업데이트 할 answer.
     """
     histories = state["history"]
     questions = [
         history["content"] for history in histories if history["role"] == "user"
     ]
-
+    
     messages = [
         {
             "role": "system",
-            "content": "너는 주어지는 몇 개의 문장을 3단어로 요약해야해.",
+            "content": "너는 주어지는 몇 개의 문장을 '3단어'로 요약해야해.",
         }
     ]
-    messages.append({"role": "user", "content": questions})  # 이전 질문들 모두
+    messages.append({"role": "user", "content": f"다음은 주어진 문장들이야 :\n{questions}"}) # 이전 질문들 모두
+    messages.append({"role": "user", "content": "주어진 문장들을 3단어로 요약해줘."})  
 
     completion = client.chat.completions.create(model="gpt-4o-mini", messages=messages)
 
     summary = completion.choices[0].message.content
 
-    hello = f"안녕하세요. 지난번에는 {summary}에 대해 물어보셨군요! 오늘은 무엇을 도와드릴까요?"
-    history = {"role": "assistant", "content": hello, "state": "new"}
+    answer = f"안녕하세요. 지난번에는 {summary} 등 에 대해 물어보셨군요! 오늘은 무엇을 도와드릴까요?"
 
-    return {"history": history}
+    return {"answer": answer}
 
 
 def conditional_about_query(state: ChatState) -> Dict:
@@ -193,19 +206,6 @@ def method_router(state: ChatState) -> Literal["RAG_search"]:  # "DB_search",
     return state["search_method"]
 
 
-def add_to_history(state: ChatState) -> ChatState:
-    """
-    이전 대화 기록을 유지하면서 새 user message 추가
-
-    Args:
-        state (TypedDict): Graph의 state
-    Returns:
-        history Dict: state의 history update
-    """
-    new_history = {"role": "user", "content": state["query"], "state": "new"}
-    return {"history": new_history}
-
-
 def DB_search(state: ChatState) -> ChatState:
     """
     대화 히스토리를 프롬프트에 포함해 답변 생성
@@ -213,7 +213,7 @@ def DB_search(state: ChatState) -> ChatState:
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Dict: LLM의 답변과 새로운 history를 반환
+        Dict: LLM의 답변과 새로운 answer를 반환
     """
     DB_answer = "DB 검색 결과"
     user_query = state["query"]
@@ -236,9 +236,7 @@ def DB_search(state: ChatState) -> ChatState:
     )
 
     answer = completion.choices[0].message.content
-    # 히스토리에 assistant 응답 추가
-    new_history = {"role": "assistant", "content": answer, "state": "new"}
-    return {"answer": answer, "history": new_history}
+    return {"answer": answer}
 
 
 def RAG_search(state: ChatState) -> ChatState:
@@ -248,7 +246,7 @@ def RAG_search(state: ChatState) -> ChatState:
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Dict: LLM의 답변과 새로운 history를 반환
+        Dict: LLM의 답변과 새로운 answer를 반환
     """
     user_query = state["query"]
 
@@ -273,23 +271,39 @@ def RAG_search(state: ChatState) -> ChatState:
         model="gpt-4o-mini",
         messages=messages,
         max_tokens=600,
+        #tools=
     )
     answer = completion.choices[0].message.content
-    # 히스토리에 assistant 응답 추가
-    new_history = {"role": "assistant", "content": answer, "state": "new"}
-    return {"answer": answer, "history": new_history}
 
+    return {"answer": answer}
+
+
+def add_to_history(state: ChatState) -> ChatState:
+    """
+    이전 대화 기록을 유지하면서 새 user message 추가
+
+    Args:
+        state (TypedDict): Graph의 state
+    Returns:
+        history (List[Dict]): state의 history update
+        visited (bool): 방문 표시
+    """
+    new_history = []
+    if state.get("query", False):
+        new_history.append({"role": "user", "content": state["query"], "state": "new"})
+        new_history.append({"role": "assistant", "content": state["answer"], "state": "new"})
+    else: 
+        new_history.append({"role": "assistant", "content": state["answer"], "state": "new"})
+    return {"history": new_history, "visited": True}
 
 # Node 정의
 
 graph = StateGraph(ChatState)
 graph.add_node("conditional_about_history", conditional_about_history)
-graph.add_node("First_hello", first_conversation)
-graph.add_node("Nth_hello", first_conversation)
-graph.add_node("Normal_chat", first_conversation)
+graph.add_node("first_hello", first_conversation)
+graph.add_node("Nth_hello", nth_conversation)
+graph.add_node("normal_chat", first_conversation)
 graph.add_node("add_to_history", add_to_history)
-# graph.add_node("conditional_about_query", conditional_about_query)
-# graph.add_node("DB_search", DB_search)
 graph.add_node("RAG_search", RAG_search)
 
 
@@ -300,27 +314,17 @@ graph.add_conditional_edges(
     "conditional_about_history",
     mode_router,
     {
-        "First_hello": "First_hello",
+        "first_hello": "first_hello",
         "Nth_hello": "Nth_hello",
-        "Normal_chat": "Normal_chat",
+        "normal_chat": "normal_chat",
     },
 )
 
-graph.add_edge("First_hello", END)
-graph.add_edge("Nth_hello", END)
-graph.add_edge("Normal_chat", "add_to_history")
-graph.add_edge("add_to_history", "RAG_search")
-# graph.add_edge("add_to_history", "conditional_about_query")
-# graph.add_conditional_edges(
-#     "conditional_about_query",
-#     method_router,
-#     {
-#         "DB_search": "DB_search",
-#         "RAG_search": "RAG_search",
-#     }
-# )
-# graph.add_edge("DB_search", END)
-graph.add_edge("RAG_search", END)
+graph.add_edge("first_hello", "add_to_history")
+graph.add_edge("Nth_hello", "add_to_history")
+graph.add_edge("normal_chat", "RAG_search")
+graph.add_edge("RAG_search", "add_to_history")
+graph.add_edge("add_to_history", END)
 
 # 인스턴스 생성
 app_graph = graph.compile()
