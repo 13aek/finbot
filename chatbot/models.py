@@ -7,13 +7,13 @@ class ChatMessage(models.Model):
         ("bot", "Bot"),
     ]
 
-    # ✅ 역할 (유저/봇)
+    # 역할 (유저/봇)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
 
-    # ✅ 메시지 내용
+    # 메시지 내용
     message = models.TextField()
 
-    # ✅ 생성 시각
+    # 생성 시각
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
