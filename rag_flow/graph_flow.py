@@ -14,6 +14,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
+
 class ChatSession:
     """
     Chat Session을 만들 클래스
@@ -28,9 +29,10 @@ class ChatSession:
         DB에 있던 것은 오래된 것이므로 각 history에 'state' key 추가. value 'old'로 지정
         """
         # DB에 history 있으면 True
-        self.state["history"].append({"role": "user", "content": "저녁 뭐먹을까", "state":"old"})
+        self.state["history"].append(
+            {"role": "user", "content": "저녁 뭐먹을까", "state": "old"}
+        )
         self.state["visited"] = True
-
 
     def ask(self, query: str, visited: bool = True):
         """
@@ -71,6 +73,7 @@ class ChatState(TypedDict):
     """
     graph를 구성할 State Class
     """
+
     visited: bool
     mode: str  # chat mode : (First_hello)first conversation & first meet, (Nth_hello)first conversation & Nth meet, (Normal_chat)Nth conversation
     search_method: str  # search method : DB search, RAG search
@@ -155,15 +158,17 @@ def nth_conversation(state: ChatState) -> ChatState:
     questions = [
         history["content"] for history in histories if history["role"] == "user"
     ]
-    
+
     messages = [
         {
             "role": "system",
             "content": "너는 주어지는 몇 개의 문장을 '3단어'로 요약해야해.",
         }
     ]
-    messages.append({"role": "user", "content": f"다음은 주어진 문장들이야 :\n{questions}"}) # 이전 질문들 모두
-    messages.append({"role": "user", "content": "주어진 문장들을 3단어로 요약해줘."})  
+    messages.append(
+        {"role": "user", "content": f"다음은 주어진 문장들이야 :\n{questions}"}
+    )  # 이전 질문들 모두
+    messages.append({"role": "user", "content": "주어진 문장들을 3단어로 요약해줘."})
 
     completion = client.chat.completions.create(model="gpt-4o-mini", messages=messages)
 
@@ -271,7 +276,7 @@ def RAG_search(state: ChatState) -> ChatState:
         model="gpt-4o-mini",
         messages=messages,
         max_tokens=600,
-        #tools=
+        # tools=
     )
     answer = completion.choices[0].message.content
 
@@ -291,10 +296,15 @@ def add_to_history(state: ChatState) -> ChatState:
     new_history = []
     if state.get("query", False):
         new_history.append({"role": "user", "content": state["query"], "state": "new"})
-        new_history.append({"role": "assistant", "content": state["answer"], "state": "new"})
-    else: 
-        new_history.append({"role": "assistant", "content": state["answer"], "state": "new"})
+        new_history.append(
+            {"role": "assistant", "content": state["answer"], "state": "new"}
+        )
+    else:
+        new_history.append(
+            {"role": "assistant", "content": state["answer"], "state": "new"}
+        )
     return {"history": new_history, "visited": True}
+
 
 # Node 정의
 
