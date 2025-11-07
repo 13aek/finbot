@@ -10,8 +10,8 @@ from django.utils import timezone
 
 from .forms import CustomUserChangeForm, CustomUserCreationForm
 
-
 # Create your views here.
+
 
 def signup(request):
     """

@@ -1,8 +1,10 @@
-from django.shortcuts import render
 from django.db.models import Q
+from django.shortcuts import render
+
 from .models import FinProduct
 
 # Create your views here.
+
 
 def index(request):
     """
@@ -36,18 +38,14 @@ def search(request):
         HttpResponse: 검색어(query)와 검색 결과(results)를
         포함한 'products/search.html' 템플릿 렌더링 결과
     """
-        
+
     query = request.GET.get("q", "")
     results = []
 
     if query:
         results = FinProduct.objects.filter(
-            Q(product_name__icontains=query) |
-            Q(company_name__icontains=query)
+            Q(product_name__icontains=query) | Q(company_name__icontains=query)
         )
 
-    context = {
-        "query": query,
-        "results": results
-        }
+    context = {"query": query, "results": results}
     return render(request, "products/search.html", context)

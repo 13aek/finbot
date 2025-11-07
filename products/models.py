@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Create your models here.
 class FinProduct(models.Model):
     id = models.AutoField(primary_key=True)
@@ -17,7 +18,7 @@ class FinProduct(models.Model):
     disclosure_month = models.CharField(max_length=10, null=True, blank=True)
 
     class Meta:
-        managed = False   # 기존 테이블 참조용(Django가 CREATE 안 함)
+        managed = False  # 기존 테이블 참조용(Django가 CREATE 안 함)
         db_table = "fin_products"
 
     def __str__(self):
