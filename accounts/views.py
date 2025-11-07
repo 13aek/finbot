@@ -22,7 +22,7 @@ def signup(request):
     사용자가 입력한 정보를 DB에 저장하는 함수
     """
     if request.user.is_authenticated:
-        return redirect("accounts:test")
+        return redirect("products:index")
 
     # 사용자가 정보를 입력하고 회원가입을 요청했을 때
     if request.method == "POST":
@@ -31,8 +31,7 @@ def signup(request):
         # 유효성 검사 진행
         if form.is_valid():
             form.save()
-            # 메인 페이지 생성 후 메인페이지로 리다이렉트 되도록 수정 필요
-            return redirect("accounts:test")
+            return redirect("accounts:login")
 
     # 사용자가 회원가입 페이지를 요청했을 때
     else:
@@ -51,13 +50,13 @@ def login_view(request):
     사용자가 입력한 정보를 검증해 로그인 세션을 생성하는 함수
     """
     if request.user.is_authenticated:
-        return redirect("accounts:test")
+        return redirect("products:index")
 
     if request.method == "POST":
         form = AuthenticationForm(request, request.POST)
         if form.is_valid():
             auth_login(request, form.get_user())
-            return redirect("accounts:test")
+            return redirect("products:index")
     else:
         form = AuthenticationForm()
     context = {
@@ -123,7 +122,7 @@ def password(request):
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)  # 비밀번호 변경시 세션 유지
-            return redirect("accounts:test")
+            return redirect("products:index")
     else:
         form = PasswordChangeForm(request.user)
     context = {
@@ -159,7 +158,7 @@ def delete(request):
     만약 비밀번호 인증이 완료되지 않았다면 비밀번호 인증 페이지로 리다이렉트
 
     사용자의 요청에 따라 DB에서 해당 User 객체를 삭제하고,
-    로그아웃 처리 후 테스트 페이지(`accounts/test.html`)로 리다이렉트
+    로그아웃 처리 후 메인 페이지('products/index.html`)로 리다이렉트
 
     Args:
         request (HttpRequest): 클라이언트의 HTTP 요청 객체
@@ -178,7 +177,7 @@ def delete(request):
             f"{reverse('accounts:verify')}?next={reverse('accounts:delete')}"
         )
     request.user.delete()
-    return redirect("accounts:test")
+    return redirect("products:index")
 
 
 @login_required
