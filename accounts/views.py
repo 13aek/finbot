@@ -12,9 +12,6 @@ from .forms import CustomUserChangeForm, CustomUserCreationForm
 
 
 # Create your views here.
-def test(request):
-    return render(request, "accounts/test.html")
-
 
 def signup(request):
     """
