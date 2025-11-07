@@ -4,8 +4,8 @@ from pathlib import Path  # 파일 경로 처리를 위한 라이브러리
 from pprint import pprint
 from typing import Dict, List
 
-import requests  # HTTP 요청을 보내기 위한 라이브러리
-from dotenv import load_dotenv  # 환경 변수 로드를 위한 라이브러리
+import requests
+from dotenv import load_dotenv
 
 """
 <금융상품한눈에 api 데이터 처리 가이드>
@@ -15,6 +15,15 @@ from dotenv import load_dotenv  # 환경 변수 로드를 위한 라이브러리
 - 개발 화면에서 페이징 처리 시 현재 페이지 표시는 조회결과 데이터 중 'now_page_no'값을 참조합니다.
 - 페이징 처리 예시는 상단의 관련소스에서 'goPage'함수와 49~59Line을 참조합니다.
 """
+
+# .env 파일을 읽어 환경 변수로 설정
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")  # 프로젝트 폴더의 .env.example에 환경변수 입력
+
+# dotenv를 활용하여 API 키 가져오기
+FINAPI_KEY = os.getenv("FINAPI_KEY")
+# 공식 문서를 참고하여 API 검색 URL 설정하기
+FIXED_DEPOSIT_URL = os.getenv("FIXED_DEPOSIT_URL")
 
 # API 호출에 필요한 파라미터(필수)
 # 금융기관별 코드 list: 데이터 명세 참고
@@ -47,22 +56,16 @@ item_dict = {
     "dcls_end_day": "공시종료일",  # 공시종료일
     "dcls_month": "공시제출월",  # 공시제출월
 }
-# .env 파일을 읽어 환경 변수로 설정합니다.
-load_dotenv("../.env.example")  # 프로젝트 폴더의 .env.example에 환경변수 입력
-
-# dotenv를 활용하여 API 키 가져오기
-FINAPI_KEY = os.getenv("FINAPI_KEY")
-# 공식 문서를 참고하여 API 검색 URL 설정하기
-FIXED_DEPOSIT_URL = os.getenv("FIXED_DEPOSIT_URL")
 
 
 # 금융 데이터를 가져오는 함수 정의
 def fetch_findata() -> List[Dict]:
     """
     일단은 예금만 가져오게 설정. 적금, 연금저축, 주택담보대출, 전세자금대출, 개인신용대출을 불러오려면 develop 필요.
-
-    return : List[Dict(상품)]
+    # 데이터베이스에 저장
+    return : List[Dict(상품)], 데이터 리스트 반환
     """
+
     # 현재 날짜 저장
     today = date.today()
     format_today = today.strftime("%Y%m%d")
@@ -93,6 +96,7 @@ def fetch_findata() -> List[Dict]:
         code_dict.setdefault(group, {})
         code_dict[group]["total_count"] = ex_data["result"]["total_count"]
         code_dict[group]["max_page_no"] = ex_data["result"]["max_page_no"]
+
     # 모든 데이터 조회 및 정리
     # [ requests 문서를 참고하여 응답 데이터를  python의 dict 타입으로 변환하여 data 변수에 저장 ]
     print("금융상품 통합비교공시 '금융상품한눈에' 오픈 API 호출을 시작합니다.")
@@ -162,7 +166,9 @@ def fetch_findata() -> List[Dict]:
     print("*" * 30, "예시", "*" * 30)
     pprint(data[0])
     print("*" * 63)
+
     return data
 
 
-fetch_findata()
+if __name__ == "__main__":
+    fetch_findata()

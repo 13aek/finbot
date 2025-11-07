@@ -120,5 +120,6 @@ xxhash==3.6.0
 yarl==1.22.0
 zlib-state==0.1.10
 zstandard==0.25.0
-mysqlclient==2.1.1
-pymysql==1.1.1
+mysqlclient==2.2.4
+PyMySQL==1.1.1
+
