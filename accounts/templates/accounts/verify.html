@@ -1,20 +1,38 @@
-{% extends "base.html" %}
+{# verify.html #}
+{# My Page 진입 시에 #}
+{# 본인 확인을 위해 한 번 더 로그인 인증을 요청하는 페이지 템플릿 #}
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'accounts/css/auth-layout.css' %}">
+<link rel="stylesheet" href="{% static 'accounts/css/verify.css' %}">
+{% endblock styles %}
+
 {% block content %}
-<h2>비밀번호 인증 페이지</h2>
+  <div class="container">
+    <p class="verify">계정 정보를 확인하려면<br>
+        <span class="notice">비밀번호를 입력해 주세요</span>
+    </p>
 
-<form action="" method="POST">
-  {% csrf_token %}
-  
-  {#  현재 GET 파라미터로 들어온 next 값을 hidden input으로 전달해줍니다. #}
-  <input type="hidden" name="next" value="{{ request.GET.next }}">
+    <form action="" method="POST">
+      {% csrf_token %}
 
-  {% if error %}
-    {{ error }}</p>
-  {% endif %}
+      <input type="hidden" name="next" value="{{ request.GET.next }}">
 
-  <label for="password">비밀번호</label><br>
-  <input type="password" name="password" id="password" required>
-  <input type="submit" value="확인">
-</form>
+      {# 에러 발생 안내 문구 #}
+      {% if error %}
+        <div class="error">
+          {{ error }}
+        </div>
+      {% endif %}
 
+      {# 1. 비밀번호 입력 필드 #}
+      <input type="password" name="password" placeholder="비밀번호 입력" required>
+
+      {# 2. 로그인 버튼 #}
+      <button type="submit">로그인</button>
+    </form>
+  </div>
 {% endblock content %}
