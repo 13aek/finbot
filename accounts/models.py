@@ -32,7 +32,7 @@ class User(AbstractUser):
         ("1억원 이상", "1억원 이상"),
     ]
 
-    LIFE_AREA_CHICES = [
+    LIFE_AREA_CHOICES = [
         ("서울특별시", "서울특별시"),
         ("부산광역시", "부산광역시"),
         ("인천광역시", "인천광역시"),
@@ -66,5 +66,5 @@ class User(AbstractUser):
         max_length=20, null=True, choices=EARNINGS_CHOICES, verbose_name="소득"
     )
     life_area = models.CharField(
-        max_length=20, null=True, choices=LIFE_AREA_CHICES, verbose_name="거주지역"
+        max_length=20, null=True, choices=LIFE_AREA_CHOICES, verbose_name="거주지역"
     )
