@@ -1,6 +1,6 @@
 from graph_flow import app_graph
 from IPython.display import Image, display
-from langchain_core.runnables.graph import CurveStyle, MermaidDrawMethod, NodeStyles
+from langchain_core.runnables.graph import MermaidDrawMethod
 
 display(
     Image(
