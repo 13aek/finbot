@@ -6,6 +6,21 @@
   <title>Document</title>
 </head>
 <body>
+  <!--  챗봇 페이지 생성후 링크 변경 필요-->
+  <form action="{% url "#" %}" method="GET">
+    {% csrf_token %}
+    <input type="submit" value="AI CHAT">
+  </form>
+  <form action="{% url "accounts:upadate" %}" method="GET">
+    {% csrf_token %}
+    <input type="submit" value="MY PAGE">
+  </form>
+  <form action="{% url "accounts:logout" %}" method="GET">
+    {% csrf_token %}
+    <input type="submit" value="LOGOUT">
+  </form>
+
+
   <h2>금융상품 검색</h2>
 
   <form action="{% url 'products:search' %}" method="GET">
