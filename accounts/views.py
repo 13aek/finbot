@@ -9,8 +9,9 @@ from django.urls import reverse
 from django.utils import timezone
 
 from chatbot.models import ChatRoom
+
 from .forms import CustomUserChangeForm, CustomUserCreationForm
-from chatbot.models import ChatRoom
+
 # Create your views here.
 
 

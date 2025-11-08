@@ -4,18 +4,19 @@ from functools import partial
 from typing import Annotated, Any, Dict, List, Literal, TypedDict
 
 import pandas as pd
+from django.contrib.auth import get_user_model
 from dotenv import load_dotenv
 from langgraph.graph import END, START, StateGraph
 from openai import OpenAI
 from sqlalchemy import create_engine
 
 from chatbot.models import ChatMessage, ChatRoom
-from django.contrib.auth import get_user_model
 
 load_dotenv("../.env")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
+
 
 class ChatSession:
     """
@@ -34,7 +35,7 @@ class ChatSession:
         if user_history:
             self.state["history"].append(
                 {"role": "user", "content": user_history, "state": "old"}
-        )
+            )
             self.state["visited"] = True
         # DB에 history 있으면 True
         # self.state["history"].append(

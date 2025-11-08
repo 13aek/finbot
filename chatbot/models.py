@@ -1,5 +1,6 @@
-from django.db import models
 from django.conf import settings
+from django.db import models
+
 
 class ChatRoom(models.Model):
     # 외래키와 같은 방식으로 User모델과 관계를 맺지만, 각 객체가 오직 하나의 연결만 가지도록 설정
@@ -10,7 +11,8 @@ class ChatRoom(models.Model):
 
     # 사용자가 이전 로그인 세션에서 나눴던 대화
     history = models.TextField(null=True)
-    
+
+
 class ChatMessage(models.Model):
     ROLE_CHOICES = [
         ("user", "User"),
