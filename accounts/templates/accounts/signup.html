@@ -1,9 +1,56 @@
-{% extends "base.html" %}
+{# signup.html #}
+{# 회원 가입 화면 템플릿 #}
+{# 사용자의 아이디, 비밀번호를 받음 #}
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'accounts/css/auth-layout.css' %}">
+{% endblock styles %}
+
 {% block content %}
-<h1>회원가입 페이지</h1>
-<form action="{% url "accounts:signup" %}" method="POST">
-  {% csrf_token %}
-  {{ form }}
-  <input type="submit">
-</form>
+  <div class="container">
+    <form action="{% url "accounts:signup" %}" method="POST">
+    {% csrf_token %}
+
+    {# 에러 발생 안내 문구 #}
+    {{ form.errors }}
+
+    {# 1. 아이디 입력 필드 #}
+    <input
+        type="text"
+        name="{{ form.username.name }}"
+        id="{{ form.username.id_for_label }}"
+        placeholder="아이디를 입력하세요"
+        class="form-input"
+        maxlength="150"
+        required
+    >
+
+    {# 2. 비밀번호 입력 필드 #}
+    <input
+        type="password"
+        name="{{ form.password1.name }}"
+        id="{{ form.password1.id_for_label }}"
+        placeholder="비밀번호를 입력하세요"
+        class="form-input"
+        required
+    >
+
+    {# 3. 비밀번호 확인 필드 #}
+    <input
+        type="password"
+        name="{{ form.password2.name }}"
+        id="{{ form.password2.id_for_label }}"
+        placeholder="비밀번호를 다시 입력하세요"
+        class="form-input"
+        required
+    >
+
+    {# 4. 회원가입 버튼 #}
+    <button type="submit">회원 가입</button>
+    </form>
+  </div>
+</body>
 {% endblock content %}

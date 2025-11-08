@@ -1,7 +1,7 @@
-/* 로그인, 회원 가입 등 인증 확인 페이지에서 사용되는 공통 템플릿
-1. login.html (로그인 페이지)
-2. signup.html (회원 가입 페이지)
-3. verify.html (프로필 수정 본인 인증 확인 페이지) */
+/* 로그인, 회원 가입 등 인증 확인 페이지에서 사용되는 공통 템플릿 */
+/* 1. login.html (로그인 페이지) */
+/* 2. signup.html (회원 가입 페이지) */
+/* 3. verify.html (프로필 수정 본인 인증 확인 페이지) */
 
 /* 화면 배경 */
 body {
@@ -41,7 +41,7 @@ form input,
 form button {
     width: 55%;
     height: 50px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     border: 1px solid #E5E5E5;
     border-radius: 20px;
     padding: 0 20px;
@@ -67,4 +67,13 @@ button {
     font-weight: bold;
     border: none;
     cursor: pointer;
+}
+
+/* 에러 메시지 */
+.error {
+    font-size: 14px;
+    font-weight: 500;
+    color: #BE2E22;
+    margin-top: 8px;
+    line-height: 1.4;
 }
