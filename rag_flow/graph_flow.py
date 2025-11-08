@@ -9,11 +9,13 @@ from langgraph.graph import END, START, StateGraph
 from openai import OpenAI
 from sqlalchemy import create_engine
 
+from chatbot.models import ChatMessage, ChatRoom
+from django.contrib.auth import get_user_model
+
 load_dotenv("../.env")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
-
 
 class ChatSession:
     """
@@ -21,13 +23,19 @@ class ChatSession:
     대화 History 저장 용도
     """
 
-    def __init__(self):
+    def __init__(self, user_pk, user_history):
         self.state = {"visited": False, "history": []}
         """
         DB에서 history 들고와서 저장해야함. 
         각 history는 Dict 하나로 저장.
         DB에 있던 것은 오래된 것이므로 각 history에 'state' key 추가. value 'old'로 지정
         """
+        # 히스토리가 DB에 있다면 old history로 추가
+        if user_history:
+            self.state["history"].append(
+                {"role": "user", "content": user_history, "state": "old"}
+        )
+            self.state["visited"] = True
         # DB에 history 있으면 True
         # self.state["history"].append(
         #     {"role": "user", "content": "저녁 뭐먹을까", "state": "old"}
@@ -44,6 +52,12 @@ class ChatSession:
         Returns:
             answer (str): Langgraph state의 answer
         """
+        # history 유무에 따라 분기
+        if not self.state["history"]:
+            visited = False
+        else:
+            visited = True
+
         if not visited:
             self.state = app_graph.invoke(self.state)
         else:

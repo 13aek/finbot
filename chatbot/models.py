@@ -6,8 +6,11 @@ class ChatRoom(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     # 사용자가 방문한 적 있는지 없는지를 표시할 필드
-    ever_visited = models.models.BooleanField(default=True)
+    ever_visited = models.BooleanField(default=True)
 
+    # 사용자가 이전 로그인 세션에서 나눴던 대화
+    history = models.TextField(null=True)
+    
 class ChatMessage(models.Model):
     ROLE_CHOICES = [
         ("user", "User"),
@@ -25,9 +28,6 @@ class ChatMessage(models.Model):
 
     # 생성 시각
     created_at = models.DateTimeField(auto_now_add=True)
-
-    # 사용자가 이전 로그인 세션에서 나눴던 대화
-    history = models.TextField()
 
     class Meta:
         db_table = "chat_message"  # MySQL 테이블명
