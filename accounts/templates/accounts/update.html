@@ -1,18 +1,80 @@
-{% extends 'base.html' %}
+{# update.html #}
+{# 회원 정보를 조회 및 변경할 수 있는 My Page 화면 템플릿 #}
 
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'accounts/css/mypage-layout.css' %}">
+<link rel="stylesheet" href="{% static 'accounts/css/update.css' %}">
+{% endblock styles %}
 
 {% block content %}
-<h1>프로필 수정 페이지</h1>
-<form action="{% url "accounts:update" %}" method="POST">
-  {% csrf_token %}
-  {{ form }}
-  <input type="submit">
-</form>
- <hr>
+  <div class="container">
 
-  <!-- 회원 탈퇴 -->
-  <form action="{% url 'accounts:delete' %}" method="POST">
-    {% csrf_token %}
-    <input type="submit" value="회원탈퇴">
-  </form>
+    {# 상단 메뉴 #}
+    <div class="tab-menu">
+      <a href="{% url 'accounts:test' %}" style="font-weight: 800; color: #555555;">HOME</a>
+      <a href="{% url 'accounts:update' %}" class="active">회원 정보 수정</a>
+      <a href="{% url 'accounts:password' %}">비밀번호 변경</a>
+      <a href="{% url 'accounts:delete' %}">회원 탈퇴</a>
+      <a href="{% url 'accounts:logout' %}" class="logout-link">로그아웃</a>
+    </div>
+
+    <form action="{% url 'accounts:update' %}" method="POST">
+      {% csrf_token %}
+
+      {# 에러 표시 #}
+      {% if form.errors %}
+      <div class="error">
+        {{ form.errors }}
+      </div>
+      {% endif %}
+
+      <div class="form-row">
+        {# 1. 이름 입력 폼 #}
+        <div class="form-group">
+          <label for="{{ form.name.id_for_label }}">이름</label>
+          {{ form.name }}
+        </div>
+
+        {# 2. 성별 선택 폼 #}
+        <div class="form-group">
+          <label for="{{ form.gender.id_for_label }}">성별</label>
+          {{ form.gender }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        {# 3. 나이 입력 폼 #}
+        <div class="form-group">
+          <label for="{{ form.age.id_for_label }}">나이</label>
+          {{ form.age }}
+        </div>
+
+        {# 4. 직업 선택 폼 #}
+        <div class="form-group">
+          <label for="{{ form.job.id_for_label }}">직업</label>
+          {{ form.job }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        {# 5. 소득 선택 폼 #}
+        <div class="form-group">
+          <label for="{{ form.earnings.id_for_label }}">소득</label>
+          {{ form.earnings }}
+        </div>
+
+        {# 6. 거주 지역 선택 폼 #}
+        <div class="form-group">
+          <label for="{{ form.life_area.id_for_label }}">거주 지역</label>
+          {{ form.life_area }}
+        </div>
+      </div>
+
+      {# 7. 정보 수정 내역 저장 버튼 #}
+      <button type="submit" class="btn-bottom-right">정보 수정</button>
+    </form>
+  </div>
 {% endblock content %}

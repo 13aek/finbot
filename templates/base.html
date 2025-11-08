@@ -1,17 +1,31 @@
+{# base.html #}
+{# 모든 페이지의 공통 레이아웃을 정의한 템플릿 #}
+{# 각 페이지는 이 템플릿을 상속하여 일관된 구조 유지 #}
+
+{% load static %}
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+
+  {# 웹 페이지 이름 #}
+  <title>Finbot</title>
+
+  {# 구글 폰트 불러오기 #}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+
+  {# 각 html 별 스타일이 들어갈 공간 #}
+  {% block styles %}
+  {% endblock styles %}
 </head>
+
 <body>
-  <form action="{% url 'accounts:logout' %}" method="POST">
-  {% csrf_token %}
-  <input type="submit" value='Logout'>
-</form>
+  {# 각 html 별 구성이 들어갈 공간 #}
   {% block content %}
-  
   {% endblock content %}
 </body>
 </html>

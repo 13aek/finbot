@@ -14,6 +14,12 @@ import os
 from pathlib import Path
 
 import environ
+import pymysql
+from dotenv import load_dotenv
+
+pymysql.install_as_MySQLdb()
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -44,6 +50,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "chatbot",
 ]
 
 MIDDLEWARE = [
@@ -83,8 +90,20 @@ WSGI_APPLICATION = "finbot.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        # Django가 사용할 데이터베이스 엔진 지정
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
+        # 추가 옵션 설정
+        "OPTIONS": {
+            # 문자 인코딩을 utf8mb4로 설정
+            "charset": "utf8mb4",
+            # 데이터 유효성 검사 강화: 잘못된 데이터 입력 시 경고가 아닌 오류 발생
+            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 
@@ -123,8 +142,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+# static 파일 경로 설정
+STATIC_URL = "/static/"
 
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -132,3 +157,16 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # 커스텀 유저 모델 대체
 AUTH_USER_MODEL = "accounts.User"
+
+# 세션 만료 설정
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 60 * 60 * 2  # 2시간
+
+# HTTPS 환경 권장 설정(배포시 활성화)
+"""
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 3600
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+"""

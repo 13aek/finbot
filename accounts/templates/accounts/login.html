@@ -1,9 +1,48 @@
-{% extends "base.html" %}
+{# login.html #}
+{# 로그인 화면 템플릿 #}
+{# 계정이 없을 경우 회원 가입 페이지로 이동 가능 #}
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'accounts/css/auth-layout.css' %}">
+<link rel="stylesheet" href="{% static 'accounts/css/login.css' %}">
+{% endblock styles %}
+
 {% block content %}
-<h1>로그인 페이지</h1>
-<form action="{% url 'accounts:login' %}" method="POST">
-  {% csrf_token %}
-  {{ form }}
-  <input type="submit">
-</form>
+<div class="container">
+    <form action="{% url 'accounts:login' %}" method="POST">
+        {% csrf_token %}
+
+        {# 1. 아이디 입력 필드 #}
+        <input
+            type="text"
+            name="{{ form.username.name }}"
+            id="{{ form.username.id_for_label }}"
+            placeholder="아이디를 입력하세요"
+            class="form-input"
+            maxlength="150"
+            required
+        >
+
+        {# 2. 비밀번호 입력 필드 #}
+        <input
+            type="password"
+            name="{{ form.password.name }}"
+            id="{{ form.password.id_for_label }}"
+            placeholder="비밀번호를 입력하세요"
+            class="form-input"
+            required
+        >
+
+        {# 3. 로그인 버튼 #}
+        <button type="submit">로그인</button>
+    </form>
+
+    {# 4. 회원 가입 페이지 이동 문구 #}
+    <div class="text">
+        계정이 없으신가요? <a href="{% url 'accounts:signup' %}">회원 가입하기</a>
+    </div>
+</div>
 {% endblock content %}
