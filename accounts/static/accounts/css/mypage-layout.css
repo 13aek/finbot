@@ -1,7 +1,6 @@
-/* My Page 관련 페이지에서 사용되는 공통 템플릿
-1. mypage.html (회원 정보 확인 및 수정 페이지)
-2. mypage-change.html (비밀번호 변경 페이지)
-3. mypage-remove.html (회원 탈퇴 페이지) */
+/* My Page 관련 페이지에서 사용되는 공통 템플릿 */
+/* 1. update.html (회원 정보 확인 및 수정 페이지) */
+/* 2. password.html (비밀번호 변경 페이지) */
 
 /* 화면 배경 */
 body {
@@ -26,7 +25,7 @@ body {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
 }
 
-/* 상단 메뉴 영역 */
+/* 상단 메뉴 왼쪽 영역 */
 .tab-menu {
   display: flex;
   gap: 40px;
@@ -44,6 +43,13 @@ body {
 .tab-menu a.active {
   color: #3F72AF;
   font-weight: 600;
+}
+
+/* 상단 메뉴 오른쪽 영역: 로그아웃 */
+.logout-link {
+  margin-left: auto;
+  color: #A9A9A9;
+  font-weight: 500;
 }
 
 /* 내부 폼 공통 스타일 */
