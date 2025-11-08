@@ -37,7 +37,7 @@ def chat_page(request):
             ChatMessage.objects.create(role="bot", message=reply)
 
         # POST 후 새로고침 시 중복 전송 방지를 위해 리다이렉트
-        return redirect("chat_page")
+        return redirect("chat:chat_page")
 
     # GET 요청일 경우 (화면 처음 열었을 때 or 새로고침)
     messages = ChatMessage.objects.all().order_by("created_at")  # 오래된 순
