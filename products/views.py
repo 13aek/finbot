@@ -22,7 +22,7 @@ def index(request):
     Returns:
         HttpResponse: 검색창이 포함된 'products/search.html' 템플릿 렌더링 결과
     """
-    return render(request, "products/search.html")
+    return render(request, "products/index.html")
 
 
 @login_required
