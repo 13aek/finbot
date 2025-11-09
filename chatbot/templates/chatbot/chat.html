@@ -1,32 +1,80 @@
+{# chat.html #}
+{# AI 채팅 화면 템플릿 #}
+
 {% extends 'base.html' %}
 {% load static %}
 
 {% block styles %}
-<link rel="stylesheet" href="{% static 'chatbot/css/chat.css' %}">
+  <link rel="stylesheet" href="{% static 'chatbot/css/chat.css' %}">
 {% endblock styles %}
 
 {% block content %}
 
-<h2>Chatbot</h2>
+{# 사이드바 #}
+<div id="sidebar" class="sidebar">
+    {# 토글 버튼 #}
+    <div class="toggle-btn" onclick="toggleSidebar()">
+        <span class="toggle-icon">&#x2630;</span> 
+    </div>
 
-<!-- 대화창 -->
-<div style="border:1px solid #ccc; padding:10px; height:300px; overflow-y:auto;">
-  {% for msg in messages %}
-    {% if msg.role == "user" %}
-      <p><b> 나:</b> {{ msg.message }}</p>
-    {% else %}
-      <p><b> 봇:</b> {{ msg.message }}</p>
-    {% endif %}
-  {% empty %}
-    <p>아직 대화가 없습니다. 첫 메시지를 입력해보세요!</p>
-  {% endfor %}
+    <p class="recent-title">최근 대화 목록</p>
+    <ul class="chat-list">
+    </ul>
 </div>
 
-<!-- 입력창 -->
-<form method="POST" style="margin-top:10px;">
+<div class="chat-container">
+
+  {# 상단바 #}
+  <div class="chat-header">
+    <a href="{% url 'products:index' %}" class="nav-link left">HOME</a>
+    <a href="{% url 'accounts:logout' %}" class="nav-link right">LOGOUT</a>
+  </div>
+
+  {# 채팅 화면 #}
+  <div class="chat-main">
+    <div class="messages-area">
+      {% for msg in messages %}
+        {% if msg.role == "user" %}
+
+          {# 사용자의 메시지 #}
+          <div class="message-container user-message">
+            <div class="bubble">
+              {{ msg.message }}
+            </div>
+          </div>
+
+        {% else %}
+
+          {# 채팅 봇의 메시지 #}
+          <div class="message-container bot-message">
+            <div class="bubble">
+              {{ msg.message }}
+            </div>
+          </div>
+        {% endif %}
+
+      {% empty %}
+        <p>아직 대화가 없습니다. 첫 메시지를 입력해보세요!</p>
+      {% endfor %}
+  </div>
+</div>
+
+{# 대화 입력 영역 #}
+<form class="input-area" method="POST">
   {% csrf_token %}
-  <input type="text" name="message" placeholder="메시지를 입력하세요" style="width:80%;" required />
-  <button type="submit">전송</button>
+  <input id="chat-input" type="text" name="message" placeholder="메시지를 입력해 주세요" required>
+
+  {# 대화 전송 버튼 #}
+  <button id="send-btn" type="submit">
+    <span style="font-size: 15px; transform: translateX(2px);">▶</span> 
+  </button>
 </form>
 
+{# 사이드바 토글 로직 (JavaScript) #}
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('open');
+    }
+</script>
 {% endblock %}
