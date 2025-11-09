@@ -1,7 +1,13 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'chatbot/css/chat.css' %}">
+{% endblock styles %}
+
 {% block content %}
 
-<h2> Chatbot</h2>
+<h2>Chatbot</h2>
 
 <!-- 대화창 -->
 <div style="border:1px solid #ccc; padding:10px; height:300px; overflow-y:auto;">
