@@ -7,6 +7,7 @@ from qdrant_client.models import Distance, PointStruct, VectorParams
 from tqdm import tqdm
 
 
+
 def get_qdrant_local(
     collection_name: str = "finance_products",
     category: str = "deposit",
@@ -80,3 +81,10 @@ def save_vectorDB(
     client.upsert(collection_name=collection_name, points=points)
     print(f"\n 업로드 완료: 총 {len(points)}개 chunk (Document 기반)")
     return client
+
+def get_ready_search():
+    model = BGEM3FlagModel("BAAI/bge-m3", use_fp16=False)
+    client = get_qdrant_local(collection_name = "finance_deposit_products",
+                    vector_size = 1024,
+                    path = "./qdrant_localdb")
+    return model, client
