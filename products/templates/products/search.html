@@ -1,41 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  <h2>금융상품 검색</h2>
-  <form method="get" action="{% url 'products:search' %}">
-    <input type="text" name="q" value="{{ query }}" placeholder="상품명을 입력하세요">
-    <button type="submit">검색</button>
+{# search.html #}
+{# 검색 결과 화면 템플릿 #}
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'products/css/search.css' %}">
+{% endblock styles %}
+
+{% block content %}
+<div class="search-header">
+  {# 검색 창 #}
+  <form class="search-bar" method="GET" action="{% url 'products:search' %}">
+    <div class="search-input-wrapper">
+      <input class="search-input" type="text" name="q" value="{{ query }}" placeholder="상품명을 입력하세요">
+      <button type="submit" class="search-submit-btn">&#x2315;</button>
+    </div>
   </form>
 
-{% if query %}
-  <h3>"{{ query }}" 검색 결과</h3>
-  {% if results %}
-    <table border="1">
-      <tr>
-        <th>회사명</th>
-        <th>상품명</th>
-        <th>이자율</th>
-        <th>가입대상</th>
-        <th>최고한도</th>
-      </tr>
-      {% for p in results %}
-        <tr>
-          <td>{{ p.company_name }}</td>
-          <td>{{ p.product_name }}</td>
-          <td>{{ p.maturity_interest }}</td>
-          <td>{{ p.join_target }}</td>
-          <td>{{ p.max_limit }}</td>
-        </tr>
-      {% endfor %}
-    </table>
-  {% else %}
-    <p>검색 결과가 없습니다.</p>
-  {% endif %}
-{% endif %}
-</body>
-</html>
+  {# 페이지 이동 버튼 #}
+  <div class="header-links">
+    <a href="{% url 'products:index' %}" class="home-link">HOME</a>
+    <a href="{% url 'accounts:logout' %}" class="logout-link">LOGOUT</a>
+  </div>
+</div>
+
+  <div class="result-wrapper">
+    <div class="result-container">
+      {% if query %}
+        <h3>"{{ query }}" 검색 결과</h3>
+          <div class="result-list">
+          {% if results %}
+            <table border="1">
+              <tr>
+                <th>회사명</th>
+                <th>상품명</th>
+                <th>이자율</th>
+                <th>가입대상</th>
+                <th>최고한도</th>
+              </tr>
+              {% for p in results %}
+                <tr>
+                  <td>{{ p.company_name }}</td>
+                  <td>{{ p.product_name }}</td>
+                  <td>{{ p.maturity_interest }}</td>
+                  <td>{{ p.join_target }}</td>
+                  <td>{{ p.max_limit }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+
+          {% else %}
+          <div class="no-result">
+            <p>검색 결과가 없습니다.</p>
+          </div>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock content %}
