@@ -1,20 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  <a href="{% url 'chat:chat_page' %}">AI CHAT</a>
-  <a href="{% url 'accounts:update' %}">MY PAGE</a>
-  <a href="{% url 'accounts:logout' %}">LOGOUT</a>
-  <hr>
-  <h2>금융상품 검색</h2>
+{# index.html #}
+{# 검색 화면 템플릿 #}
+{# 프로젝트의 메인 화면 #}
 
-  <form action="{% url 'products:search' %}" method="GET">
-    <input type="text" name="q">
-    <button type="submit">검색</button>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'products/css/index.css' %}">
+{% endblock styles %}
+
+{% block content %}
+<header class="header-buttons">
+  <a href="{% url 'chat:chat_page' %}" class="ai-chat-btn">AI CHAT</a>
+  <a href="{% url 'accounts:update' %}" class="mypage-btn">MY PAGE</a>
+  <a href="{% url 'accounts:logout' %}" class="logout-btn">LOGOUT</a>
+</header>
+
+<main class="main-content">
+  <form class="search-form" action="{% url 'products:search' %}" method="GET">
+    <div class="search-input-wrapper">
+      <input type="text" placeholder="검색" class="search-input" name="query">
+      <button type="submit" class="search-submit-btn">&#x2315;</button> 
+    </div>
+
+      <button type="submit" style="display: none;">검색</button>
+
   </form>
-</body>
-</html>
+</main>
+{% endblock content %}
