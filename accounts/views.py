@@ -8,6 +8,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
 
+from chatbot.models import ChatRoom
+
 from .forms import CustomUserChangeForm, CustomUserCreationForm
 
 # Create your views here.
@@ -27,7 +29,9 @@ def signup(request):
         form = CustomUserCreationForm(request.POST)
         # 유효성 검사 진행
         if form.is_valid():
-            form.save()
+            user = form.save()
+            # 회원가입이 완료 된 시점에 해당 사용자의 채팅방을 생성
+            ChatRoom.objects.create(user=user, ever_visited=False)
             return redirect("accounts:login")
 
     # 사용자가 회원가입 페이지를 요청했을 때
@@ -142,6 +146,12 @@ def logout(request):
     Returns:
         HttpResponseRedirect: 로그아웃 처리 후 로그인 페이지(`accounts:login`)로 리다이렉트합니다.
     """
+    # 현재까지 나눴던 대화를 DB에 저장
+    if request.session.get("chat"):
+        room = ChatRoom.objects.get(user=request.user)
+        room.history = request.session["chat"]
+        room.save()
+
     auth_logout(request)
     return redirect("accounts:login")
 

@@ -1,6 +1,6 @@
 from rag_flow.graph_flow import ChatSession
-
-session = ChatSession()
+history = "저녁 뭐먹을까"
+session = ChatSession(history)
 
 
 def scenario1():  # first_hello
