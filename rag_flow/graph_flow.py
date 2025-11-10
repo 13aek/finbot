@@ -10,8 +10,6 @@ from langgraph.graph import END, START, StateGraph
 from openai import OpenAI
 from sqlalchemy import create_engine
 
-from chatbot.models import ChatMessage, ChatRoom
-
 load_dotenv("../.env")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
@@ -24,7 +22,7 @@ class ChatSession:
     대화 History 저장 용도
     """
 
-    def __init__(self, user_pk, user_history):
+    def __init__(self, user_history):
         self.state = {"visited": False, "history": []}
         """
         DB에서 history 들고와서 저장해야함. 
