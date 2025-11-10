@@ -12,9 +12,10 @@ from openai import OpenAI
 from sqlalchemy import create_engine
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from findata.vectorDB import get_ready_search
 from FlagEmbedding import BGEM3FlagModel
 from qdrant_client import QdrantClient
+
+from findata.vectorDB import get_ready_search
 
 load_dotenv("../.env")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -31,7 +32,7 @@ class ChatSession:
     def __init__(self, user_history):
         self.state = {"visited": False, "history": []}
         self.state["embed_model"], self.state["vectorDB"] = get_ready_search()
-        
+
         """
         DB에서 history 들고와서 저장해야함. 
         각 history는 Dict 하나로 저장.
@@ -99,7 +100,7 @@ class ChatState(TypedDict):
 
     embed_model: BGEM3FlagModel
     vectorDB: QdrantClient
-    
+
     visited: bool
     mode: str  # chat mode : (First_hello)first conversation & first meet, (Nth_hello)first conversation & Nth meet, (Normal_chat)Nth conversation
     search_method: str  # search method : DB search, RAG search
@@ -285,9 +286,9 @@ def RAG_search(state: ChatState) -> ChatState:
     user_query = state["query"]
     q_vec = embed_model.encode([user_query], return_dense=True)["dense_vecs"][0]
     hits = vectorDB.search(
-            collection_name="finance_products_deposit", query_vector=q_vec, limit=topk
-        )
-    
+        collection_name="finance_products_deposit", query_vector=q_vec, limit=topk
+    )
+
     VectorDB_answer = hits[0].payload
 
     messages = [

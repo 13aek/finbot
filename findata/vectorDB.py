@@ -1,13 +1,16 @@
-import uuid
-from typing import Dict, List
 import os
+import uuid
+from glob import glob
+from typing import Dict, List
+
 from FlagEmbedding import BGEM3FlagModel
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
 from tqdm import tqdm
+
 from findata.call_findata_api import fetch_findata
 from findata.simple_chunk import chunk
-from glob import glob
+
 
 def get_qdrant_local(
     collection_name: str = "finance_products",
@@ -84,15 +87,17 @@ def save_vectorDB(
     print(f"\n 업로드 완료: 총 {len(points)}개 chunk (Document 기반)")
     return client
 
+
 def get_ready_search(category="deposit"):
     db_collection_name = "finance_products" + "_" + category
-    db_path = glob(os.getcwd()+"/**/qdrant_localdb", recursive=True)[0]
+    db_path = glob(os.getcwd() + "/**/qdrant_localdb", recursive=True)[0]
 
     model = BGEM3FlagModel("BAAI/bge-m3", use_fp16=False)
-    client = get_qdrant_local(collection_name = db_collection_name,
-                    vector_size = 1024,
-                    path = db_path)
+    client = get_qdrant_local(
+        collection_name=db_collection_name, vector_size=1024, path=db_path
+    )
     return model, client
+
 
 if __name__ == "__main__":
     save_vectorDB(chunk(fetch_findata()))
