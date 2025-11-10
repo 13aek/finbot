@@ -1,9 +1,9 @@
 from pprint import pprint
 from typing import Dict, List
 
-from call_findata_api import fetch_findata
-from langchain.schema import Document
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from findata.call_findata_api import fetch_findata
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
 def make_embedding_ready_text_deposit(product: Dict) -> str:

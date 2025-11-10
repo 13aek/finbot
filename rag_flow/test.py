@@ -1,7 +1,4 @@
+from glob import glob
+import os
 
-
-import torch
-print(torch.__version__)
-from torch.optim.lr_scheduler import LRScheduler
-
-print(LRScheduler)
+print(glob(os.getcwd()+"/**/qdrant_localdb", recursive=True))

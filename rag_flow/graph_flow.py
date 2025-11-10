@@ -270,7 +270,7 @@ def RAG_search(state: ChatState) -> ChatState:
     user_query = state["query"]
     q_vec = embed_model.encode([user_query], return_dense=True)["dense_vecs"][0]
     hits = vectorDB.search(
-            collection_name="finance_deposit_products", query_vector=q_vec, limit=topk
+            collection_name="finance_products_deposit", query_vector=q_vec, limit=topk
         )
     
     VectorDB_answer = hits[0].payload
