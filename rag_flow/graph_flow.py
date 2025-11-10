@@ -56,8 +56,10 @@ class ChatSession:
         # history 유무에 따라 분기
         if not self.state["history"]:
             visited = False
+            self.state["visited"] = False
         else:
             visited = True
+            self.state["visited"] = True
 
         if not visited:
             self.state = app_graph.invoke(self.state)

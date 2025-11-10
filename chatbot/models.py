@@ -7,7 +7,7 @@ class ChatRoom(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     # 사용자가 방문한 적 있는지 없는지를 표시할 필드
-    ever_visited = models.BooleanField(default=True)
+    ever_visited = models.BooleanField(default=False)
 
     # 사용자가 이전 로그인 세션에서 나눴던 대화
     history = models.TextField(null=True)
@@ -20,7 +20,7 @@ class ChatMessage(models.Model):
     ]
 
     # 채팅방과 연결
-    room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     # 역할 (유저/봇)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
@@ -32,7 +32,6 @@ class ChatMessage(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = "chat_message"  # MySQL 테이블명
         ordering = ["created_at"]  # 최신순 정렬
 
     def __str__(self):
