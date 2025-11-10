@@ -1,20 +1,18 @@
 from rag_flow.graph_flow import ChatSession
-history = "저녁 뭐먹을까"
-session = ChatSession(history)
+
 
 
 def scenario1():  # first_hello
+    history = None
+    session = ChatSession(history)
     query = None
     answer = session.ask(query)
     return answer
 
 
 def scenario2():  # Nth_hello
-    # history 존재
-    session.state["history"].append(
-        {"role": "user", "content": "저녁 뭐먹을까", "state": "old"}
-    )
-    session.state["visited"] = True
+    history = "저녁 뭐먹을까"
+    session = ChatSession(history)
 
     query = None
     answer = session.ask(query)
@@ -23,9 +21,8 @@ def scenario2():  # Nth_hello
 def scenario3():  # RAG_Search
     # history 존재
     # 대화 중
-    session.state["history"].append(
-        {"role": "user", "content": "저녁 뭐먹을까", "state": "old"}       
-    )
+    history = "저녁 뭐먹을까"
+    session = ChatSession(history)
     session.state["history"].append(
         {"role": "user", "content": "안녕 나는 강태인. 자치회듀오 중 반장을 맡고 있지. 후후", "state": "new"}      
     )
