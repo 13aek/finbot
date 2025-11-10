@@ -177,7 +177,7 @@
         margin-left: 10px; 
         border-radius: 20px;
         /* 화면을 초과하는 대화 내용은 숨김 처리 (임의) */
-        overflow: hidden; 
+        overflow-x: hidden; 
 }
 
 /* 채팅 메시지 출력 영역 */
@@ -185,7 +185,6 @@
         flex-grow: 1;
         /* 입력 영역의 padding과 동일하여야 함 */
         padding: 20px 20px;
-        overflow-y: auto; 
         display: flex;
         flex-direction: column;
         /* 아래부터 대화가 쌓이도록 하기 */
