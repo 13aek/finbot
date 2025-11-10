@@ -1,0 +1,291 @@
+    body {
+        margin: 0;
+        padding: 20px;
+        background-color: #FFFFFF;
+        font-family: 'Noto Sans KR', sans-serif;
+        height: 100vh;
+        display: flex;
+        overflow: hidden;
+        font-size: 15px;
+        box-sizing: border-box;
+    }
+    
+    /* ---------- */
+    /* 1. 사이드바 */
+    /* ---------- */
+    .sidebar {
+        width: 75px;
+        height: 100%;
+        background-color: #F3F3F3;
+        color: #8B8B8B; 
+        padding: 20px 0;
+        box-sizing: border-box;
+        transition: width 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        border-radius: 15px;
+        flex-shrink: 0; 
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        position: relative;
+    }
+    
+    .sidebar.open {
+        width: 300px; 
+        padding-left: 20px;
+    }
+
+    /* 토글 버튼 */
+    .toggle-btn {
+        position: absolute; 
+        top: 20px;
+        left: 0;
+        
+        width: 40px; 
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        /* 닫혔을 때 중앙 정렬 위치로 고정 */
+        transform: translateX(17.5px); 
+        transition: color 0.2s, background-color 0.2s;
+        
+        cursor: pointer;
+        color: #8B8B8B; 
+        font-size: 24px; 
+        border-radius: 5px;
+        z-index: 10;
+    }
+
+    /* 토글이 열려도 버튼 위치 고정 */
+    .sidebar.open .toggle-btn {
+        transform: translateX(17.5px);
+    }
+
+
+    .toggle-btn:hover {
+        color: #3F72AF;
+        background-color: #E5E5E5;
+    }
+    
+    /* 토글 아이콘 */
+    .toggle-icon {
+        display: inline-block;
+        font-size: 24px;
+        line-height: 1;
+    }
+
+
+    /* 대화 내역 저장 */
+    .recent-title {
+        font-size: 15px;
+        font-weight: bold;
+        margin: 70px 0 15px 20px; 
+        color: #8B8B8B; 
+        padding: 0;
+        white-space: nowrap; 
+        opacity: 0; 
+        transition: opacity 0.3s ease;
+    }
+
+    .sidebar.open .recent-title {
+        opacity: 1;
+    }
+
+    /* 저장된 채팅 목록 */
+    .chat-list {
+        padding: 0 20px 0 20px;
+        list-style: none;
+        overflow-y: auto;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .sidebar.open .chat-list {
+        opacity: 1;
+    }
+
+    .chat-list li {
+        padding: 10px 10px;
+        margin-bottom: 5px;
+        border-radius: 10px;
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: background-color 0.2s;
+    }
+
+    .chat-list li:hover {
+        background-color: #E5E5E5;
+    }
+
+    /* 닫힌 상태에서 채팅 리스트 숨기기 */
+    .sidebar:not(.open) .recent-title,
+    .sidebar:not(.open) .chat-list {
+        position: absolute; 
+        visibility: hidden;
+    }
+    
+
+    /* ---------- */
+    /* 2. 상단 바 */
+    /* --------- */
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .chat-header {
+        width: 100%;
+        height: 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 30px;
+        box-sizing: border-box;
+        margin-bottom: 30px;
+}
+
+    .chat-header .nav-link {
+        text-decoration: none;
+        color: #8B8B8B;
+        font-weight: 600;
+        font-size: 16px;
+        transition: color 0.2s;
+}
+
+    .chat-header .left {
+        margin-left: 10px;
+}
+
+    .chat-header .right {
+        margin-right: 10px;
+}
+
+
+/* --------------- */
+/* 3. 메인 채팅 영역 */
+/* --------------- */
+    .chat-main {
+        flex-grow: 1;
+        height: 100%; 
+        display: flex;
+        flex-direction: column;
+        background-color: #FFFFFF;
+        margin-left: 10px; 
+        border-radius: 20px;
+        /* 화면을 초과하는 대화 내용은 숨김 처리 (임의) */
+        overflow-x: hidden; 
+}
+
+/* 채팅 메시지 출력 영역 */
+    .messages-area {
+        flex-grow: 1;
+        /* 입력 영역의 padding과 동일하여야 함 */
+        padding: 20px 20px;
+        display: flex;
+        flex-direction: column;
+        /* 아래부터 대화가 쌓이도록 하기 */
+        justify-content: flex-end;
+}
+
+/* 개별 메시지 컨테이너 */
+    .message-container {
+        display: flex;
+        margin-bottom: 15px; 
+        width: 100%;
+}
+
+/* 말풍선 공통 스타일 */
+    .bubble {
+        max-width: 60%; 
+        padding: 15px 15px; 
+        border-radius: 20px; 
+        line-height: 1.5;
+        display: flex;
+        align-items: center; 
+}
+
+/* 봇 말풍선 */
+    .bot-message {
+        justify-content: flex-start;
+}
+
+    .bot-message .bubble {
+        background-color: #F3F3F3; 
+        color: #000000; 
+        border-bottom-left-radius: 0; 
+}
+
+/* 사용자 말풍선 */
+    .user-message {
+        justify-content: flex-end;
+}
+
+    .user-message .bubble {
+        background-color: #3F72AF; 
+        color: #FFFFFF; 
+        border-bottom-right-radius: 0;
+        margin-left: auto;
+}
+
+
+/* ----------- */
+/* 4. 입력 영역 */
+/* ----------- */
+    .input-area {
+        display: flex;
+        align-items: center;
+        padding: 20px 40px 5px 20px; 
+        flex-shrink: 0;
+        position: relative; 
+}
+
+/* 대화 입력 창 */
+    #chat-input {
+        flex-grow: 1;
+        height: 100px; 
+        border: 1px solid #E5E5E5; 
+        background-color: #FFFFFF; 
+        border-radius: 20px;
+        padding: 15px 70px 15px 20px; 
+        font-size: 15px;
+        resize: none; 
+        box-sizing: border-box;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* 호버 시 색상 변경 없음 */
+    #chat-input:focus {
+        outline: none;
+}
+
+/* 전송 버튼 */
+    #send-btn {
+        height: 30px; 
+        width: 35px; 
+        background-color: transparent; 
+        color: #8B8B8B; 
+        border: none;
+        border-radius: 0; 
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: color 0.2s; 
+    
+        /* 버튼 위치 */
+        position: absolute;
+        right: 50px; 
+        bottom: 20px; 
+}
+
+    /* 호버 시 검은색으로 색상 변경 */
+    #send-btn:hover {
+        background-color: transparent;
+        color: #000000; 
+}
