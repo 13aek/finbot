@@ -58,10 +58,15 @@ class JsonConfigManager:
 if __name__=="__main__":
     BASE_DIR = Path(__file__).resolve().parent.parent
     jm = JsonConfigManager()
+    jm.values.category = {
+        "정기예금": "fixed_deposit",
+        "적금": "installment_deposit", 
+        "전세대출": "jeonse_loan"
+    }
     jm.values.urls = {
-        "FIXED_DEPOSIT_URL" : "http://finlife.fss.or.kr/finlifeapi/depositProductsSearch.json?",
-        "INSTALLMENT_DEPOSIT_URL" : "http://finlife.fss.or.kr/finlifeapi/savingProductsSearch.json?",
-        "JEONSE_LOAN_URL": "http://finlife.fss.or.kr/finlifeapi/rentHouseLoanProductsSearch.json?",
+        "fixed_deposit" : "http://finlife.fss.or.kr/finlifeapi/depositProductsSearch.json?",
+        "installment_deposit" : "http://finlife.fss.or.kr/finlifeapi/savingProductsSearch.json?",
+        "jeonse_loan": "http://finlife.fss.or.kr/finlifeapi/rentHouseLoanProductsSearch.json?",
     }
 
     jm.values.fin_co_no = {
@@ -134,7 +139,6 @@ if __name__=="__main__":
         "dcls_month": "공시제출월",  # 공시제출월d
     }
 
-    print(BASE_DIR)
     jm.save(BASE_DIR / "findata" / "config.json")
 
 
