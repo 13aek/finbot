@@ -1,14 +1,16 @@
 import json
 import os
-from easydict import EasyDict
 from pathlib import Path
+
+from easydict import EasyDict
+
 
 class JsonConfigManager:
     """
     Json설정파일을 관리
     """
 
-    def __init__(self, **kwargs): # path
+    def __init__(self, **kwargs):  # path
         self.values = EasyDict()
         if kwargs:
             self.file_path = kwargs["path"]  # 파일경로 저장
@@ -54,18 +56,17 @@ class JsonConfigManager:
                 json.dump(dict(self.values), f, ensure_ascii=False, indent="\t")
 
 
-
-if __name__=="__main__":
+if __name__ == "__main__":
     BASE_DIR = Path(__file__).resolve().parent.parent
     jm = JsonConfigManager()
     jm.values.category = {
         "정기예금": "fixed_deposit",
-        "적금": "installment_deposit", 
-        "전세대출": "jeonse_loan"
+        "적금": "installment_deposit",
+        "전세대출": "jeonse_loan",
     }
     jm.values.urls = {
-        "fixed_deposit" : "http://finlife.fss.or.kr/finlifeapi/depositProductsSearch.json?",
-        "installment_deposit" : "http://finlife.fss.or.kr/finlifeapi/savingProductsSearch.json?",
+        "fixed_deposit": "http://finlife.fss.or.kr/finlifeapi/depositProductsSearch.json?",
+        "installment_deposit": "http://finlife.fss.or.kr/finlifeapi/savingProductsSearch.json?",
         "jeonse_loan": "http://finlife.fss.or.kr/finlifeapi/rentHouseLoanProductsSearch.json?",
     }
 
@@ -82,7 +83,7 @@ if __name__=="__main__":
         "fin_co_no": "금융회사코드",  # 금융회사코드
         "fin_prdt_nm": "금융상품명",  # 금융상품명
         "fin_prdt_cd": "금융상품코드",  # 금융상품코드
-        "join_member":	"가입대상", # 가입대상
+        "join_member": "가입대상",  # 가입대상
         "join_way": "가입방법",  # 가입방법
         "mtrt_int": "만기후이자율",  # 만기후이자율
         "spcl_cnd": "우대조건",  # 우대조건
@@ -103,7 +104,7 @@ if __name__=="__main__":
         "fin_co_no": "금융회사코드",  # 금융회사코드
         "fin_prdt_nm": "금융상품명",  # 금융상품명
         "fin_prdt_cd": "금융상품코드",  # 금융상품코드
-        "join_member":	"가입대상", # 가입대상
+        "join_member": "가입대상",  # 가입대상
         "join_way": "가입방법",  # 가입방법
         "mtrt_int": "만기후이자율",  # 만기후이자율
         "spcl_cnd": "우대조건",  # 우대조건
@@ -118,7 +119,7 @@ if __name__=="__main__":
         "dcls_end_day": "공시종료일",  # 공시종료일
         "dcls_month": "공시제출월",  # 공시제출월
     }
-    
+
     jm.values.tags.jeonse_loan = {
         "kor_co_nm": "금융회사명",  # 금융회사명d
         "fin_co_no": "금융회사코드",  # 금융회사코드d
@@ -128,8 +129,8 @@ if __name__=="__main__":
         "loan_inci_expn": "대출부대비용",
         "erly_rpay_fee": "중도상환수수료",
         "dly_rate": "연체이자율",
-        "loan_lmt":	"대출한도",
-        "rpay_type_nm":	"대출상환유형",
+        "loan_lmt": "대출한도",
+        "rpay_type_nm": "대출상환유형",
         "lend_rate_type_nm": "대출금리유형",
         "lend_rate_min": "대출금리최저",
         "lend_rate_max": "대출금리최고",
@@ -140,8 +141,3 @@ if __name__=="__main__":
     }
 
     jm.save(BASE_DIR / "findata" / "config.json")
-
-
-
-
-

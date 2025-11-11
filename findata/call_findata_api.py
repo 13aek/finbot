@@ -1,3 +1,4 @@
+import argparse
 import os  # 운영 체제와 상호작용하기 위한 라이브러리
 from datetime import date, datetime
 from pathlib import Path  # 파일 경로 처리를 위한 라이브러리
@@ -6,9 +7,8 @@ from typing import Dict, List
 
 import requests
 from dotenv import load_dotenv
-from findata.config_manager import JsonConfigManager
 
-import argparse
+from findata.config_manager import JsonConfigManager
 
 """
 <금융상품한눈에 api 데이터 처리 가이드>
@@ -24,13 +24,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")  # 프로젝트 폴더의 .env.example에 환경변수 입력
 conf_path = BASE_DIR / "findata/config.json"
 # config load
-conf = JsonConfigManager(path = conf_path).values
+conf = JsonConfigManager(path=conf_path).values
 
 # dotenv를 활용하여 API 키 가져오기
 FINAPI_KEY = os.getenv("FINAPI_KEY")
 
+
 # 금융 데이터를 가져오는 함수 정의
-def fetch_findata(category = "fixed_deposit") -> List[Dict]:
+def fetch_findata(category="fixed_deposit") -> List[Dict]:
     """
     정기예금, 적금, 전세자금대출 호출 가능하도록 develop한 version
     # 데이터베이스에 저장
@@ -74,8 +75,12 @@ def fetch_findata(category = "fixed_deposit") -> List[Dict]:
         code_dict[group]["max_page_no"] = ex_data["result"]["max_page_no"]
 
     # 모든 데이터 조회 및 정리"fixed_deposit", "installment_deposit", "jeonse_loan"
-    fin_cat = {"fixed_deposit":"정기예금", "installment_deposit":"적금", "jeonse_loan":"전세자금대출"}
-    
+    fin_cat = {
+        "fixed_deposit": "정기예금",
+        "installment_deposit": "적금",
+        "jeonse_loan": "전세자금대출",
+    }
+
     print("금융상품 통합비교공시 '금융상품한눈에' 오픈 API 호출을 시작합니다.")
     print(f"Current Finance Category : {fin_cat[category]}")
     for group in fin_grp_dict.keys():
@@ -149,8 +154,16 @@ def fetch_findata(category = "fixed_deposit") -> List[Dict]:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='This is calling finance data program from api')
+    parser = argparse.ArgumentParser(
+        description="This is calling finance data program from api"
+    )
     # ["fixed_deposit", "installment_deposit", "jeonse_loan"] 중 하나
-    parser.add_argument('--category', '-c', type=str, default="fixed_deposit", help='category of finance data')
+    parser.add_argument(
+        "--category",
+        "-c",
+        type=str,
+        default="fixed_deposit",
+        help="category of finance data",
+    )
     args = parser.parse_args()
     fetch_findata(category=args.category)
