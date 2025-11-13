@@ -1,0 +1,79 @@
+{
+	"category": {
+		"정기예금": "fixed_deposit",
+		"적금": "installment_deposit",
+		"전세대출": "jeonse_loan"
+	},
+	"urls": {
+		"fixed_deposit": "http://finlife.fss.or.kr/finlifeapi/depositProductsSearch.json?",
+		"installment_deposit": "http://finlife.fss.or.kr/finlifeapi/savingProductsSearch.json?",
+		"jeonse_loan": "http://finlife.fss.or.kr/finlifeapi/rentHouseLoanProductsSearch.json?"
+	},
+	"fin_co_no": {
+		"020000": "은행",
+		"030200": "여신전문",
+		"030300": "저축은행",
+		"050000": "보험회사",
+		"060000": "금융투자"
+	},
+	"tags": {
+		"fixed_deposit": {
+			"kor_co_nm": "금융회사명",
+			"fin_co_no": "금융회사코드",
+			"fin_prdt_nm": "금융상품명",
+			"fin_prdt_cd": "금융상품코드",
+			"join_member": "가입대상",
+			"join_way": "가입방법",
+			"mtrt_int": "만기후이자율",
+			"spcl_cnd": "우대조건",
+			"join_deny": "가입제한",
+			"max_limit": "최고한도",
+			"intr_rate_type_nm": "저축금리유형명",
+			"save_trm": "저축개월",
+			"intr_rate": "저축금리",
+			"intr_rate2": "최고우대금리",
+			"dcls_strt_day": "공시시작일",
+			"dcls_end_day": "공시종료일",
+			"dcls_month": "공시제출월"
+		},
+		"installment_deposit": {
+			"kor_co_nm": "금융회사명",
+			"fin_co_no": "금융회사코드",
+			"fin_prdt_nm": "금융상품명",
+			"fin_prdt_cd": "금융상품코드",
+			"join_member": "가입대상",
+			"join_way": "가입방법",
+			"mtrt_int": "만기후이자율",
+			"spcl_cnd": "우대조건",
+			"join_deny": "가입제한",
+			"max_limit": "최고한도",
+			"rsrv_type_nm": "적립유형명",
+			"intr_rate_type_nm": "저축금리유형명",
+			"save_trm": "저축개월",
+			"intr_rate": "저축금리",
+			"intr_rate2": "최고우대금리",
+			"dcls_strt_day": "공시시작일",
+			"dcls_end_day": "공시종료일",
+			"dcls_month": "공시제출월"
+		},
+		"jeonse_loan": {
+			"kor_co_nm": "금융회사명",
+			"fin_co_no": "금융회사코드",
+			"fin_prdt_nm": "금융상품명",
+			"fin_prdt_cd": "금융상품코드",
+			"join_way": "가입방법",
+			"loan_inci_expn": "대출부대비용",
+			"erly_rpay_fee": "중도상환수수료",
+			"dly_rate": "연체이자율",
+			"loan_lmt": "대출한도",
+			"rpay_type_nm": "대출상환유형",
+			"lend_rate_type_nm": "대출금리유형",
+			"lend_rate_min": "대출금리최저",
+			"lend_rate_max": "대출금리최고",
+			"lend_rate_avg": "전월취급평균금리",
+			"dcls_strt_day": "공시시작일",
+			"dcls_end_day": "공시종료일",
+			"dcls_month": "공시제출월"
+		}
+	}
+}
