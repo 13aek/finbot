@@ -19,7 +19,6 @@ python -m findata.main
 from findata.call_findata_api import fetch_findata
 from findata.save_to_db import save_fin_products
 
-
 FIN_CATEGORIES = [
     ("fixed_deposit", "정기예금"),
     ("installment_deposit", "적금"),
@@ -32,10 +31,10 @@ if __name__ == "__main__":
 
     for key, label in FIN_CATEGORIES:
         print(f"\n>>> [{key}] {label} 데이터 수집 시작")
-    
+
         try:
             data = fetch_findata(category=key)  # 금융상품 데이터 수집
-        
+
             # 각 상품에 category 키 추가
             for d in data:
                 d["category"] = key

@@ -71,7 +71,7 @@ def save_fin_products(data: List[Dict]) -> None:
         """
     )
 
-     # INSERT + UPDATE
+    # INSERT + UPDATE
     insert_query = """
         INSERT IGNORE INTO fin_products (
             category, company_type, company_name, product_name, product_code,
@@ -101,8 +101,6 @@ def save_fin_products(data: List[Dict]) -> None:
     inserted = 0
     updated = 0
 
-
-
     for idx, item in enumerate(data, start=1):
         # None / 누락 값 방지
         safe_item = {
@@ -123,19 +121,16 @@ def save_fin_products(data: List[Dict]) -> None:
 
         cursor.execute(insert_query, safe_item)
 
-
-
-
         # rowcount 동작 설명:
         # INSERT 실행 시:
         #   - 신규 INSERT → rowcount == 1
-        #   - ON DUPLICATE KEY UPDATE 발생 → rowcount == 2  
+        #   - ON DUPLICATE KEY UPDATE 발생 → rowcount == 2
         #       (MySQL의 ON DUPLICATE KEY UPDATE 특성: UPDATE가 발생하면 2로 반환)
 
         if cursor.rowcount == 1:
-            inserted += 1 # 신규 저장
+            inserted += 1  # 신규 저장
         elif cursor.rowcount == 2:
-            updated += 1 # 기존 데이터 업데이트
+            updated += 1  # 기존 데이터 업데이트
 
     conn.commit()
     print(f"MySQL INSERT: {inserted}건 / UPDATE: {updated}건")
