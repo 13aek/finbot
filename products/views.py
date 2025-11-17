@@ -1,9 +1,9 @@
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render
-from .models import FinProduct
-from django.core.paginator import Paginator
 
+from .models import FinProduct
 
 # Create your views here.
 
@@ -49,11 +49,11 @@ def search(request):
     if query:
         results = FinProduct.objects.filter(
             Q(product_name__icontains=query) | Q(company_name__icontains=query)
-        ).order_by('id')
+        ).order_by("id")
     # 페이지당 상품 수: 5
     # 페이지네이션 그룹 단위: 10
     paginator = Paginator(results, 5)
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
     current_page = page_obj.number
@@ -73,6 +73,6 @@ def search(request):
         "previous_page": previous_page,
         "next_page": next_page,
         "show_previous_10": show_previous_10,
-        "show_next_10": show_next_10
-        }
+        "show_next_10": show_next_10,
+    }
     return render(request, "products/search.html", context)
