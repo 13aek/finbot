@@ -13,7 +13,7 @@
   {# 검색 창 #}
   <form class="search-bar" method="GET" action="{% url 'products:search' %}">
     <div class="search-input-wrapper">
-      <input class="search-input" type="text" name="q" value="{{ query }}" placeholder="상품명을 입력하세요">
+      <input class="search-input" type="text" name="query" value="{{ query }}" placeholder="상품명을 입력하세요">
       <button type="submit" class="search-submit-btn">&#x2315;</button>
     </div>
   </form>

@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.shortcuts import render
-
 from .models import FinProduct
+from django.core.paginator import Paginator
+
 
 # Create your views here.
 
@@ -42,7 +43,7 @@ def search(request):
         포함한 'products/search.html' 템플릿 렌더링 결과
     """
 
-    query = request.GET.get("q", "")
+    query = request.GET.get("query", "")
     results = []
 
     if query:
