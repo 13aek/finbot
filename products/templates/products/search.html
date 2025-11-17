@@ -29,26 +29,38 @@
     <div class="result-container">
       {% if query %}
         <h3>"{{ query }}" 검색 결과</h3>
+        <hr>
           <div class="result-list">
-          {% if results %}
-            <table border="1">
-              <tr>
-                <th>회사명</th>
-                <th>상품명</th>
-                <th>이자율</th>
-                <th>가입대상</th>
-                <th>최고한도</th>
-              </tr>
-              {% for p in results %}
-                <tr>
-                  <td>{{ p.company_name }}</td>
-                  <td>{{ p.product_name }}</td>
-                  <td>{{ p.maturity_interest }}</td>
-                  <td>{{ p.join_target }}</td>
-                  <td>{{ p.max_limit }}</td>
-                </tr>
-              {% endfor %}
-            </table>
+          {% if page_obj %}
+            {% for p in page_obj %}
+              <p>회사명: {{ p.company_name }}</p>
+              <p>상품명: {{ p.product_name }}</p>
+              <p>이자율: {{ p.maturity_interest }}</p>
+              <p>가입대상: {{ p.join_target }}</p>
+              <p>최고한도: {{ p.max_limit }}</p>
+              <hr>
+            {% endfor %}
+       
+            {# 이전 페이지 #}
+            {% if show_previous_10 %}
+              <a href="?query={{ query }}&page={{ previous_page }}">&laquo; 이전 페이지</a>
+            {% endif %}
+
+            {# 페이지 번호 그룹 표시 (10개씩) #}
+            {% for num in page_obj.paginator.page_range %}
+              {% if num >= start_page and num <= end_page %}
+                {% if num == page_obj.number %}
+                  <span class="current-page">{{ num }}</span>
+                {% else %}
+                  <a href="?query={{ query }}&page={{ num }}" class="page-number">{{ num }}</a>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+
+            {# 다음 페이지 #}
+            {% if show_next_10 %}
+              <a href="?query={{ query }}&page={{ next_page }}">다음 페이지 &raquo;</a>
+            {% endif %}
 
           {% else %}
           <div class="no-result">

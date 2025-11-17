@@ -49,7 +49,30 @@ def search(request):
     if query:
         results = FinProduct.objects.filter(
             Q(product_name__icontains=query) | Q(company_name__icontains=query)
-        )
+        ).order_by('id')
+    # 페이지당 상품 수: 5
+    # 페이지네이션 그룹 단위: 10
+    paginator = Paginator(results, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
-    context = {"query": query, "results": results}
+    current_page = page_obj.number
+    start_page = (current_page // 10) * 10 + 1
+    end_page = min(start_page + 9, paginator.num_pages)
+
+    previous_page = max(current_page - 1, 1)
+    next_page = min(current_page + 1, paginator.num_pages)
+
+    show_previous_10 = current_page > 1  # 이전 10개 버튼을 표시할지 여부
+    show_next_10 = current_page < paginator.num_pages
+    context = {
+        "query": query,
+        "page_obj": page_obj,
+        "start_page": start_page,
+        "end_page": end_page,
+        "previous_page": previous_page,
+        "next_page": next_page,
+        "show_previous_10": show_previous_10,
+        "show_next_10": show_next_10
+        }
     return render(request, "products/search.html", context)
