@@ -30,6 +30,8 @@ def load_model_and_db():
     return get_ready_search()
 
 
+load_model_and_db()
+
 load_dotenv("../.env")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
