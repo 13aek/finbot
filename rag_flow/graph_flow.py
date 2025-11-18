@@ -111,7 +111,11 @@ class ChatState(TypedDict):
     vector_db: QdrantClient
 
     visited: bool
-    mode: str  # chat mode : (First_hello)first conversation & first meet, (Nth_hello)first conversation & Nth meet, (Normal_chat)Nth conversation
+    # chat mode :
+    #   (First_hello)first conversation & first meet,
+    #   (Nth_hello)first conversation & Nth meet,
+    #   (Normal_chat)Nth conversation
+    mode: str
     search_method: str  # search method : DB search, RAG search
     query: str  # user query
     history: Annotated[list[dict[str, str]], keep_last_10]  # user, assistant message 쌍
@@ -198,18 +202,14 @@ def nth_conversation(state: ChatState) -> ChatState:
             "content": "너는 주어지는 몇 개의 문장을 '3단어'로 요약해야해.",
         }
     ]
-    messages.append(
-        {"role": "user", "content": f"다음은 주어진 문장들이야 :\n{questions}"}
-    )  # 이전 질문들 모두
+    messages.append({"role": "user", "content": f"다음은 주어진 문장들이야 :\n{questions}"})  # 이전 질문들 모두
     messages.append({"role": "user", "content": "주어진 문장들을 3단어로 요약해줘."})
 
     completion = client.chat.completions.create(model="gpt-4o-mini", messages=messages)
 
     summary = completion.choices[0].message.content
 
-    answer = (
-        f"안녕하세요. 지난번에는 {summary} 등 에 대해 물어보셨군요! 오늘은 무엇을 도와드릴까요?"
-    )
+    answer = f"안녕하세요. 지난번에는 {summary} 등 에 대해 물어보셨군요! 오늘은 무엇을 도와드릴까요?"
 
     return {"answer": answer}
 
@@ -293,9 +293,7 @@ def rag_search(state: ChatState) -> ChatState:
     topk = 3
     user_query = state["query"]
     q_vec = embed_model.encode([user_query], return_dense=True)["dense_vecs"][0]
-    hits = vector_db.search(
-        collection_name="finance_products_deposit", query_vector=q_vec, limit=topk
-    )
+    hits = vector_db.search(collection_name="finance_products_deposit", query_vector=q_vec, limit=topk)
 
     vector_db_answer = hits[0].payload
 

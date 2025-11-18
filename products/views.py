@@ -47,9 +47,7 @@ def search(request):
     results = []
 
     if query:
-        results = FinProduct.objects.filter(
-            Q(product_name__icontains=query) | Q(company_name__icontains=query)
-        )
+        results = FinProduct.objects.filter(Q(product_name__icontains=query) | Q(company_name__icontains=query))
 
     context = {"query": query, "results": results}
     return render(request, "products/search.html", context)

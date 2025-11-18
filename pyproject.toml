@@ -2,17 +2,17 @@
 # ---------------------------
 # 기본 설정 (Formatting + Linting)
 # ---------------------------
-line-length = 100           # 코드 최대 길이
+line-length = 120           # 코드 최대 길이
 target-version = "py311"    # 파이썬 버전
 fix = true                  # 자동 수정 활성화
 extend-exclude = ["migrations"]  # 자동 생성 코드 제외
 
 # ---------------------------
-# Lint 설정
+# Lint 설정 , "F401", "E501"
 # ---------------------------
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "N"]  # 규칙 선택
-ignore = ["F403", "F401", "E501"]         # 무시할 규칙
+ignore = ["F403"]         # 무시할 규칙
 
 # ---------------------------
 # Import 정렬 (isort 대체)

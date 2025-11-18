@@ -17,7 +17,8 @@ def make_embedding_ready_text_deposit(product: dict) -> str:
     if "옵션" in product and product["옵션"]:
         rate_info = ", ".join(
             [
-                f"{opt['저축개월']}개월 저축할 때에 저축금리는 {opt['저축금리유형명']}으로 {opt['저축금리']}% 이며 최고 우대 금리는 {opt['최고우대금리']}"
+                f"{opt['저축개월']}개월 저축할 때에 저축금리는 {opt['저축금리유형명']}으로 \
+                    {opt['저축금리']}% 이며 최고 우대 금리는 {opt['최고우대금리']}"
                 for opt in product["옵션"]
             ]
         )
@@ -43,9 +44,7 @@ def chunk(json_data_list: list[dict]) -> list[str]:
     arguments : (List[Dict]) 모든 금융 데이터 json List[Dict]
     return : (List[str]) 모든 금융 데이터의 chunk data List
     """
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=150, chunk_overlap=30, separators=["\n\n", ",", ".", " "]
-    )
+    splitter = RecursiveCharacterTextSplitter(chunk_size=150, chunk_overlap=30, separators=["\n\n", ",", ".", " "])
     docs = []
     for json_product in json_data_list:
         text = make_embedding_ready_text_deposit(json_product)

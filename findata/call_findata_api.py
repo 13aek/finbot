@@ -133,9 +133,7 @@ def fetch_findata(category="fixed_deposit") -> list[dict]:
 
                         for api_key2 in tmp_data["result"]["optionList"][j].keys():
                             if api_key2 in item_dict.keys():
-                                rep_data_in[item_dict[api_key2]] = tmp_data["result"]["optionList"][
-                                    j
-                                ][api_key2]
+                                rep_data_in[item_dict[api_key2]] = tmp_data["result"]["optionList"][j][api_key2]
 
                         rep_data["옵션"].append(rep_data_in)
                 data.append(rep_data)
