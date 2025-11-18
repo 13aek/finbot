@@ -43,23 +43,23 @@
        
             {# 이전 페이지 #}
             {% if show_previous_10 %}
-              <a href="?query={{ query }}&page={{ previous_page }}">&laquo; 이전 페이지</a>
+              <a href="?query={{ query }}&page={{ previous_page }}"><< 이전 페이지</a>
             {% endif %}
 
-            {# 페이지 번호 그룹 표시 (10개씩) #}
+            {# 페이지 번호 그룹 표시 (1부터 10까지) #}
             {% for num in page_obj.paginator.page_range %}
               {% if num >= start_page and num <= end_page %}
                 {% if num == page_obj.number %}
-                  <span class="current-page">{{ num }}</span>
+                  <span>{{ num }}</span>
                 {% else %}
-                  <a href="?query={{ query }}&page={{ num }}" class="page-number">{{ num }}</a>
+                  <a href="?query={{ query }}&page={{ num }}">{{ num }}</a>
                 {% endif %}
               {% endif %}
             {% endfor %}
 
             {# 다음 페이지 #}
             {% if show_next_10 %}
-              <a href="?query={{ query }}&page={{ next_page }}">다음 페이지 &raquo;</a>
+              <a href="?query={{ query }}&page={{ next_page }}">다음 페이지 >></a>
             {% endif %}
 
           {% else %}
