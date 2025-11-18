@@ -1,7 +1,7 @@
 import os
 import uuid
 from glob import glob
-from typing import Dict, List
+from typing import List
 
 from FlagEmbedding import BGEM3FlagModel
 from qdrant_client import QdrantClient

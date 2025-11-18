@@ -63,7 +63,7 @@ def login_view(request):
     context = {
         "form": form,
     }
-    return render(request, "accounts/login.html", {"form": form})
+    return render(request, "accounts/login.html", context)
 
 
 @login_required

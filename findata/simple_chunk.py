@@ -4,8 +4,6 @@ from typing import Dict, List
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from findata.call_findata_api import fetch_findata
-
 
 def make_embedding_ready_text_deposit(product: Dict) -> str:
     """
@@ -58,5 +56,5 @@ def chunk(json_data_list: List[Dict]) -> List[str]:
         docs.extend(chunks)
 
     print(f"Chunked Documents: {len(docs)}개 생성 완료\n")
-    print("Chunked Documents sample : ", docs[0])
+    pprint("Chunked Documents sample : ", docs[0])
     return docs

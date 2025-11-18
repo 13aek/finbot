@@ -1,5 +1,4 @@
 import json
-import os
 from pathlib import Path
 
 from easydict import EasyDict
@@ -57,6 +56,15 @@ class JsonConfigManager:
 
 
 if __name__ == "__main__":
+    """
+    금융상품한눈에(Open API) 데이터 수집 설정 파일
+    -> API 호출 시 사용되는 주요 코드와 데이터 필드를 정의합니다.
+
+    사용처
+    - call_findata_api.py 내 fetch_findata() 함수에서 load되어 사용됩니다.
+    - 향후 다른 금융상품 추가 시 항목을 확장합니다.
+    """
+
     BASE_DIR = Path(__file__).resolve().parent.parent
     jm = JsonConfigManager()
     jm.values.category = {
@@ -88,7 +96,6 @@ if __name__ == "__main__":
         "mtrt_int": "만기후이자율",  # 만기후이자율
         "spcl_cnd": "우대조건",  # 우대조건
         "join_deny": "가입제한",  # 가입제한 1:제한X, 2:서민전용, 3:일부제한
-        "join_member": "가입대상",  # 가입대상
         "max_limit": "최고한도",  # 최고한도
         "intr_rate_type_nm": "저축금리유형명",  # 저축금리유형명
         "save_trm": "저축개월",  # 저축개월 [단위: 개월]

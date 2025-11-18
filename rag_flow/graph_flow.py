@@ -1,22 +1,15 @@
 # rag_engine/graph.py
 import os
 import sys
-from functools import partial
-from typing import Annotated, Any, Dict, List, Literal, TypedDict
-
-import pandas as pd
-from django.contrib.auth import get_user_model
+from functools import partial, lru_cache
 from dotenv import load_dotenv
+from typing import Annotated, Dict, List, Literal, TypedDict
+
+
 from langgraph.graph import END, START, StateGraph
 from openai import OpenAI
-from sqlalchemy import create_engine
-
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from functools import lru_cache
-
 from FlagEmbedding import BGEM3FlagModel
 from qdrant_client import QdrantClient
-
 from findata.vectorDB import get_ready_search
 
 
@@ -31,6 +24,9 @@ def load_model_and_db():
 
 
 load_model_and_db()
+
+# 환경변수 경로 추가
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 load_dotenv("../.env")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -141,7 +137,6 @@ def conditional_about_history(state: ChatState) -> Dict:
         mode = "first_hello"
 
     elif state["visited"]:
-
         if state["history"][-1]["state"] == "old":
             mode = "Nth_hello"
 

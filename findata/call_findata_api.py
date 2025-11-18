@@ -4,7 +4,6 @@ from datetime import date, datetime
 from pathlib import Path  # 파일 경로 처리를 위한 라이브러리
 from pprint import pprint
 from typing import Dict, List
-
 import requests
 from dotenv import load_dotenv
 
@@ -56,7 +55,6 @@ def fetch_findata(category="fixed_deposit") -> List[Dict]:
     # 금융기관별 api info 가져오기
     code_dict = {}
     for group in fin_grp_dict.keys():
-
         ex_params = {
             "auth": FINAPI_KEY,  # API 키
             "topFinGrpNo": group,  #  금융회사가 속한 권역 코드
@@ -66,7 +64,7 @@ def fetch_findata(category="fixed_deposit") -> List[Dict]:
         # [ requests 문서를 참고하여 HTTP GET 요청 보내는 코드 작성하기 ]
         ex_response = requests.get(url, params=ex_params)  # .json()
         ex_data = ex_response.json()
-        # print(group, ex_data["result"]["total_count"])
+
         assert ex_data["result"]["err_msg"] == "정상"
         assert ex_data["result"]["total_count"] >= 0
         assert ex_data["result"]["max_page_no"] >= 0
@@ -125,7 +123,6 @@ def fetch_findata(category="fixed_deposit") -> List[Dict]:
                 rep_data["옵션"] = []
 
                 for j in range(len(tmp_data["result"]["optionList"])):
-
                     if (
                         tmp_data["result"]["optionList"][j]["dcls_month"]
                         == tmp_data["result"]["baseList"][i]["dcls_month"]
