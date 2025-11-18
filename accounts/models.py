@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+
 # Create your models here.
 
 
@@ -59,9 +60,7 @@ class User(AbstractUser):
     name = models.CharField(max_length=20, null=True, verbose_name="이름")
     gender = models.BooleanField(null=True, choices=GENDER_CHOICES, verbose_name="성별")
     age = models.IntegerField(null=True, verbose_name="나이")
-    job = models.CharField(
-        max_length=30, null=True, choices=JOB_CHOICES, verbose_name="직업"
-    )
+    job = models.CharField(max_length=30, null=True, choices=JOB_CHOICES, verbose_name="직업")
     earnings = models.CharField(
         max_length=20, null=True, choices=EARNINGS_CHOICES, verbose_name="소득"
     )

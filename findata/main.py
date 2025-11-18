@@ -14,6 +14,7 @@ python -m findata.main
 from findata.call_findata_api import fetch_findata
 from findata.save_to_db import save_fin_products
 
+
 if __name__ == "__main__":
     print("금융상품 API 데이터 수집 및 저장을 시작합니다.")
     try:

@@ -21,7 +21,7 @@ class JsonConfigManager:
         """
         self.clear()
         if self.file_path:
-            with open(self.file_path, "r", encoding="utf-8") as f:
+            with open(self.file_path, encoding="utf-8") as f:
                 self.values.update(json.load(f))
 
     def clear(self):

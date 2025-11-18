@@ -11,10 +11,10 @@
 
 import os  # 운영체제 환경 변수 접근을 위한 라이브러리
 from pathlib import Path  # 파일 경로 처리를 위한 라이브러리
-from typing import Dict, List  # 타입 힌팅용 라이브러리
 
 import MySQLdb  # DB 저장 시 사용
 from dotenv import load_dotenv  # 환경 변수 로드를 위한 라이브러리
+
 
 # 환경 변수 로드
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +28,7 @@ DB_NAME = os.getenv("DB_NAME")
 
 
 # 금융상품 데이터를 MySQL에 저장하는 함수
-def save_fin_products(data: List[Dict]) -> None:
+def save_fin_products(data: list[dict]) -> None:
     """
     금융상품 데이터를 MySQL DB에 저장합니다.
     :param data: fetch_findata()에서 반환된 List[Dict] 형식의 금융상품 데이터
