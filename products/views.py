@@ -5,6 +5,7 @@ from django.shortcuts import render
 
 from .models import FinProduct
 
+
 # Create your views here.
 
 
