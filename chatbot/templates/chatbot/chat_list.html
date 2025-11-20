@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  {% for room in rooms %}
+    {% comment %} 각 채팅방으로 연결되는 링크 {% endcomment %}
+    <a href="{% url "chat:chat_page" room.pk %}">채팅방</a>
+    <br>
+  {% endfor %}
+  <form action="{% url "chat:chatroom_create" %}" method="POST">
+    {% csrf_token %}
+    <input type="submit" value="새 채팅방">
+  </form>
+</body>
+</html>
