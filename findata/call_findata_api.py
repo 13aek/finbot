@@ -3,12 +3,12 @@ import os  # 운영 체제와 상호작용하기 위한 라이브러리
 from datetime import date, datetime
 from pathlib import Path  # 파일 경로 처리를 위한 라이브러리
 from pprint import pprint
-from typing import Dict, List
 
 import requests
 from dotenv import load_dotenv
 
 from findata.config_manager import JsonConfigManager
+
 
 """
 <금융상품한눈에 api 데이터 처리 가이드>
@@ -31,7 +31,7 @@ FINAPI_KEY = os.getenv("FINAPI_KEY")
 
 
 # 금융 데이터를 가져오는 함수 정의
-def fetch_findata(category="fixed_deposit") -> List[Dict]:
+def fetch_findata(category="fixed_deposit") -> list[dict]:
     """
     정기예금, 적금, 전세자금대출 호출 가능하도록 develop한 version
     # 데이터베이스에 저장

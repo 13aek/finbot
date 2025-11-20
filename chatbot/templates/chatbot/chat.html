@@ -19,7 +19,21 @@
 
     <p class="recent-title">최근 대화 목록</p>
     <ul class="chat-list">
+      {% for room in rooms %}
+        <li><a href="{% url "chat:chat_page" room.pk %}">채팅방{{ room.display_id }}</a>
+          <form action="{% url "chat:chatroom_delete" room.pk %}" method="POST">
+            {% csrf_token %}
+            <input type="submit" value="채팅방 삭제">
+          </form>
+        </li>
+      {% endfor %}
+      <form action="{% url "chat:chatroom_create" %}" method="POST">
+      {% csrf_token %}
+      <input type="submit" value="채팅방 생성">
+    </form>
     </ul>
+    <hr>
+    
 </div>
 
 <div class="chat-container">

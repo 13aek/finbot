@@ -7,8 +7,11 @@
 </head>
 <body>
   {% for room in rooms %}
-    {% comment %} 각 채팅방으로 연결되는 링크 {% endcomment %}
     <a href="{% url "chat:chat_page" room.pk %}">채팅방</a>
+    <form action="{% url "chat:chatroom_delete" room.pk %}">
+      {% csrf_token %}
+      <input type="submit" value="채팅방 삭제">
+    </form>
     <br>
   {% endfor %}
   <form action="{% url "chat:chatroom_create" %}" method="POST">

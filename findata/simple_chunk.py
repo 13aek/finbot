@@ -1,13 +1,9 @@
-from pprint import pprint
-from typing import Dict, List
 
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from findata.call_findata_api import fetch_findata
 
-
-def make_embedding_ready_text_deposit(product: Dict) -> str:
+def make_embedding_ready_text_deposit(product: dict) -> str:
     """
     JSON 데이터 -> 자연어 문장으로 변환하는 함수
     arguments : (Dict) 금융 데이터 한건 json
@@ -28,7 +24,7 @@ def make_embedding_ready_text_deposit(product: Dict) -> str:
     return text
 
 
-def make_embedding_ready_sentence_deposit(data_list: List[Dict]) -> List[str]:
+def make_embedding_ready_sentence_deposit(data_list: list[dict]) -> list[str]:
     """
     JSON 데이터 -> 문장을 리스트로 반환하는 함수
     (아마 안 쓸 것 같음)
@@ -39,7 +35,7 @@ def make_embedding_ready_sentence_deposit(data_list: List[Dict]) -> List[str]:
     return [make_embedding_ready_text_deposit(data) for data in data_list]
 
 
-def chunk(json_data_list: List[Dict]) -> List[str]:
+def chunk(json_data_list: list[dict]) -> list[str]:
     """
     모든 금융데이터 List[Dict]를 chunk하는 함수
     후에 조정 필요

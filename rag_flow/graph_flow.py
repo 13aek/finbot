@@ -2,14 +2,12 @@
 import os
 import sys
 from functools import partial
-from typing import Annotated, Any, Dict, List, Literal, TypedDict
+from typing import Annotated, Literal, TypedDict
 
-import pandas as pd
-from django.contrib.auth import get_user_model
 from dotenv import load_dotenv
 from langgraph.graph import END, START, StateGraph
 from openai import OpenAI
-from sqlalchemy import create_engine
+
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from functools import lru_cache
@@ -91,7 +89,7 @@ class ChatSession:
         return self.state["answer"]
 
 
-def keep_last_n(existing: List[Dict], new: List[Dict], n: int = 10) -> List[Dict]:
+def keep_last_n(existing: list[dict], new: list[dict], n: int = 10) -> list[dict]:
     """
     최근 n개 항목만 유지하는 리듀서. State의 history List에 새로운 값을 추가하고 n개의 항목만 반환(유지)
 
@@ -120,14 +118,14 @@ class ChatState(TypedDict):
     mode: str  # chat mode : (First_hello)first conversation & first meet, (Nth_hello)first conversation & Nth meet, (Normal_chat)Nth conversation
     search_method: str  # search method : DB search, RAG search
     query: str  # user query
-    history: Annotated[List[Dict[str, str]], keep_last_10]  # user, assistant message 쌍
+    history: Annotated[list[dict[str, str]], keep_last_10]  # user, assistant message 쌍
     answer: str  # LLM answer
 
 
 # 노드 정의
 
 
-def conditional_about_history(state: ChatState) -> Dict:
+def conditional_about_history(state: ChatState) -> dict:
     """
     history에 따라 분기 발생
 
@@ -221,7 +219,7 @@ def nth_conversation(state: ChatState) -> ChatState:
     return {"answer": answer}
 
 
-def conditional_about_query(state: ChatState) -> Dict:
+def conditional_about_query(state: ChatState) -> dict:
     """
     query에 따라 분기 발생.(하려했으나 DB search는 다른 함수로 빠졌기 때문에 RAG search만 존재)
 

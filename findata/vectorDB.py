@@ -1,7 +1,6 @@
 import os
 import uuid
 from glob import glob
-from typing import Dict, List
 
 from FlagEmbedding import BGEM3FlagModel
 from qdrant_client import QdrantClient
@@ -45,7 +44,7 @@ def get_qdrant_local(
 
 
 def save_vectorDB(
-    chunked_docs: List[str],
+    chunked_docs: list[str],
     collection_name: str = "finance_products",
     category: str = "deposit",
     vector_size: int = 1024,
