@@ -1,0 +1,32 @@
+[tool.ruff]
+# ---------------------------
+# 기본 설정 (Formatting + Linting)
+# ---------------------------
+line-length = 120                       # 코드 최대 길이
+target-version = "py311"                # 파이썬 버전
+fix = true                              # 자동 수정 활성화
+extend-exclude = ["migrations"]         # 자동 생성 코드 제외 (migrations)
+
+# ---------------------------
+# Lint 설정
+# ---------------------------
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "DJ"]    # 규칙 선택 
+ignore = ["F403"]                                 # 무시할 규칙
+
+# ---------------------------
+# Import 정렬 (isort 대체)
+# ---------------------------
+[tool.ruff.lint.isort]
+combine-as-imports = true
+known-first-party = ["apps", "config"]        # Django 프로젝트 구조에 맞춘 first-party import 정의
+lines-after-imports = 2
+
+# ---------------------------
+# 포매팅 규칙 (Black 대체)
+# ---------------------------
+[tool.ruff.format]
+quote-style = "double"                   # 문자열 따옴표 스타일
+indent-style = "space"                   # 탭 대신 공백
+skip-magic-trailing-comma = false
+docstring-code-format = true
