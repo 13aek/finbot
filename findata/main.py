@@ -9,19 +9,44 @@
 
 실행 명령어
 python -m findata.main
+
+모든 카테고리 저장 처리:
+1) fixed_deposit (정기예금)
+2) installment_deposit (적금)
+3) jeonse_loan (전세대출)
 """
 
 from findata.call_findata_api import fetch_findata
 from findata.save_to_db import save_fin_products
 
+FIN_CATEGORIES = [
+    ("fixed_deposit", "정기예금"),
+    ("installment_deposit", "적금"),
+    ("jeonse_loan", "전세자금대출"),
+]
+
+
 if __name__ == "__main__":
-    print("금융상품 API 데이터 수집 및 저장을 시작합니다.")
-    try:
-        data = fetch_findata()  # 금융상품 데이터 수집
-        if data:
-            save_fin_products(data)  # 수집된 데이터를 DB에 저장
-            print("전체 프로세스 완료.")
-        else:
-            print("수집된 데이터가 없습니다. API 응답을 확인하세요.")
-    except Exception as e:
-        print("실행 중 오류 발생:", e)
+    print("=== 금융상품 전체 데이터 수집 및 저장 프로세스 시작 ===")
+
+    for key, label in FIN_CATEGORIES:
+        print(f"\n>>> [{key}] {label} 데이터 수집 시작")
+
+        try:
+            data = fetch_findata(category=key)  # 금융상품 데이터 수집
+
+            # 각 상품에 category 키 추가
+            for d in data:
+                d["category"] = key
+
+            if data:
+                print(f"[{key}] {len(data)}건 수집 → DB 저장")
+                save_fin_products(data)
+                print(f"[{key}] 저장 완료")
+            else:
+                print(f"[{key}] 데이터 없음")
+
+        except Exception as e:
+            print(f"[오류] {key} 처리 중 오류:", e)
+
+    print("\n=== 전체 금융상품 수집/저장 프로세스 완료 ===")
