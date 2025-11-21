@@ -14,6 +14,9 @@ class ChatRoom(models.Model):
     
     # 사용자에게 보여줄 방 번호
     display_id = models.PositiveIntegerField() # 음수가 없는 필드
+    
+    # 채팅방 이름
+    title = models.CharField(max_length=15, null=True)
 
 
 class ChatMessage(models.Model):

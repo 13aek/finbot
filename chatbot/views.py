@@ -11,6 +11,7 @@ from rag_flow.graph_flow import ChatSession
 
 from .models import ChatMessage, ChatRoom
 
+from .forms import ChatRoomForm
 
 @login_required
 def chat_list(request):
@@ -147,3 +148,26 @@ def chat_page(request, chatroom_pk = None):
     }
     return render(request, "chatbot/chat.html", context)
 
+
+def chatroom_update(request, chatroom_pk):
+    '''
+    # 사용자의 요청을 받아 채팅방의 이름을 변경합니다.
+    GET: 채팅방 변경 페이지 랜더링
+    POST: 채팅방 이름의 변경 사항을 DB에 저장
+    '''
+    # 수정할 채팅방을 조회
+    room = ChatRoom.objects.get(pk=chatroom_pk)
+    # 사용자의 요청 메서드에 따라 분기
+    if request.method == "POST":
+        form = ChatRoomForm(request.POST, instance=room)
+        if form.is_valid():
+            form.save()
+            return redirect("chat:chat_page", room.pk)
+        # GET 요청인 경우 채팅방 이름 변경 페이지를 랜더링
+    else:
+        form = ChatRoomForm(instance=room)
+    context = {
+        'form': form,
+        'room': room,
+    }
+    return render(request, "chatbot/update.html", context)

@@ -11,5 +11,6 @@ urlpatterns = [
     path("chatlist/", views.chat_list, name="chat_list"), # 모든 채팅방 조회 페이지
     path("chatroom/create/", views.chatroom_create, name="chatroom_create"), # 채팅방 생성
     path("chatroom/delete/<int:chatroom_pk>/", views.chatroom_delete, name="chatroom_delete"), # 채팅방 삭제
+    path("chatroom/update/<int:chatroom_pk>/", views.chatroom_update, name="chatroom_update"), # 채팅방 이름 변경
     
 ]
