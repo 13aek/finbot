@@ -7,6 +7,7 @@ from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.contrib import messages
 
 from chatbot.models import ChatRoom
 
@@ -33,6 +34,28 @@ def signup(request):
             # 회원가입이 완료 된 시점에 해당 사용자의 채팅방을 생성
             ChatRoom.objects.create(user=user, ever_visited=False)
             return redirect("accounts:login")
+        errors = form.errors
+
+        if "username" in errors:
+            if any("이미 존재합니다" in e for e in errors["username"]):
+                messages.error(
+                    request, "이미 존재하는 아이디입니다.", extra_tags="id_error"
+                )
+            else:
+                messages.error(request, errors["username"], extra_tags="id_error")
+        elif "password2" in errors:
+            if any("일치하지 않습니다" in e for e in errors["password2"]):
+                messages.error(
+                    request,
+                    "비밀번호와 비밀번호 확인이 일치하지 않습니다.",
+                    extra_tags="password_error",
+                )
+            else:
+                messages.error(request, errors["username"], extra_tags="id_error")
+        else:
+            messages.error(
+                request, "입력한 정보가 올바르지 않습니다.", extra_tags="default_error"
+            )
 
     # 사용자가 회원가입 페이지를 요청했을 때
     else:

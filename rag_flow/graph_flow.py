@@ -20,17 +20,17 @@ from qdrant_client import QdrantClient
 from findata.vectorDB import get_ready_search
 
 
-@lru_cache(maxsize=1)
-def load_model_and_db():
-    """
-    인자에 대한 반환값을 기억하여
-    해당 함수가 동일한 리턴값을 반환한다면
-    함수를 새로 실행시키는 것이 아닌 기억하고 있는 반환값을 그대로 사용합니다.
-    """
-    return get_ready_search()
+# @lru_cache(maxsize=1)
+# def load_model_and_db():
+#     """
+#     인자에 대한 반환값을 기억하여
+#     해당 함수가 동일한 리턴값을 반환한다면
+#     함수를 새로 실행시키는 것이 아닌 기억하고 있는 반환값을 그대로 사용합니다.
+#     """
+#     return get_ready_search()
 
 
-load_model_and_db()
+# load_model_and_db()
 
 load_dotenv("../.env")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
