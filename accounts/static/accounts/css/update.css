@@ -1,16 +1,18 @@
+/* update.css */
+/* 회원 정보 조회 및 수정 페이지 개별 템플릿 */
+
 form {
+  margin-top: 100px;  /* 비밀번호 변경 화면과 다른 위치에 두기 위해 개별 설정 */
   position: relative;
-  padding: 80px 120px;
-  gap: 40px;
+  gap: 30px;
 }
 
 .form-row {
   display: flex;
   justify-content: space-between;
-  gap: 80px;
+  gap: 200px;
 }
 
-/* 입력 폼 */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -21,18 +23,18 @@ form {
 /* 항목의 이름 */
 label {
   font-size: 15px;
-  font-weight: bold;
+  font-weight: 600;
   color: #8B8B8B;
 }
 
 input, select {
-  width: 400px;
+  width: 450px;
   height: 50px;
 }
 
 select:focus {
-    outline: none; 
-    border-color: #8B8B8B;
+  outline: none; 
+  border-color: #8B8B8B;
 }
 
 /* 선택 폼 기본 화살표 제거 */
@@ -43,4 +45,13 @@ select {
   background: #FFFFFF url("data:image/svg+xml,%3Csvg fill='%238B8B8B' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 20px center;
   background-size: 20px;
   padding-right: 30px;
+}
+
+/* 버튼 위치: 오른쪽 하단 */
+.btn-bottom-right {
+  position: absolute;
+  bottom: 20px;
+  right: 50px;
+  width: 130px;
+  height: 50px;
 }
