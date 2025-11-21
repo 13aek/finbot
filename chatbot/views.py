@@ -157,6 +157,9 @@ def chatroom_update(request, chatroom_pk):
     '''
     # 수정할 채팅방을 조회
     room = ChatRoom.objects.get(pk=chatroom_pk)
+    # 채팅방의 사용자와 현재 요청한 사용자가 다르면 메인페이지로 리다이렉트 시킴
+    if room.user != request.user:
+        return redirect("products:index")
     # 사용자의 요청 메서드에 따라 분기
     if request.method == "POST":
         form = ChatRoomForm(request.POST, instance=room)
