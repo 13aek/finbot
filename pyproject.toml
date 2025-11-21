@@ -12,7 +12,11 @@ extend-exclude = ["migrations"]         # 자동 생성 코드 제외 (migration
 # ---------------------------
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "N", "DJ"]    # 규칙 선택 
+<<<<<<< HEAD
 ignore = ["F403", "DJ001", "DJ008"]                                 # 무시할 규칙
+=======
+ignore = ["F403"]                                 # 무시할 규칙
+>>>>>>> 785d80c14d04affcf0b3884ee06ffef79b4b88a5
 
 # ---------------------------
 # Import 정렬 (isort 대체)
