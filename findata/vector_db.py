@@ -1,7 +1,6 @@
 import os
 import uuid
 from glob import glob
-from typing import Dict, List
 
 from FlagEmbedding import BGEM3FlagModel
 from qdrant_client import QdrantClient
@@ -44,8 +43,8 @@ def get_qdrant_local(
     return client
 
 
-def save_vectorDB(
-    chunked_docs: List[str],
+def save_vector_db(
+    chunked_docs: list[str],
     collection_name: str = "finance_products",
     category: str = "deposit",
     vector_size: int = 1024,
@@ -93,11 +92,9 @@ def get_ready_search(category="deposit"):
     db_path = glob(os.getcwd() + "/**/qdrant_localdb", recursive=True)[0]
 
     model = BGEM3FlagModel("BAAI/bge-m3", use_fp16=False)
-    client = get_qdrant_local(
-        collection_name=db_collection_name, vector_size=1024, path=db_path
-    )
+    client = get_qdrant_local(collection_name=db_collection_name, vector_size=1024, path=db_path)
     return model, client
 
 
 if __name__ == "__main__":
-    save_vectorDB(chunk(fetch_findata()))
+    save_vector_db(chunk(fetch_findata()))

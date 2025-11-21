@@ -50,7 +50,7 @@ print("시나리오2 : ", scenario2())
 print("-" * 50)
 print("시나리오3")
 queries, answers = scenario3()
-for q, a in zip(queries, answers):
+for q, a in zip(queries, answers, strict=True):
     print("-" * 50)
     print("질문 : ", q)
     print("답변 : ", a)
