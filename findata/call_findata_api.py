@@ -3,6 +3,7 @@ import os  # 운영 체제와 상호작용하기 위한 라이브러리
 from datetime import date, datetime
 from pathlib import Path  # 파일 경로 처리를 위한 라이브러리
 from pprint import pprint
+from typing import Dict, List
 
 import requests
 from dotenv import load_dotenv

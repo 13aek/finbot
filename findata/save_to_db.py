@@ -11,9 +11,11 @@
 
 import os  # 운영체제 환경 변수 접근을 위한 라이브러리
 from pathlib import Path  # 파일 경로 처리를 위한 라이브러리
+from typing import Dict, List  # 타입 힌팅용 라이브러리
 
 import MySQLdb  # DB 저장 시 사용
 from dotenv import load_dotenv  # 환경 변수 로드를 위한 라이브러리
+from sqlalchemy import create_engine  # MySQL 연결을 위한 SQLAlchemy 엔진
 
 
 # 환경 변수 로드

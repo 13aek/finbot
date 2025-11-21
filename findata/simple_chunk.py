@@ -1,6 +1,11 @@
 
+from pprint import pprint
+from typing import Dict, List
+
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+from findata.call_findata_api import fetch_findata
 
 
 def make_embedding_ready_text_deposit(product: dict) -> str:
