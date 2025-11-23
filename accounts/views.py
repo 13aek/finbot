@@ -291,7 +291,7 @@ def verify(request):
             return redirect(next_url)
         # 인증되지 않았다면 error를 context에 담아 반환합니다.
         else:
-            context = {"error": "비밀번호가 올바르지 않습니다."}
-            return render(request, "accounts/verify.html", context)
+            messages.error(request, "비밀번호가 올바르지 않습니다.", extra_tags="verify_error")
+            return render(request, "accounts/verify.html")
 
     return render(request, "accounts/verify.html")
