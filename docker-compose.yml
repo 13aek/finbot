@@ -1,0 +1,24 @@
+services:
+  web:
+    build: .
+    container_name: finbot_web
+    command: gunicorn finbot.wsgi:application --bind 0.0.0.0:8000 --workers=1 --timeout=180
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - ./staticfiles:/app/staticfiles
+    expose:
+      - "8000"
+
+  nginx:
+    image: nginx:latest
+    container_name: finbot_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
+    depends_on:
+      - web
