@@ -1,17 +1,15 @@
-from django.contrib.auth import authenticate
-from django.contrib.auth import login as auth_login
-from django.contrib.auth import logout as auth_logout
-from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
-from django.contrib import messages
 
 from chatbot.models import ChatRoom
 
 from .forms import CustomUserChangeForm, CustomUserCreationForm
+
 
 # Create your views here.
 
@@ -38,9 +36,7 @@ def signup(request):
 
         if "username" in errors:
             if any("이미 존재합니다" in e for e in errors["username"]):
-                messages.error(
-                    request, "이미 존재하는 아이디입니다.", extra_tags="id_error"
-                )
+                messages.error(request, "이미 존재하는 아이디입니다.", extra_tags="id_error")
             else:
                 messages.error(request, errors["username"], extra_tags="id_error")
         elif "password2" in errors:
@@ -53,9 +49,7 @@ def signup(request):
             else:
                 messages.error(request, errors["username"], extra_tags="id_error")
         else:
-            messages.error(
-                request, "입력한 정보가 올바르지 않습니다.", extra_tags="default_error"
-            )
+            messages.error(request, "입력한 정보가 올바르지 않습니다.", extra_tags="default_error")
 
     # 사용자가 회원가입 페이지를 요청했을 때
     else:
@@ -83,14 +77,9 @@ def login_view(request):
             return redirect("products:index")
 
         else:
-            messages.error(
-                    request, "아이디 또는 비밀번호가 올바르지 않습니다.", extra_tags="login_error"
-                )
+            messages.error(request, "아이디 또는 비밀번호가 올바르지 않습니다.", extra_tags="login_error")
     else:
         form = AuthenticationForm()
-    context = {
-        "form": form,
-    }
     return render(request, "accounts/login.html", {"form": form})
 
 
@@ -114,9 +103,7 @@ def update(request):
     if not verified_time or (timezone.now().timestamp() - verified_time > 300):
         # 세션이 없거나 만료되었다면 비밀번호를 재확인합니다.
         # 쿼리스트링을 통해 비밀번호 인증 후 다음에 이동할 페이지를 결정합니다.
-        return redirect(
-            f"{reverse('accounts:verify')}?next={reverse('accounts:update')}"
-        )
+        return redirect(f"{reverse('accounts:verify')}?next={reverse('accounts:update')}")
 
     # 인증이 완료되었다면 바로 인증이 필요한 서비스 이용 시 한번 더 인증하도록 세션을 삭제합니다.
     # request.session.pop("password_verified", None)
@@ -156,9 +143,7 @@ def password(request):
 
         if "old_password" in errors:
             if any("잘못 입력하셨습니다." in e for e in errors["old_password"]):
-                messages.error(
-                    request, "기존 비밀번호를 잘못 입력하셨습니다.", extra_tags="old_password_error"
-                )
+                messages.error(request, "기존 비밀번호를 잘못 입력하셨습니다.", extra_tags="old_password_error")
             else:
                 messages.error(request, errors["old_password"], extra_tags="old_password_error")
         elif "new_password2" in errors:
@@ -173,13 +158,11 @@ def password(request):
                     request,
                     "비밀번호와 비밀번호 확인이 일치하지 않습니다.",
                     extra_tags="new_password2_error",
-                )            
+                )
             else:
                 messages.error(request, errors["new_password2"], extra_tags="new_password2_error")
         else:
-            messages.error(
-                request, "입력한 정보가 올바르지 않습니다.", extra_tags="default_error"
-            )
+            messages.error(request, "입력한 정보가 올바르지 않습니다.", extra_tags="default_error")
     else:
         form = PasswordChangeForm(request.user)
     context = {
@@ -236,9 +219,7 @@ def delete(request):
     verified_time = request.session.get("delete")
     if not verified_time or (timezone.now().timestamp() - verified_time > 300):
         # 세션이 없거나 만료된경우 비밀번호 인증 페이지로 이동합니다.
-        return redirect(
-            f"{reverse('accounts:verify')}?next={reverse('accounts:delete')}"
-        )
+        return redirect(f"{reverse('accounts:verify')}?next={reverse('accounts:delete')}")
     request.user.delete()
     return redirect("products:index")
 
@@ -261,11 +242,7 @@ def verify(request):
 
     # 다음 목적지를 기본적으로 update 페이지로 설정합니다.
     # 만약 next 값이 들어오지 않았다면 next를 accounts:update로 두겠다는 설정입니다.
-    next_url = (
-        request.GET.get("next")
-        or request.POST.get("next")
-        or reverse("accounts:update")
-    )
+    next_url = request.GET.get("next") or request.POST.get("next") or reverse("accounts:update")
 
     if request.method == "POST":
         # DB에 저장된 사용자 정보에 인증을 시도하기 위해
