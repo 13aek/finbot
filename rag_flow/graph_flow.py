@@ -51,7 +51,9 @@ class ChatSession:
         """
         # 히스토리가 DB에 있다면 old history로 추가
         if user_history:
-            self.state["history"].append({"role": "user", "content": user_history, "state": "old"})
+            self.state["history"].append(
+                {"role": "user", "content": user_history, "state": "old"}
+            )
             self.state["visited"] = True
         # DB에 history 있으면 True
         # self.state["history"].append(
@@ -194,7 +196,9 @@ def nth_conversation(state: ChatState) -> ChatState:
         Dict: state에 업데이트 할 answer.
     """
     histories = state["history"]
-    questions = [history["content"] for history in histories if history["role"] == "user"]
+    questions = [
+        history["content"] for history in histories if history["role"] == "user"
+    ]
 
     messages = [
         {
@@ -202,7 +206,9 @@ def nth_conversation(state: ChatState) -> ChatState:
             "content": "너는 주어지는 몇 개의 문장을 '3단어'로 요약해야해.",
         }
     ]
-    messages.append({"role": "user", "content": f"다음은 주어진 문장들이야 :\n{questions}"})  # 이전 질문들 모두
+    messages.append(
+        {"role": "user", "content": f"다음은 주어진 문장들이야 :\n{questions}"}
+    )  # 이전 질문들 모두
     messages.append({"role": "user", "content": "주어진 문장들을 3단어로 요약해줘."})
 
     completion = client.chat.completions.create(model="gpt-4o-mini", messages=messages)
@@ -293,7 +299,9 @@ def rag_search(state: ChatState) -> ChatState:
     topk = 3
     user_query = state["query"]
     q_vec = embed_model.encode([user_query], return_dense=True)["dense_vecs"][0]
-    hits = vector_db.search(collection_name="finance_products_deposit", query_vector=q_vec, limit=topk)
+    hits = vector_db.search(
+        collection_name="finance_products_deposit", query_vector=q_vec, limit=topk
+    )
 
     vector_db_answer = hits[0].payload
 
@@ -336,9 +344,13 @@ def add_to_history(state: ChatState) -> ChatState:
     new_history = []
     if state.get("query", False):
         new_history.append({"role": "user", "content": state["query"], "state": "new"})
-        new_history.append({"role": "assistant", "content": state["answer"], "state": "new"})
+        new_history.append(
+            {"role": "assistant", "content": state["answer"], "state": "new"}
+        )
     else:
-        new_history.append({"role": "assistant", "content": state["answer"], "state": "new"})
+        new_history.append(
+            {"role": "assistant", "content": state["answer"], "state": "new"}
+        )
     return {"history": new_history, "visited": True}
 
 

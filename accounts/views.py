@@ -1,9 +1,8 @@
-from django.contrib.auth import (
-    authenticate,
-    login as auth_login,
-    logout as auth_logout,
-    update_session_auth_hash,
-)
+from django.contrib import messages
+from django.contrib.auth import authenticate
+from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.shortcuts import redirect, render
@@ -11,9 +10,8 @@ from django.urls import reverse
 from django.utils import timezone
 
 from chatbot.models import ChatRoom
-from django.contrib import messages
-from .forms import CustomUserChangeForm, CustomUserCreationForm
 
+from .forms import CustomUserChangeForm, CustomUserCreationForm
 
 # Create your views here.
 
@@ -94,7 +92,9 @@ def update(request):
     if not verified_time or (timezone.now().timestamp() - verified_time > 300):
         # 세션이 없거나 만료되었다면 비밀번호를 재확인합니다.
         # 쿼리스트링을 통해 비밀번호 인증 후 다음에 이동할 페이지를 결정합니다.
-        return redirect(f"{reverse('accounts:verify')}?next={reverse('accounts:update')}")
+        return redirect(
+            f"{reverse('accounts:verify')}?next={reverse('accounts:update')}"
+        )
 
     # 인증이 완료되었다면 바로 인증이 필요한 서비스 이용 시 한번 더 인증하도록 세션을 삭제합니다.
     # request.session.pop("password_verified", None)
@@ -186,7 +186,9 @@ def delete(request):
     verified_time = request.session.get("delete")
     if not verified_time or (timezone.now().timestamp() - verified_time > 300):
         # 세션이 없거나 만료된경우 비밀번호 인증 페이지로 이동합니다.
-        return redirect(f"{reverse('accounts:verify')}?next={reverse('accounts:delete')}")
+        return redirect(
+            f"{reverse('accounts:verify')}?next={reverse('accounts:delete')}"
+        )
     request.user.delete()
     return redirect("products:index")
 
@@ -209,7 +211,11 @@ def verify(request):
 
     # 다음 목적지를 기본적으로 update 페이지로 설정합니다.
     # 만약 next 값이 들어오지 않았다면 next를 accounts:update로 두겠다는 설정입니다.
-    next_url = request.GET.get("next") or request.POST.get("next") or reverse("accounts:update")
+    next_url = (
+        request.GET.get("next")
+        or request.POST.get("next")
+        or reverse("accounts:update")
+    )
 
     if request.method == "POST":
         # DB에 저장된 사용자 정보에 인증을 시도하기 위해

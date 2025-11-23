@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 
 from findata.config_manager import JsonConfigManager
 
-
 """
 <금융상품한눈에 api 데이터 처리 가이드>
 
@@ -42,7 +41,9 @@ def fetch_findata(category="fixed_deposit") -> list[dict]:
     # 현재 날짜 저장
     today = date.today()
     format_today = today.strftime("%Y%m%d")
-    today_date = datetime(int(format_today[:4]), int(format_today[4:6]), int(format_today[6:8]))
+    today_date = datetime(
+        int(format_today[:4]), int(format_today[4:6]), int(format_today[6:8])
+    )
 
     # API 호출에 필요한 파라미터(필수)
     url = conf.urls[category]
@@ -116,7 +117,9 @@ def fetch_findata(category="fixed_deposit") -> list[dict]:
 
                 for api_key in tmp_data["result"]["baseList"][i].keys():
                     if api_key in item_dict.keys():
-                        rep_data[item_dict[api_key]] = tmp_data["result"]["baseList"][i][api_key]
+                        rep_data[item_dict[api_key]] = tmp_data["result"]["baseList"][
+                            i
+                        ][api_key]
                 rep_data["옵션"] = []
 
                 for j in range(len(tmp_data["result"]["optionList"])):
@@ -133,7 +136,9 @@ def fetch_findata(category="fixed_deposit") -> list[dict]:
 
                         for api_key2 in tmp_data["result"]["optionList"][j].keys():
                             if api_key2 in item_dict.keys():
-                                rep_data_in[item_dict[api_key2]] = tmp_data["result"]["optionList"][j][api_key2]
+                                rep_data_in[item_dict[api_key2]] = tmp_data["result"][
+                                    "optionList"
+                                ][j][api_key2]
 
                         rep_data["옵션"].append(rep_data_in)
                 data.append(rep_data)
@@ -146,7 +151,9 @@ def fetch_findata(category="fixed_deposit") -> list[dict]:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="This is calling finance data program from api")
+    parser = argparse.ArgumentParser(
+        description="This is calling finance data program from api"
+    )
     # ["fixed_deposit", "installment_deposit", "jeonse_loan"] 중 하나
     parser.add_argument(
         "--category",

@@ -18,7 +18,7 @@ class CustomUserCreationForm(UserCreationForm):
         error_messages={
             "required": "아이디를 입력해주세요.",
             "unique": "이미 사용 중인 아이디입니다.",
-        }
+        },
     )
 
     # 비밀번호 입력 필드
@@ -27,7 +27,7 @@ class CustomUserCreationForm(UserCreationForm):
         widget=forms.PasswordInput,
         error_messages={
             "required": "비밀번호를 입력해주세요.",
-        }
+        },
     )
 
     # 비밀번호 재입력 필드
@@ -36,7 +36,7 @@ class CustomUserCreationForm(UserCreationForm):
         widget=forms.PasswordInput,
         error_messages={
             "required": "비밀번호를 다시 입력해주세요.",
-        }
+        },
     )
 
     class Meta(UserCreationForm.Meta):
@@ -52,9 +52,11 @@ class CustomUserCreationForm(UserCreationForm):
             raise forms.ValidationError("비밀번호가 서로 일치하지 않습니다.")
         return p2
 
+
 # CustomUserChangeForm
 # - 마이페이지 등에서 사용자 정보 수정 시 사용하는 Form
 # 초기에 설정해놓은 커스텀 유저 모델로 갱신
+
 
 class CustomUserChangeForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):
