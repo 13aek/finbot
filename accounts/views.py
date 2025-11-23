@@ -1,5 +1,9 @@
-from django.contrib import messages
-from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, update_session_auth_hash
+from django.contrib.auth import (
+    authenticate,
+    login as auth_login,
+    logout as auth_logout,
+    update_session_auth_hash,
+)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.shortcuts import redirect, render
@@ -80,6 +84,9 @@ def login_view(request):
             messages.error(request, "아이디 또는 비밀번호가 올바르지 않습니다.", extra_tags="login_error")
     else:
         form = AuthenticationForm()
+    context = {
+        "form": form,
+    }
     return render(request, "accounts/login.html", {"form": form})
 
 
