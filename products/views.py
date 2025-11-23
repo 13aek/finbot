@@ -58,7 +58,7 @@ def search(request):
     page_obj = paginator.get_page(page_number)
 
     current_page = page_obj.number
-    start_page = (current_page // 10) * 10 + 1
+    start_page = ((current_page - 1) // 10) * 10 + 1
     end_page = min(start_page + 9, paginator.num_pages)
 
     previous_page = max(current_page - 1, 1)
