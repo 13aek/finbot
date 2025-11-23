@@ -19,6 +19,12 @@ def chat_page(request):
     - GET 요청: 기존 대화 내역 표시
     - POST 요청: 사용자 입력을 DB에 저장하고 챗봇 응답 생성 후 다시 렌더링
     """
+    # 로그인 여부 체크 — 메시지 + 로그인 페이지로 redirect
+    if not request.user.is_authenticated:
+        messages.warning(request, "회원만 이용 가능합니다. 로그인 후 이용해주세요.")
+        return redirect("accounts:login")
+    
+    
     # 해당 사용자의 채팅방을 조회합니다.
     chat_room = ChatRoom.objects.get(user=request.user)
     # 사용자가 이전 로그인 시점에 챗봇과 나눴던 대화를 불러옵니다.

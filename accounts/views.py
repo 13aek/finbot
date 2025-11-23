@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from chatbot.models import ChatRoom
-
+from django.contrib import messages
 from .forms import CustomUserChangeForm, CustomUserCreationForm
 
 # Create your views here.
@@ -58,6 +58,11 @@ def login_view(request):
         if form.is_valid():
             auth_login(request, form.get_user())
             return redirect("products:index")
+        else:
+            # 로그인 실패 시 한글 메시지 출력
+            messages.error(request, "아이디 또는 비밀번호가 올바르지 않습니다.")
+            return redirect("accounts:login")
+
     else:
         form = AuthenticationForm()
     context = {

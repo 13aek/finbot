@@ -12,6 +12,14 @@
 
 {% block content %}
 <div class="container">
+    
+     {# 메시지 표시 #}
+    {% if messages %}
+        {% for message in messages %}
+            <p class="alert">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+    
     <form action="{% url 'accounts:login' %}" method="POST">
         {% csrf_token %}
 
