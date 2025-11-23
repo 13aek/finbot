@@ -108,9 +108,7 @@ def chat_page(request, chatroom_pk = None):
                 request.session[f"chat{chatroom_pk}"] = user_message
 
             # langgraph의 flow에 따라 chat 인스턴스에 히스토리를 "new"로 추가합니다.
-            chat.state["history"].append(
-                {"role": "user", "content": user_message, "state": "new"}
-            )
+            chat.state["history"].append({"role": "user", "content": user_message, "state": "new"})
 
             # 챗봇 응답 저장
             reply = chat.ask(user_message)
