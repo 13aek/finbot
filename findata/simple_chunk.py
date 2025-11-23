@@ -5,10 +5,6 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
-<<<<<<< HEAD
-
-=======
->>>>>>> b6f750a38a5ee4da794440afd7ce6f7b515b91f1
 def make_embedding_ready_text_deposit(product: dict) -> str:
     """
     JSON 데이터 -> 자연어 문장으로 변환하는 함수

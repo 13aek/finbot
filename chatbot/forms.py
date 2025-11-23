@@ -1,5 +1,7 @@
-from .models import ChatRoom
 from django.forms import ModelForm
+
+from .models import ChatRoom
+
 
 class ChatRoomForm(ModelForm):
     class Meta:

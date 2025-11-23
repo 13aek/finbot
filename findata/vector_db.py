@@ -43,11 +43,7 @@ def get_qdrant_local(
     return client
 
 
-<<<<<<< HEAD:findata/vectorDB.py
-def save_vectorDB(
-=======
 def save_vector_db(
->>>>>>> b6f750a38a5ee4da794440afd7ce6f7b515b91f1:findata/vector_db.py
     chunked_docs: list[str],
     collection_name: str = "finance_products",
     category: str = "deposit",

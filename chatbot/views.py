@@ -9,9 +9,9 @@ from django.shortcuts import redirect, render
 
 from rag_flow.graph_flow import ChatSession
 
+from .forms import ChatRoomForm
 from .models import ChatMessage, ChatRoom
 
-from .forms import ChatRoomForm
 
 @login_required
 def chat_list(request):
