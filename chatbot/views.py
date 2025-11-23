@@ -40,22 +40,16 @@ def chat_page(request):
 
         if user_message:  # 빈 메시지가 아닐 때만 저장
             # 사용자 메시지 저장
-            ChatMessage.objects.create(
-                user=request.user, role="user", message=user_message
-            )
+            ChatMessage.objects.create(user=request.user, role="user", message=user_message)
             # 세션에 임시로 현재 로그인 상태에서 사용자가 보냈던 메시지를 저장합니다.
             # 이미 세션에 저장된 메시지가 있다면 추가합니다.
             if request.session.get("chat"):
-                request.session["chat"] = (
-                    request.session.get("chat") + ", " + user_message
-                )
+                request.session["chat"] = request.session.get("chat") + ", " + user_message
             else:
                 request.session["chat"] = user_message
 
             # langgraph의 flow에 따라 chat 인스턴스에 히스토리를 "new"로 추가합니다.
-            chat.state["history"].append(
-                {"role": "user", "content": user_message, "state": "new"}
-            )
+            chat.state["history"].append({"role": "user", "content": user_message, "state": "new"})
 
             # 챗봇 응답 저장
             reply = chat.ask(user_message)
@@ -83,7 +77,5 @@ def chat_page(request):
         ChatMessage.objects.create(user=request.user, role="bot", message=reply)
 
     # 현재 사용자의 메시지만 조회
-    messages = ChatMessage.objects.filter(user=request.user).order_by(
-        "created_at"
-    )  # 오래된 순
+    messages = ChatMessage.objects.filter(user=request.user).order_by("created_at")  # 오래된 순
     return render(request, "chatbot/chat.html", {"messages": messages})
