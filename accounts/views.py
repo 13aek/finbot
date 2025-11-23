@@ -81,6 +81,11 @@ def login_view(request):
         if form.is_valid():
             auth_login(request, form.get_user())
             return redirect("products:index")
+
+        else:
+            messages.error(
+                    request, "아이디 또는 비밀번호가 올바르지 않습니다.", extra_tags="login_error"
+                )
     else:
         form = AuthenticationForm()
     context = {
