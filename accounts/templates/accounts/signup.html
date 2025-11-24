@@ -11,11 +11,13 @@
 
 {% block content %}
   <div class="container">
+
+    <a href="{% url 'products:index' %}" class="main-link">
+      <img src="{% static 'images/logo-white.png' %}" alt="FINBOT Logo">
+    </a>
+
     <form action="{% url "accounts:signup" %}" method="POST">
     {% csrf_token %}
-
-    {# 에러 발생 안내 문구 #}
-    {{ form.errors }}
 
     {# 1. 아이디 입력 필드 #}
     <input
@@ -52,5 +54,4 @@
     <button type="submit">회원 가입</button>
     </form>
   </div>
-</body>
 {% endblock content %}
