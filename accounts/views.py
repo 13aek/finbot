@@ -9,7 +9,6 @@ from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
-from django.contrib import messages
 
 from chatbot.models import ChatRoom
 
@@ -41,9 +40,7 @@ def signup(request):
 
         if "username" in errors:
             if any("이미 존재합니다" in e for e in errors["username"]):
-                messages.error(
-                    request, "이미 존재하는 아이디입니다.", extra_tags="id_error"
-                )
+                messages.error(request, "이미 존재하는 아이디입니다.", extra_tags="id_error")
             else:
                 messages.error(request, errors["username"], extra_tags="id_error")
         elif "password2" in errors:
@@ -56,9 +53,7 @@ def signup(request):
             else:
                 messages.error(request, errors["username"], extra_tags="id_error")
         else:
-            messages.error(
-                request, "입력한 정보가 올바르지 않습니다.", extra_tags="default_error"
-            )
+            messages.error(request, "입력한 정보가 올바르지 않습니다.", extra_tags="default_error")
 
     # 사용자가 회원가입 페이지를 요청했을 때
     else:
@@ -84,12 +79,15 @@ def login_view(request):
         if form.is_valid():
             auth_login(request, form.get_user())
             return redirect("products:index")
+
+        else:
+            messages.error(request, "아이디 또는 비밀번호가 올바르지 않습니다.", extra_tags="login_error")
     else:
         form = AuthenticationForm()
     context = {
         "form": form,
     }
-    return render(request, "accounts/login.html", context)
+    return render(request, "accounts/login.html", {"form": form})
 
 
 @login_required
@@ -148,6 +146,30 @@ def password(request):
             user = form.save()
             update_session_auth_hash(request, user)  # 비밀번호 변경시 세션 유지
             return redirect("products:index")
+        errors = form.errors
+
+        if "old_password" in errors:
+            if any("잘못 입력하셨습니다." in e for e in errors["old_password"]):
+                messages.error(request, "기존 비밀번호를 잘못 입력하셨습니다.", extra_tags="old_password_error")
+            else:
+                messages.error(request, errors["old_password"], extra_tags="old_password_error")
+        elif "new_password2" in errors:
+            if any("최소 8자 이상" in e for e in errors["new_password2"]):
+                messages.error(
+                    request,
+                    "비밀번호는 최소 8자 이상이어야 합니다.",
+                    extra_tags="new_password2_error",
+                )
+            elif any("일치하지 않습니다." in e for e in errors["new_password2"]):
+                messages.error(
+                    request,
+                    "비밀번호와 비밀번호 확인이 일치하지 않습니다.",
+                    extra_tags="new_password2_error",
+                )
+            else:
+                messages.error(request, errors["new_password2"], extra_tags="new_password2_error")
+        else:
+            messages.error(request, "입력한 정보가 올바르지 않습니다.", extra_tags="default_error")
     else:
         form = PasswordChangeForm(request.user)
     context = {
@@ -255,7 +277,7 @@ def verify(request):
             return redirect(next_url)
         # 인증되지 않았다면 error를 context에 담아 반환합니다.
         else:
-            context = {"error": "비밀번호가 올바르지 않습니다."}
-            return render(request, "accounts/verify.html", context)
+            messages.error(request, "비밀번호가 올바르지 않습니다.", extra_tags="verify_error")
+            return render(request, "accounts/verify.html")
 
     return render(request, "accounts/verify.html")

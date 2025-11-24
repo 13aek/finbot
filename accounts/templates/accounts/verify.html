@@ -27,7 +27,7 @@
           {{ error }}
         </div>
       {% endif %}
-
+        
       {# 1. 비밀번호 입력 필드 #}
       <input type="password" name="password" placeholder="비밀번호 입력" required>
 
@@ -35,4 +35,11 @@
       <button type="submit">로그인</button>
     </form>
   </div>
+  <script>
+    {% if messages %}
+      {% for msg in messages %}
+            alert("{{ msg }}")
+      {% endfor %}
+    {% endif %}
+  </script>
 {% endblock content %}
