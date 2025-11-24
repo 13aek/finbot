@@ -1,6 +1,5 @@
 {# login.html #}
 {# 로그인 화면 템플릿 #}
-{# 계정이 없을 경우 회원 가입 페이지로 이동 가능 #}
 
 {% extends 'base.html' %}
 {% load static %}
@@ -13,6 +12,7 @@
 {% block content %}
 <div class="container">
 
+    {# 로고 이미지 #}
     <a href="{% url 'products:index' %}" class="main-link">
       <img src="{% static 'images/logo-white.png' %}" alt="FINBOT Logo">
     </a>
