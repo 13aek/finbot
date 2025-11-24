@@ -1,6 +1,7 @@
 """
 금융상품 데이터 수집 및 저장 메인 실행 파일
-- '금융상품한눈에' 오픈 API로부터 데이터를 수집(fetch)하고, 수집된 데이터를 MySQL DB에 저장(save)하는 전체 프로세스를 실행
+- '금융상품한눈에' 오픈 API로부터 데이터를 수집(fetch)하고,
+    수집된 데이터를 MySQL DB에 저장(save)하는 전체 프로세스를 실행
 
 실행 순서
 1. call_findata_api.py 의 fetch_findata() 함수를 통해 금융상품 데이터 수집
@@ -18,6 +19,7 @@ python -m findata.main
 
 from findata.call_findata_api import fetch_findata
 from findata.save_to_db import save_fin_products
+
 
 FIN_CATEGORIES = [
     ("fixed_deposit", "정기예금"),
