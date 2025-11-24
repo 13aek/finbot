@@ -1,6 +1,6 @@
 {# verify.html #}
-{# My Page 진입 시에 #}
-{# 본인 확인을 위해 한 번 더 로그인 인증을 요청하는 페이지 템플릿 #}
+{# 회원 정보 페이지 진입 시에 #}
+{# 본인 확인을 위해 한 번 더 로그인 인증을 요청하는 화면 템플릿 #}
 
 {% extends 'base.html' %}
 {% load static %}
@@ -12,8 +12,14 @@
 
 {% block content %}
   <div class="container">
-    <p class="verify">계정 정보를 확인하려면<br>
-        <span class="notice">비밀번호를 입력해 주세요</span>
+
+    {# 로고 이미지 #}
+    <a href="{% url 'products:index' %}" class="main-link">
+      <img src="{% static 'images/logo-white.png' %}" alt="FINBOT Logo">
+    </a>
+
+    <p class="verify">개인정보 보호를 위해<br>
+        <span class="notice">비밀번호를 다시 입력해 주세요</span>
     </p>
 
     <form action="" method="POST">
@@ -21,18 +27,11 @@
 
       <input type="hidden" name="next" value="{{ request.GET.next }}">
 
-      {# 에러 발생 안내 문구 #}
-      {% if error %}
-        <div class="error">
-          {{ error }}
-        </div>
-      {% endif %}
-        
       {# 1. 비밀번호 입력 필드 #}
       <input type="password" name="password" placeholder="비밀번호 입력" required>
 
-      {# 2. 로그인 버튼 #}
-      <button type="submit">로그인</button>
+      {# 2. 본인 확인 버튼 #}
+      <button type="submit">본인 확인</button>
     </form>
   </div>
   <script>
