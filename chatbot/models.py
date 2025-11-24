@@ -4,13 +4,19 @@ from django.db import models
 
 class ChatRoom(models.Model):
     # 외래키와 같은 방식으로 User모델과 관계를 맺지만, 각 객체가 오직 하나의 연결만 가지도록 설정
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     # 사용자가 방문한 적 있는지 없는지를 표시할 필드
     ever_visited = models.BooleanField(default=False)
 
     # 사용자가 이전 로그인 세션에서 나눴던 대화
     history = models.TextField(null=True)
+    
+    # 사용자에게 보여줄 방 번호
+    display_id = models.PositiveIntegerField() # 음수가 없는 필드
+    
+    # 채팅방 이름
+    title = models.CharField(max_length=15, null=True)
 
 
 class ChatMessage(models.Model):
@@ -18,9 +24,11 @@ class ChatMessage(models.Model):
         ("user", "User"),
         ("bot", "Bot"),
     ]
-
-    # 채팅방과 연결
+    # 유저와 연결
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    
+    # 채팅방과 연결
+    room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE)
 
     # 역할 (유저/봇)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
