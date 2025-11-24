@@ -11,20 +11,101 @@
 
 {% block content %}
 <header class="header-buttons">
-  <a href="{% url 'chat:currnet_chat' %}" class="ai-chat-btn">AI CHAT</a>
-  <a href="{% url 'accounts:update' %}" class="mypage-btn">MY PAGE</a>
-  <a href="{% url 'accounts:logout' %}" class="logout-btn">LOGOUT</a>
+  <div class="left-group">
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'accounts:update' %}" class="info-btn">회원 정보</a>
+      {# <a href="{% url 'accounts:bookmark' %}" class="info-btn">관심 상품</a> #}
+    {% endif %}
+  </div>
+
+  <div class="right-group">
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'accounts:logout' %}" class="logout-btn">로그아웃</a>
+    {% else %}
+      <a href="{% url 'accounts:login' %}" class="logout-btn">로그인</a>
+    {% endif %}
+  </div>
 </header>
 
 <main class="main-content">
+  {# 로고 이미지 #}
+  <a href="{% url 'products:index' %}" class="main-link">
+    <img src="{% static 'images/logo-white.png' %}" alt="FINBOT Logo">
+  </a>
+
   <form class="search-form" action="{% url 'products:search' %}" method="GET">
     <div class="search-input-wrapper">
-      <input type="text" placeholder="상품명을 입력하세요" class="search-input" name="query">
+      <input type="text" placeholder="검색어를 입력하세요" class="search-input" name="query">
       <button type="submit" class="search-submit-btn">&#x2315;</button> 
     </div>
 
       <button type="submit" style="display: none;">검색</button>
-
   </form>
+
+  <section class="recommend-section">
+    {# 로그인 사용자 #}
+    {% if request.user.is_authenticated %}
+    <h2 class="recommend-title">
+      사용자님의 <span class="highlight-title">관심 상품</span>
+    </h2>
+
+    <div class="card-container">
+      <div class="rec-card">
+        <div class="rec-card-inner">
+          <h3>NH 고향사랑기부적금</h3>
+          <p>고향 발전을 위한 기부금도 쌓고, 우대금리도 받고!</p>
+        </div>
+      </div>
+
+      <div class="rec-card">
+        <div class="rec-card-inner">
+          <h3>신한 안녕, 반가워 적금</h3>
+          <p>새롭게 금융 거래를 시작하는 고객님을 위해 준비했어요.</p>
+        </div>
+      </div>
+
+      <div class="rec-card">
+        <div class="rec-card-inner">
+          <h3>WON 적금</h3>
+          <p>복잡하지 않고 간단한 적금</p>
+        </div>
+      </div>
+    </div>
+    
+    {% else %}
+    {# 비로그인 사용자 #}
+    <h2 class="recommend-title">
+      고객님께 추천해 드리는 <span class="highlight-title">금주의 상품</span>
+    </h2>
+
+    <div class="card-container">
+      <div class="rec-card">
+        <div class="rec-card-inner">
+          <h3>NH 고향사랑기부적금</h3>
+          <p>고향 발전을 위한 기부금도 쌓고, 우대금리도 받고!</p>
+        </div>
+      </div>
+
+      <div class="rec-card">
+        <div class="rec-card-inner">
+          <h3>신한 안녕, 반가워 적금</h3>
+          <p>새롭게 금융 거래를 시작하는 고객님을 위해 준비했어요.</p>
+        </div>
+      </div>
+
+      <div class="rec-card">
+        <div class="rec-card-inner">
+          <h3>WON 적금</h3>
+          <p>복잡하지 않고 간단한 적금</p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </section>
+
+  {# 채팅 페이지 버튼 #}
+  <a href="{% url 'chat:currnet_chat' %}" class="chatbot-btn">
+    <img src="{% static 'images/finbot.png' %}" alt="FINBOT Chat">
+  </a>
 </main>
 {% endblock content %}

@@ -9,66 +9,91 @@
 {% endblock styles %}
 
 {% block content %}
-<div class="search-header">
-  {# 검색 창 #}
-  <form class="search-bar" method="GET" action="{% url 'products:search' %}">
-    <div class="search-input-wrapper">
-      <input class="search-input" type="text" name="query" value="{{ query }}" placeholder="상품명을 입력하세요">
-      <button type="submit" class="search-submit-btn">&#x2315;</button>
-    </div>
-  </form>
+<div class="content-wrapper">
 
-  {# 페이지 이동 버튼 #}
-  <div class="header-links">
-    <a href="{% url 'products:index' %}" class="home-link">HOME</a>
-    <a href="{% url 'accounts:logout' %}" class="logout-link">LOGOUT</a>
+  <header class="header">
+    <div class="left-group">
+      {# 로고 이미지 #}
+      <a href="{% url 'products:index' %}" class="main-link">
+        <img src="{% static 'images/logo-gray.png' %}" alt="FINBOT Logo">
+      </a>
+    </div>
+
+    <div class="right-group">
+      {% if request.user.is_authenticated %}
+        <a href="{% url 'chat:currnet_chat' %}" class="info-btn">AI CHAT</a>
+        <a href="{% url 'accounts:update' %}" class="info-btn">회원 정보</a>
+        {# <a href="{% url 'accounts:bookmark' %}" class="info-btn">관심 상품</a> #}
+        <a href="{% url 'accounts:logout' %}" class="logout-btn">로그아웃</a>
+      {% else %}
+        <a href="{% url 'accounts:login' %}" class="logout-btn">로그인</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <div class="search-header">
+    {# 검색 창 #}
+    <form class="search-bar" method="GET" action="{% url 'products:search' %}">
+      <div class="search-input-wrapper">
+        <input class="search-input" type="text" name="query" value="{{ query }}" placeholder="검색어를 입력하세요">
+        <button type="submit" class="search-submit-btn">&#x2315;</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="result-container">
+    {% if query %}
+        <div class="result-list">
+        {% if page_obj %}
+          {% for p in page_obj %}
+          <div class="result-item">
+              <h3>{{ p.product_name }}</h3>
+
+              <div class="info-grid">
+                  <div class="label">회사명</div>
+                  <div class="value">{{ p.company_name }}</div>
+
+                  <div class="label">이자율</div>
+                  <div class="value">{{ p.maturity_interest }}</div>
+
+                  <div class="label">가입대상</div>
+                  <div class="value">{{ p.join_target }}</div>
+
+                  <div class="label">최고한도</div>
+                  <div class="value">{{ p.max_limit }}</div>
+              </div>
+          </div>
+          {% endfor %}
+      
+        <div class="pagination">
+          {# 이전 페이지 #}
+          {% if show_previous_10 %}
+            <a href="?query={{ query }}&page={{ previous_page }}">이전</a>
+          {% endif %}
+
+          {# 페이지 번호 그룹 표시 (1부터 10까지) #}
+          {% for num in page_obj.paginator.page_range %}
+            {% if num >= start_page and num <= end_page %}
+              {% if num == page_obj.number %}
+                <span>{{ num }}</span>
+              {% else %}
+                <a href="?query={{ query }}&page={{ num }}">{{ num }}</a>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+
+          {# 다음 페이지 #}
+          {% if show_next_10 %}
+            <a href="?query={{ query }}&page={{ next_page }}">다음</a>
+          {% endif %}
+        </div>
+
+        {% else %}
+        <div class="no-result">
+          <p>검색 결과가 없습니다.</p>
+        </div>
+        {% endif %}
+    </div>
   </div>
 </div>
-
-  <div class="result-wrapper">
-    <div class="result-container">
-      {% if query %}
-        <h3>"{{ query }}" 검색 결과</h3>
-        <hr>
-          <div class="result-list">
-          {% if page_obj %}
-            {% for p in page_obj %}
-              <p>회사명: {{ p.company_name }}</p>
-              <p>상품명: {{ p.product_name }}</p>
-              <p>이자율: {{ p.maturity_interest }}</p>
-              <p>가입대상: {{ p.join_target }}</p>
-              <p>최고한도: {{ p.max_limit }}</p>
-              <hr>
-            {% endfor %}
-       
-            {# 이전 페이지 #}
-            {% if show_previous_10 %}
-              <a href="?query={{ query }}&page={{ previous_page }}"><< 이전 페이지</a>
-            {% endif %}
-
-            {# 페이지 번호 그룹 표시 (1부터 10까지) #}
-            {% for num in page_obj.paginator.page_range %}
-              {% if num >= start_page and num <= end_page %}
-                {% if num == page_obj.number %}
-                  <span>{{ num }}</span>
-                {% else %}
-                  <a href="?query={{ query }}&page={{ num }}">{{ num }}</a>
-                {% endif %}
-              {% endif %}
-            {% endfor %}
-
-            {# 다음 페이지 #}
-            {% if show_next_10 %}
-              <a href="?query={{ query }}&page={{ next_page }}">다음 페이지 >></a>
-            {% endif %}
-
-          {% else %}
-          <div class="no-result">
-            <p>검색 결과가 없습니다.</p>
-          </div>
-          {% endif %}
-        {% endif %}
-      </div>
-    </div>
-  </div>
 {% endblock content %}
