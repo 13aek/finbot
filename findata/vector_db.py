@@ -92,7 +92,9 @@ def get_ready_search(category="deposit"):
     db_path = glob(os.getcwd() + "/**/qdrant_localdb", recursive=True)[0]
 
     model = BGEM3FlagModel("BAAI/bge-m3", use_fp16=False)
-    client = get_qdrant_local(collection_name=db_collection_name, vector_size=1024, path=db_path)
+    client = get_qdrant_local(
+        collection_name=db_collection_name, vector_size=1024, path=db_path
+    )
     return model, client
 
 

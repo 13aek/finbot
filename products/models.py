@@ -1,5 +1,7 @@
 from django.db import models
 
+from accounts.models import User
+
 
 # Create your models here.
 class FinProduct(models.Model):
@@ -23,3 +25,13 @@ class FinProduct(models.Model):
 
     def __str__(self):
         return self.product_name
+
+
+class FavoriteProduct(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey("accounts.User", on_delete=models.CASCADE)
+    product = models.ForeignKey(FinProduct, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "favorite_products"

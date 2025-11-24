@@ -3,6 +3,7 @@
 
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block styles %}
   <link rel="stylesheet" href="{% static 'accounts/css/mypage-layout.css' %}">
@@ -28,6 +29,7 @@
     {# 로그아웃 버튼 #}
     <a href="{% url 'accounts:logout' %}" class="logout-link">로그아웃</a>
   </div>
+  <div class="content-area">
 
   <form action="{% url 'accounts:update' %}" method="POST">
     {% csrf_token %}
@@ -74,8 +76,57 @@
       </div>
     </div>
 
+    
     {# 7. 정보 수정 내역 저장 버튼 #}
-    <button type="submit" class="btn-bottom-right">정보 수정</button>
+    <div class="update-btn-wrapper" style="margin-top: 60px;">
+      <button type="submit" class="btn-bottom-right">정보 수정</button>
+    </div>
+    
   </form>
-</div>
+
+  <!-- 관심상품 영역 -->
+    <div class="favorites-section" style="margin-top: 60px; margin-bottom: 80px;">
+
+      <h2 style="margin-bottom: 20px;">나의 관심상품</h2>
+
+      {% if favorites %}
+        <ul class="favorites-list" style="list-style: none; padding: 0;">
+          {% for item in favorites %}
+            <li style="
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 16px;
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+                gap: 16px;
+            ">
+
+              <div>
+                <strong style="font-size: 18px;">{{ item.product_name }}</strong><br>
+                <span style="color: #666;">{{ item.company_name }}</span><br><br>
+
+                금리: <b>{{ item.interest_rate }}%</b><br>
+                예치기간: <b>{{ item.period_month }}개월</b><br><br>
+
+                <span style="font-size: 16px;">
+                  예상 수익: <b>{{ item.expected_profit|intcomma }}원</b>
+                </span><br>
+
+                <span style="font-size: 16px;">
+                  총 수령액: <b>{{ item.total_amount|intcomma }}원</b>
+                </span>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p style="color: #666;">관심상품이 없습니다.</p>
+      {% endif %}
+
+    </div> <!-- favorites-section 끝 -->
+
+  </div>  {# 🔥 content-area 끝 #}
+
+</div> <!-- container 끝 -->
 {% endblock content %}

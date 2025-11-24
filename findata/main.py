@@ -20,7 +20,6 @@ python -m findata.main
 from findata.call_findata_api import fetch_findata
 from findata.save_to_db import save_fin_products
 
-
 FIN_CATEGORIES = [
     ("fixed_deposit", "정기예금"),
     ("installment_deposit", "적금"),
