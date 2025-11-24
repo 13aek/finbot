@@ -1,7 +1,9 @@
-from django.contrib.auth import authenticate
-from django.contrib.auth import login as auth_login
-from django.contrib.auth import logout as auth_logout
-from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import (
+    authenticate,
+    login as auth_login,
+    logout as auth_logout,
+    update_session_auth_hash,
+)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.shortcuts import redirect, render
@@ -12,6 +14,7 @@ from django.contrib import messages
 from chatbot.models import ChatRoom
 
 from .forms import CustomUserChangeForm, CustomUserCreationForm
+
 
 # Create your views here.
 
@@ -32,7 +35,7 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             # 회원가입이 완료 된 시점에 해당 사용자의 채팅방을 생성
-            ChatRoom.objects.create(user=user, ever_visited=False)
+            ChatRoom.objects.create(display_id = 1, user=user, ever_visited=False)
             return redirect("accounts:login")
         errors = form.errors
 
@@ -86,7 +89,7 @@ def login_view(request):
     context = {
         "form": form,
     }
-    return render(request, "accounts/login.html", {"form": form})
+    return render(request, "accounts/login.html", context)
 
 
 @login_required
@@ -109,9 +112,7 @@ def update(request):
     if not verified_time or (timezone.now().timestamp() - verified_time > 300):
         # 세션이 없거나 만료되었다면 비밀번호를 재확인합니다.
         # 쿼리스트링을 통해 비밀번호 인증 후 다음에 이동할 페이지를 결정합니다.
-        return redirect(
-            f"{reverse('accounts:verify')}?next={reverse('accounts:update')}"
-        )
+        return redirect(f"{reverse('accounts:verify')}?next={reverse('accounts:update')}")
 
     # 인증이 완료되었다면 바로 인증이 필요한 서비스 이용 시 한번 더 인증하도록 세션을 삭제합니다.
     # request.session.pop("password_verified", None)
@@ -170,10 +171,12 @@ def logout(request):
         HttpResponseRedirect: 로그아웃 처리 후 로그인 페이지(`accounts:login`)로 리다이렉트합니다.
     """
     # 현재까지 나눴던 대화를 DB에 저장
-    if request.session.get("chat"):
-        room = ChatRoom.objects.get(user=request.user)
-        room.history = request.session["chat"]
-        room.save()
+    rooms = ChatRoom.objects.filter(user=request.user)
+    # todo 채팅방마다 히스토리를 분리하여 따로 저장합니다.
+    for room in rooms:
+        room.history = request.session.get(f"chat{room.pk}")
+        if room.history:
+            room.save()
 
     auth_logout(request)
     return redirect("accounts:login")
@@ -203,9 +206,7 @@ def delete(request):
     verified_time = request.session.get("delete")
     if not verified_time or (timezone.now().timestamp() - verified_time > 300):
         # 세션이 없거나 만료된경우 비밀번호 인증 페이지로 이동합니다.
-        return redirect(
-            f"{reverse('accounts:verify')}?next={reverse('accounts:delete')}"
-        )
+        return redirect(f"{reverse('accounts:verify')}?next={reverse('accounts:delete')}")
     request.user.delete()
     return redirect("products:index")
 
@@ -228,11 +229,7 @@ def verify(request):
 
     # 다음 목적지를 기본적으로 update 페이지로 설정합니다.
     # 만약 next 값이 들어오지 않았다면 next를 accounts:update로 두겠다는 설정입니다.
-    next_url = (
-        request.GET.get("next")
-        or request.POST.get("next")
-        or reverse("accounts:update")
-    )
+    next_url = request.GET.get("next") or request.POST.get("next") or reverse("accounts:update")
 
     if request.method == "POST":
         # DB에 저장된 사용자 정보에 인증을 시도하기 위해
