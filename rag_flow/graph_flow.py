@@ -2,14 +2,12 @@
 import os
 import sys
 from functools import partial
-from typing import Annotated, Any, Dict, List, Literal, TypedDict
+from typing import Annotated, Literal, TypedDict
 
-import pandas as pd
-from django.contrib.auth import get_user_model
 from dotenv import load_dotenv
 from langgraph.graph import END, START, StateGraph
 from openai import OpenAI
-from sqlalchemy import create_engine
+
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from functools import lru_cache
@@ -30,12 +28,21 @@ def load_model_and_db():
     return get_ready_search()
 
 
-load_model_and_db()
+@lru_cache(maxsize=1)
+def load_chat_client(api_key: str):
+    """
+    인자에 대한 반환값을 기억하여
+    해당 함수가 동일한 리턴값을 반환한다면
+    함수를 새로 실행시키는 것이 아닌 기억하고 있는 반환값을 그대로 사용합니다.
+    """
+    return OpenAI(api_key=api_key)
+
 
 load_dotenv("../.env")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+load_model_and_db()
+client = load_chat_client(OPENAI_API_KEY)
 
 
 class ChatSession:
@@ -55,9 +62,7 @@ class ChatSession:
         """
         # 히스토리가 DB에 있다면 old history로 추가
         if user_history:
-            self.state["history"].append(
-                {"role": "user", "content": user_history, "state": "old"}
-            )
+            self.state["history"].append({"role": "user", "content": user_history, "state": "old"})
             self.state["visited"] = True
         # DB에 history 있으면 True
         # self.state["history"].append(
@@ -91,7 +96,7 @@ class ChatSession:
         return self.state["answer"]
 
 
-def keep_last_n(existing: List[Dict], new: List[Dict], n: int = 10) -> List[Dict]:
+def keep_last_n(existing: list[dict], new: list[dict], n: int = 10) -> list[dict]:
     """
     최근 n개 항목만 유지하는 리듀서. State의 history List에 새로운 값을 추가하고 n개의 항목만 반환(유지)
 
@@ -120,14 +125,14 @@ class ChatState(TypedDict):
     mode: str  # chat mode : (First_hello)first conversation & first meet, (Nth_hello)first conversation & Nth meet, (Normal_chat)Nth conversation
     search_method: str  # search method : DB search, RAG search
     query: str  # user query
-    history: Annotated[List[Dict[str, str]], keep_last_10]  # user, assistant message 쌍
+    history: Annotated[list[dict[str, str]], keep_last_10]  # user, assistant message 쌍
     answer: str  # LLM answer
 
 
 # 노드 정의
 
 
-def conditional_about_history(state: ChatState) -> Dict:
+def conditional_about_history(state: ChatState) -> dict:
     """
     history에 따라 분기 발생
 
@@ -141,7 +146,6 @@ def conditional_about_history(state: ChatState) -> Dict:
         mode = "first_hello"
 
     elif state["visited"]:
-
         if state["history"][-1]["state"] == "old":
             mode = "Nth_hello"
 
@@ -197,9 +201,7 @@ def nth_conversation(state: ChatState) -> ChatState:
         Dict: state에 업데이트 할 answer.
     """
     histories = state["history"]
-    questions = [
-        history["content"] for history in histories if history["role"] == "user"
-    ]
+    questions = [history["content"] for history in histories if history["role"] == "user"]
 
     messages = [
         {
@@ -207,9 +209,7 @@ def nth_conversation(state: ChatState) -> ChatState:
             "content": "너는 주어지는 몇 개의 문장을 '3단어'로 요약해야해.",
         }
     ]
-    messages.append(
-        {"role": "user", "content": f"다음은 주어진 문장들이야 :\n{questions}"}
-    )  # 이전 질문들 모두
+    messages.append({"role": "user", "content": f"다음은 주어진 문장들이야 :\n{questions}"})  # 이전 질문들 모두
     messages.append({"role": "user", "content": "주어진 문장들을 3단어로 요약해줘."})
 
     completion = client.chat.completions.create(model="gpt-4o-mini", messages=messages)
@@ -221,7 +221,7 @@ def nth_conversation(state: ChatState) -> ChatState:
     return {"answer": answer}
 
 
-def conditional_about_query(state: ChatState) -> Dict:
+def conditional_about_query(state: ChatState) -> dict:
     """
     query에 따라 분기 발생.(하려했으나 DB search는 다른 함수로 빠졌기 때문에 RAG search만 존재)
 
@@ -300,9 +300,7 @@ def RAG_search(state: ChatState) -> ChatState:
     topk = 3
     user_query = state["query"]
     q_vec = embed_model.encode([user_query], return_dense=True)["dense_vecs"][0]
-    hits = vectorDB.search(
-        collection_name="finance_products_deposit", query_vector=q_vec, limit=topk
-    )
+    hits = vectorDB.search(collection_name="finance_products_deposit", query_vector=q_vec, limit=topk)
 
     VectorDB_answer = hits[0].payload
 
@@ -345,13 +343,9 @@ def add_to_history(state: ChatState) -> ChatState:
     new_history = []
     if state.get("query", False):
         new_history.append({"role": "user", "content": state["query"], "state": "new"})
-        new_history.append(
-            {"role": "assistant", "content": state["answer"], "state": "new"}
-        )
+        new_history.append({"role": "assistant", "content": state["answer"], "state": "new"})
     else:
-        new_history.append(
-            {"role": "assistant", "content": state["answer"], "state": "new"}
-        )
+        new_history.append({"role": "assistant", "content": state["answer"], "state": "new"})
     return {"history": new_history, "visited": True}
 
 
