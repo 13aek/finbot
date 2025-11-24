@@ -207,7 +207,14 @@ def verify(request):
     # 다음 목적지를 기본적으로 update 페이지로 설정합니다.
     # 만약 next 값이 들어오지 않았다면 next를 accounts:update로 두겠다는 설정입니다.
     next_url = request.GET.get("next") or request.POST.get("next") or reverse("accounts:update")
-
+    # 다음 목적지에 따라 세션에 담아놓을 session_key를 설정합니다.
+    # session_key의 기본값은 update 입니다.
+    session_key = "update"
+    if "delete" in next_url:
+        session_key = "delete"
+    else:
+        session_key = "update"
+        
     if request.method == "POST":
         # DB에 저장된 사용자 정보에 인증을 시도하기 위해
         # 사용자가 입력한 비밀번호를 변수에 할당합니다.
@@ -232,7 +239,7 @@ def verify(request):
             return redirect(next_url)
         # 인증되지 않았다면 error를 context에 담아 반환합니다.
         else:
-            context = {"error": "비밀번호가 올바르지 않습니다."}
+            context = {"error": "비밀번호가 올바르지 않습니다.", "session_key": session_key}
             return render(request, "accounts/verify.html", context)
 
-    return render(request, "accounts/verify.html")
+    return render(request, "accounts/verify.html", {"session_key": session_key})
