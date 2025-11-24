@@ -1,6 +1,5 @@
 {# signup.html #}
 {# 회원 가입 화면 템플릿 #}
-{# 사용자의 아이디, 비밀번호를 받음 #}
 
 {% extends 'base.html' %}
 {% load static %}
@@ -11,11 +10,14 @@
 
 {% block content %}
   <div class="container">
+
+    {# 로고 이미지 #}
+    <a href="{% url 'products:index' %}" class="main-link">
+      <img src="{% static 'images/logo-white.png' %}" alt="FINBOT Logo">
+    </a>
+
     <form action="{% url "accounts:signup" %}" method="POST">
     {% csrf_token %}
-
-    {# 에러 발생 안내 문구 #}
-    {{ form.errors }}
 
     {# 1. 아이디 입력 필드 #}
     <input
@@ -48,9 +50,8 @@
         required
     >
 
-    {# 4. 회원가입 버튼 #}
+    {# 4. 회원 가입 버튼 #}
     <button type="submit">회원 가입</button>
     </form>
   </div>
-</body>
 {% endblock content %}
