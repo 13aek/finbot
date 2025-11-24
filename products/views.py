@@ -1,4 +1,3 @@
-from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render
@@ -9,7 +8,6 @@ from .models import FinProduct
 # Create your views here.
 
 
-@login_required
 def index(request):
     """
     메인 검색 페이지를 렌더링
@@ -27,7 +25,6 @@ def index(request):
     return render(request, "products/index.html")
 
 
-@login_required
 def search(request):
     """
     금융상품명 또는 회사명으로 금융상품을 검색
@@ -58,7 +55,7 @@ def search(request):
     page_obj = paginator.get_page(page_number)
 
     current_page = page_obj.number
-    start_page = (current_page // 10) * 10 + 1
+    start_page = ((current_page - 1) // 10) * 10 + 1
     end_page = min(start_page + 9, paginator.num_pages)
 
     previous_page = max(current_page - 1, 1)
