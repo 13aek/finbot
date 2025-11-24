@@ -12,6 +12,11 @@
 
 {% block content %}
 <div class="container">
+
+    <a href="{% url 'products:index' %}" class="main-link">
+      <img src="{% static 'images/logo-white.png' %}" alt="FINBOT Logo">
+    </a>
+
     <form action="{% url 'accounts:login' %}" method="POST">
         {% csrf_token %}
 
