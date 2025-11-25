@@ -16,6 +16,7 @@ from findata.simple_chunk import (
 )
 
 
+
 """
 <금융상품한눈에 api 데이터 처리 가이드>
 
@@ -128,7 +129,7 @@ def fetch_findata(category="fixed_deposit") -> list[dict]:
         # [ requests 문서를 참고하여 HTTP GET 요청 보내는 코드 작성하기 ]
         ex_response = requests.get(url, params=ex_params)  # .json()
         ex_data = ex_response.json()
-        # print(group, ex_data["result"]["total_count"])
+
         assert ex_data["result"]["err_msg"] == "정상"
         assert ex_data["result"]["total_count"] >= 0
         assert ex_data["result"]["max_page_no"] >= 0

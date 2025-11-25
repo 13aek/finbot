@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+
+from pprint import pprint
+
+>>>>>>> 259988305630b18213153325984dcbf911f79e7e
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -15,7 +21,8 @@ def make_embedding_ready_text_deposit(product: dict) -> str:
     if "옵션" in product and product["옵션"]:
         rate_info = ", ".join(
             [
-                f"{opt['저축개월']}개월 저축할 때에 저축금리는 {opt['저축금리유형명']}으로 {opt['저축금리']}% 이며 최고 우대 금리는 {opt['최고우대금리']}"
+                f"{opt['저축개월']}개월 저축할 때에 저축금리는 {opt['저축금리유형명']}으로 \
+                    {opt['저축금리']}% 이며 최고 우대 금리는 {opt['최고우대금리']}"
                 for opt in product["옵션"]
             ]
         )
@@ -23,6 +30,7 @@ def make_embedding_ready_text_deposit(product: dict) -> str:
     return text
 
 
+<<<<<<< HEAD
 def make_embedding_ready_text_installment(product: dict) -> str:
     """
     JSON 데이터 -> 자연어 문장으로 변환하는 함수 (정기적금 전용, key는 한국어)
@@ -119,6 +127,8 @@ def make_embedding_ready_text_jeonse_loan(product: dict) -> str:
     return text
 
 
+=======
+>>>>>>> 259988305630b18213153325984dcbf911f79e7e
 def make_embedding_ready_sentence_deposit(data_list: list[dict]) -> list[str]:
     """
     JSON 데이터 -> 문장을 리스트로 반환하는 함수
@@ -147,5 +157,5 @@ def chunk(json_data_list: list[dict]) -> list[str]:
         docs.extend(chunks)
 
     print(f"Chunked Documents: {len(docs)}개 생성 완료\n")
-    print("Chunked Documents sample : ", docs[0])
+    pprint("Chunked Documents sample : ", docs[0])
     return docs
