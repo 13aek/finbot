@@ -4,9 +4,9 @@ from typing import Annotated, Literal, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
-from finbot.singleton.ai_client import get_ai_client
-from finbot.singleton.embedding_model import get_embed_model
-from finbot.singleton.vectordb import get_qdrant_client
+from finbot.singleton.ai_client import ai_client
+from finbot.singleton.embedding_model import embed_model
+from finbot.singleton.vectordb import qdrant_client
 
 
 class ChatSession:
@@ -164,7 +164,7 @@ def nth_conversation(state: ChatState) -> ChatState:
     Returns:
         Dict: state에 업데이트 할 answer.
     """
-    client = get_ai_client()
+    client = ai_client
     histories = state["history"]
     questions = [history["content"] for history in histories if history["role"] == "user"]
 
@@ -227,7 +227,7 @@ def db_search(state: ChatState) -> ChatState:
     Returns:
         Dict: LLM의 답변과 새로운 answer를 반환
     """
-    client = get_ai_client()
+    client = ai_client
     db_answer = "DB 검색 결과"
     user_query = state["query"]
     messages = [
@@ -261,13 +261,11 @@ def rag_search(state: ChatState) -> ChatState:
     Returns:
         Dict: LLM의 답변과 새로운 answer를 반환
     """
-    embed_model = get_embed_model()
-    vector_db = get_qdrant_client()
-    client = get_ai_client()
+    client = ai_client
     topk = 3
     user_query = state["query"]
     q_vec = embed_model.encode([user_query], return_dense=True)["dense_vecs"][0]
-    hits = vector_db.search(collection_name="finance_products_deposit", query_vector=q_vec, limit=topk)
+    hits = qdrant_client.search(collection_name="finance_products_deposit", query_vector=q_vec, limit=topk)
 
     vector_db_answer = hits[0].payload
 

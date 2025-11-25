@@ -14,4 +14,8 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 @lru_cache(maxsize=1)
 def get_ai_client():
+    print("Singleton AI Client를 생성합니다....")
     return OpenAI(api_key=OPENAI_API_KEY)
+
+
+ai_client = get_ai_client()
