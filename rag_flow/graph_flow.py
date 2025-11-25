@@ -260,7 +260,7 @@ def conditional_about_query(state: ChatState) -> dict:
         {
             "role": "user",
             "content": f"질문: {user_query}\n을 보고 4가지 경우 중 하나를 출력해줘. \
-                다른 설명은 필요없고 recommend, calculator, fin_word_explain, normal_chat\
+                다른 설명은 필요없고 recommend_mode, calculate_mode, explain_mode, normal_mode\
                     이 4가지 중에 무조건 하나를 반환해야해. 부연설명 붙이지 말고 마침표도 붙이지 마.",
         },
     ]
@@ -273,18 +273,18 @@ def conditional_about_query(state: ChatState) -> dict:
 
     answer = completion.choices[0].message.content
 
-    if answer in ["recommend", "calculator", "fin_word_explain", "normal_chat"]:
+    if answer in ["recommend_mode", "calculate_mode", "explain_mode", "normal_mode"]:
         method = answer
     elif ("recommend" in answer) or ("rec" in answer) or ("추천" in answer):
-        method = "recommend"
-    elif ("calculator" in answer) or ("cal" in answer) or ("계산" in answer):
-        method = "calculaotr"
+        method = "recommend_mode"
+    elif ("calculate" in answer) or ("calculator" in answer) or ("cal" in answer) or ("계산" in answer):
+        method = "calculate_mode"
     elif (
         ("finword" in answer) or ("explain" in answer) or ("fin" in answer) or ("word" in answer) or ("설명" in answer)
     ):
-        method = "fin_word_explain"
+        method = "explain_mode"
     else:
-        method = "normal_chat"
+        method = "normal_mode"
 
     return {
         "agent_method": method,
@@ -293,14 +293,14 @@ def conditional_about_query(state: ChatState) -> dict:
 
 def agent_method_router(
     state: ChatState,
-) -> Literal["recommend", "calculator", "fin_word_explain", "normal_chat"]:  # "db_search",
+) -> Literal["recommend_mode", "calculate_mode", "explain_mode", "normal_mode"]:  # "db_search",
     """
     Search Method에 따라 라우팅
 
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Literal: ["recommend", "calculator", "fin_word_explain", "normal_chat"] 중 하나의 값으로 제한
+        Literal: ["recommend_mode", "calculate_mode", "explain_mode", "normal_mode"] 중 하나의 값으로 제한
     """
     return state["agent_method"]
 
@@ -396,11 +396,11 @@ def calculator(state: ChatState) -> ChatState:
     messages = [
         {
             "role": "system",
-            "content": "너는 금융 도메인 전문가이자 고객 상담 AI야. vector_db에서 제공된 정보를 근거로만 답변해야 해.",
+            "content": "너는 금융 도메인 전문가이자 계산 전문가야.",
         },
         {
             "role": "user",
-            "content": f"질문: {user_query}\n이 'vector_db에서 찾은 정보'만 참고해서 사용자의 질문에 정확히 답변해줘.",
+            "content": f"질문: {user_query}\n을 계산해줘.",
         },
     ]
 
@@ -429,11 +429,11 @@ def fin_word_explain(state: ChatState) -> ChatState:
     messages = [
         {
             "role": "system",
-            "content": "너는 금융 도메인 전문가이자 고객 상담 AI야. vector_db에서 제공된 정보를 근거로만 답변해야 해.",
+            "content": "너는 금융 도메인 전문가이자 고객 상담 AI야. user의 질문에 답해줘.",
         },
         {
             "role": "user",
-            "content": f"질문: {user_query}\n이 'vector_db에서 찾은 정보'만 참고해서 사용자의 질문에 정확히 답변해줘.",
+            "content": f"질문: {user_query}\n 에 맞는 설명을 해줘.",
         },
     ]
 
@@ -462,11 +462,11 @@ def normal_chat(state: ChatState) -> ChatState:
     messages = [
         {
             "role": "system",
-            "content": "너는 금융 도메인 전문가이자 고객 상담 AI야. vector_db에서 제공된 정보를 근거로만 답변해야 해.",
+            "content": "너는 금융 도메인 전문가이자 고객 상담 AI야. 질문에 상담사처럼 상담해줘.",
         },
         {
             "role": "user",
-            "content": f"질문: {user_query}\n이 'vector_db에서 찾은 정보'만 참고해서 사용자의 질문에 정확히 답변해줘.",
+            "content": f"질문: {user_query}\n에 답해줘.",
         },
     ]
 
@@ -524,23 +524,25 @@ graph.add_conditional_edges(
     {
         "first_hello": "first_hello",
         "Nth_hello": "Nth_hello",
-        "agent_mode": "agent_mode",
+        "agent_mode": "conditional_about_query",
     },
 )
 graph.add_edge("first_hello", "add_to_history")
 graph.add_edge("Nth_hello", "add_to_history")
-graph.add_edge("agent_mode", "conditional_about_query")
 graph.add_conditional_edges(
-    "conditional_about_history",
+    "conditional_about_query",
     agent_method_router,
     {
-        "recommend": "rag_search",
-        "calculator": "calculator",
-        "fin_word_explain": "fin_word_explain",
-        "normal_chat": "normal_chat",
+        "recommend_mode": "rag_search",
+        "calculate_mode": "calculator",
+        "explain_mode": "fin_word_explain",
+        "normal_mode": "normal_chat",
     },
 )
 graph.add_edge("rag_search", "add_to_history")
+graph.add_edge("calculator", "add_to_history")
+graph.add_edge("fin_word_explain", "add_to_history")
+graph.add_edge("normal_chat", "add_to_history")
 graph.add_edge("add_to_history", END)
 
 # 인스턴스 생성
