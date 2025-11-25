@@ -50,4 +50,11 @@
         계정이 없으신가요? <a href="{% url 'accounts:signup' %}">회원 가입하기</a>
     </div>
 </div>
+  <script>
+    {% if messages %}
+      {% for msg in messages %}
+            alert("{{ msg }}")
+      {% endfor %}
+    {% endif %}
+  </script>
 {% endblock content %}

@@ -34,4 +34,11 @@
       <button type="submit">본인 확인</button>
     </form>
   </div>
+  <script>
+    {% if messages %}
+      {% for msg in messages %}
+            alert("{{ msg }}")
+      {% endfor %}
+    {% endif %}
+  </script>
 {% endblock content %}

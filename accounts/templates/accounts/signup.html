@@ -53,5 +53,14 @@
     {# 4. 회원 가입 버튼 #}
     <button type="submit">회원 가입</button>
     </form>
+
   </div>
+  <script>
+    {% if messages %}
+      {% for msg in messages %}
+            alert("{{ msg }}")
+      {% endfor %}
+    {% endif %}
+  </script>
+</body>
 {% endblock content %}
