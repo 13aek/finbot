@@ -6,8 +6,14 @@ from pprint import pprint
 
 import requests
 from dotenv import load_dotenv
+from openai import OpenAI
 
 from findata.config_manager import JsonConfigManager
+from findata.simple_chunk import (
+    make_embedding_ready_text_deposit,
+    make_embedding_ready_text_installment,
+    make_embedding_ready_text_jeonse_loan,
+)
 
 
 """
@@ -16,7 +22,6 @@ from findata.config_manager import JsonConfigManager
 - 개발 화면에서 조회조건에 맞는 총 상품 수 확인은 조회결과 데이터 중 'total_count'값을 참조합니다.
 - 개발 화면에서 페이징 처리 시 전체 페이지 수 처리는 조회결과 데이터 중 'max_page_no'값을 참조합니다.
 - 개발 화면에서 페이징 처리 시 현재 페이지 표시는 조회결과 데이터 중 'now_page_no'값을 참조합니다.
-- 페이징 처리 예시는 상단의 관련소스에서 'goPage'함수와 49~59Line을 참조합니다.
 """
 
 # .env 파일을 읽어 환경 변수로 설정
@@ -28,6 +33,69 @@ conf = JsonConfigManager(path=conf_path).values
 
 # dotenv를 활용하여 API 키 가져오기
 FINAPI_KEY = os.getenv("FINAPI_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+client = OpenAI(api_key=OPENAI_API_KEY)
+
+
+def create_description(products: list[dict]) -> list[dict]:
+    """
+    API에서 호출해온 상품 데이터를 보고
+    AI로 상품 설명 추가
+
+    Args:
+        products (list[dict]): API로 불러온 데이터들
+    Returns:
+        products (list[dict]): API로 불러온 데이터를 기반으로 LLM의 상품 설명 추가
+    """
+    for i, product in enumerate(products):
+        if product["상품카테고리"] == "정기예금":
+            product_text = make_embedding_ready_text_deposit(product)
+        elif product["상품카테고리"] == "적금":
+            product_text = make_embedding_ready_text_installment(product)
+        elif product["상품카테고리"] == "전세자금대출":
+            product_text = make_embedding_ready_text_jeonse_loan(product)
+
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "너는 금융 도메인 전문가이자 고객 상담 AI야. 정보를 읽고 특징을 찾아낼거야. "
+                    "찾아낸 특징으로 상품의 설명을 예시와 비슷하게 최대 50자 이내로 생성해야해."
+                    "다음은 예시들이야.\n "
+                    "주거래 고객님께 더 높은 우대금리를!\n"
+                    "미리 준비하는 우리아이 청약통장!\n"
+                    "매달 열리는 행운 카드로 우대금리를 제공하는 적립식 상품.\n"
+                    "Npay 우리 통장 가입 후 머니 연결한 고객에게 제공되는 적립식 상품\n"
+                    "해외여행 특화 외화보통예금.\n"
+                ),
+            },
+            {"role": "user", "content": f"다음은 한 상품의 '정보'야:\n{product_text}"},
+            {
+                "role": "user",
+                "content": (
+                    "'정보'만 참고해서 상품의 특징을 요약해서 50자 이내로 출력해."
+                    "상품이름과 은행은 빼. 다른 말은 필요없어."
+                ),
+            },
+        ]
+
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            max_tokens=400,
+        )
+
+        answer = completion.choices[0].message.content
+        print("-" * 50)
+        print("-" * 50)
+        pprint(product)
+        print("-" * 50)
+        print(answer)
+        print("-" * 50)
+        print("-" * 50)
+        products[i]["상품설명"] = answer
+    return products
 
 
 # 금융 데이터를 가져오는 함수 정의
@@ -112,7 +180,8 @@ def fetch_findata(category="fixed_deposit") -> list[dict]:
                         continue
 
                 # key 이름 변경을 위한 복제 데이터
-                rep_data = {"회사유형": fin_grp_dict[group]}
+                rep_data = {"상품카테고리": fin_cat[category]}
+                rep_data["회사유형"] = fin_grp_dict[group]
 
                 for api_key in tmp_data["result"]["baseList"][i].keys():
                     if api_key in item_dict.keys():
