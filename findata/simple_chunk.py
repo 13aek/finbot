@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-=======
-
 from pprint import pprint
 
->>>>>>> 259988305630b18213153325984dcbf911f79e7e
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -30,7 +26,6 @@ def make_embedding_ready_text_deposit(product: dict) -> str:
     return text
 
 
-<<<<<<< HEAD
 def make_embedding_ready_text_installment(product: dict) -> str:
     """
     JSON 데이터 -> 자연어 문장으로 변환하는 함수 (정기적금 전용, key는 한국어)
@@ -127,8 +122,6 @@ def make_embedding_ready_text_jeonse_loan(product: dict) -> str:
     return text
 
 
-=======
->>>>>>> 259988305630b18213153325984dcbf911f79e7e
 def make_embedding_ready_sentence_deposit(data_list: list[dict]) -> list[str]:
     """
     JSON 데이터 -> 문장을 리스트로 반환하는 함수
