@@ -265,7 +265,7 @@ def verify(request):
         session_key = "delete"
     else:
         session_key = "update"
-        
+
     if request.method == "POST":
         # DB에 저장된 사용자 정보에 인증을 시도하기 위해
         # 사용자가 입력한 비밀번호를 변수에 할당합니다.
@@ -283,7 +283,7 @@ def verify(request):
 
             # 목적지가 결정되지 않았다면 update, 결정되었다면 결정된 페이지로 리다이렉트합니다.
             return redirect(next_url)
-        # 인증되지 않았다면 error를 context에 담아 반환합니다.
+        # 인증되지 않았다면 error를 context에 담아 반환
         else:
             context = {"error": "비밀번호가 올바르지 않습니다."}
             messages.error(request, "비밀번호가 올바르지 않습니다.", extra_tags="verify_error")
