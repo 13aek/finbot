@@ -16,7 +16,6 @@ from findata.simple_chunk import (
 )
 
 
-
 """
 <금융상품한눈에 api 데이터 처리 가이드>
 
@@ -74,7 +73,10 @@ def create_description(products: list[dict]) -> list[dict]:
             {"role": "user", "content": f"다음은 한 상품의 '정보'야:\n{product_text}"},
             {
                 "role": "user",
-                "content": "'정보'만 참고해서 상품의 특징을 요약해서 50자 이내로 출력해. 상품이름과 은행은 빼. 다른 말은 필요없어. ",
+                "content": (
+                    "'정보'만 참고해서 상품의 특징을 요약해서 50자 이내로 출력해."
+                    "상품이름과 은행은 빼. 다른 말은 필요없어."
+                ),
             },
         ]
 
