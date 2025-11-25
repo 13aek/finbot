@@ -74,7 +74,7 @@ def create_description(products: list[dict]) -> list[dict]:
             {
                 "role": "user",
                 "content": (
-                    "'정보'만 참고해서 상품의 특징을 요약해서 50자 이내로 출력해.\n"
+                    "'정보'만 참고해서 상품의 특징을 요약해서 50자 이내로 출력해."
                     "상품이름과 은행은 빼. 다른 말은 필요없어."
                 ),
             },

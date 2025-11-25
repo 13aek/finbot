@@ -1,41 +1,12 @@
 # rag_engine/graph.py
-import os
-import sys
-from functools import lru_cache, partial
+from functools import partial
 from typing import Annotated, Literal, TypedDict
 
-from dotenv import load_dotenv
-from FlagEmbedding import BGEM3FlagModel
 from langgraph.graph import END, START, StateGraph
-from openai import OpenAI
 
-
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-
-from qdrant_client import QdrantClient
-
-from findata.vector_db import get_ready_search
-
-
-@lru_cache(maxsize=1)
-def load_model_and_db():
-    """
-    인자에 대한 반환값을 기억하여
-    해당 함수가 동일한 리턴값을 반환한다면
-    함수를 새로 실행시키는 것이 아닌 기억하고 있는 반환값을 그대로 사용합니다.
-    """
-    return get_ready_search()
-
-
-load_model_and_db()
-
-# 환경변수 경로 추가
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-
-load_dotenv("../.env")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-client = OpenAI(api_key=OPENAI_API_KEY)
+from finbot.singleton.ai_client import ai_client
+from finbot.singleton.embedding_model import embed_model
+from finbot.singleton.vectordb import qdrant_client
 
 
 class ChatSession:
@@ -46,7 +17,6 @@ class ChatSession:
 
     def __init__(self, user_history):
         self.state = {"visited": False, "history": []}
-        self.state["embed_model"], self.state["vector_db"] = load_model_and_db()
 
         """
         DB에서 history 들고와서 저장해야함. 
@@ -110,9 +80,6 @@ class ChatState(TypedDict):
     """
     graph를 구성할 State Class
     """
-
-    embed_model: BGEM3FlagModel
-    vector_db: QdrantClient
 
     visited: bool
     # chat mode :
@@ -197,6 +164,7 @@ def nth_conversation(state: ChatState) -> ChatState:
     Returns:
         Dict: state에 업데이트 할 answer.
     """
+    client = ai_client
     histories = state["history"]
     questions = [history["content"] for history in histories if history["role"] == "user"]
 
@@ -259,6 +227,7 @@ def db_search(state: ChatState) -> ChatState:
     Returns:
         Dict: LLM의 답변과 새로운 answer를 반환
     """
+    client = ai_client
     db_answer = "DB 검색 결과"
     user_query = state["query"]
     messages = [
@@ -292,12 +261,11 @@ def rag_search(state: ChatState) -> ChatState:
     Returns:
         Dict: LLM의 답변과 새로운 answer를 반환
     """
-    embed_model = state["embed_model"]
-    vector_db = state["vector_db"]
+    client = ai_client
     topk = 3
     user_query = state["query"]
     q_vec = embed_model.encode([user_query], return_dense=True)["dense_vecs"][0]
-    hits = vector_db.search(collection_name="finance_products_deposit", query_vector=q_vec, limit=topk)
+    hits = qdrant_client.search(collection_name="finance_products_deposit", query_vector=q_vec, limit=topk)
 
     vector_db_answer = hits[0].payload
 
