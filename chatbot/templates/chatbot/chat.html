@@ -22,10 +22,22 @@
       {% for room in rooms %}
         <li>
           <a href="{% url "chat:chat_page" room.pk %}">
+            {# 사용자가 채팅방의 이름을 변경한 경우 #}
             {% if room.title %}
-              {{ room.title }}
+              {# 사용자가 머무르는 채팅방에 따라 분기 #}
+              {% if room.pk == chatroom_pk %}
+                {{ room.title }} 현재 채팅방
+              {% else %}
+                {{ room.title }}
+              {% endif %}
+            {# 사용자가 채팅방의 이름을 변경하지 않은 경우 #}
             {% else %}
-              채팅방 {{ room.display_id }}
+              {# 사용자가 머무르는 채팅방에 따라 분기 #}
+              {% if room.pk == chatroom_pk %}
+                채팅방 {{ room.display_id }} 현재 채팅방
+              {% else %}
+                채팅방 {{ room.display_id }}
+              {% endif %}
             {% endif %}
           </a>
           <form action="{% url "chat:chatroom_delete" room.pk %}" method="POST">

@@ -6,4 +6,4 @@ from .models import ChatRoom
 class ChatRoomForm(ModelForm):
     class Meta:
         model = ChatRoom
-        fields = ("title", )
+        fields = ("title",)
