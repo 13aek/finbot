@@ -21,7 +21,7 @@
 
     <div class="right-group">
       {% if request.user.is_authenticated %}
-        <a href="{% url 'chat:currnet_chat' %}" class="info-btn">AI CHAT</a>
+        <a href="{% url 'chat:current_chat' %}" class="info-btn">AI CHAT</a>
         <a href="{% url 'accounts:update' %}" class="info-btn">회원 정보</a>
         {# <a href="{% url 'accounts:bookmark' %}" class="info-btn">관심 상품</a> #}
         <a href="{% url 'accounts:logout' %}" class="logout-btn">로그아웃</a>
