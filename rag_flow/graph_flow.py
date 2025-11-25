@@ -8,6 +8,10 @@ from dotenv import load_dotenv
 from FlagEmbedding import BGEM3FlagModel
 from langgraph.graph import END, START, StateGraph
 from openai import OpenAI
+
+
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
 from qdrant_client import QdrantClient
 
 from findata.vector_db import get_ready_search
