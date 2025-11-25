@@ -82,6 +82,8 @@ class ChatSession:
         Returns:
             answer (str): Langgraph state의 answer
         """
+        self.state["recommend_mode"] = False
+
         # history 유무에 따라 분기
         if not self.state["history"]:
             visited = False
@@ -129,7 +131,8 @@ class ChatState(TypedDict):
     #   (Nth_hello)first conversation & Nth meet,
     #   (Normal_chat)Nth conversation
     mode: str
-    search_method: str  # search method : DB search, RAG search
+    agent_method: str  # agent method : ("rag_search", "calculator", "finword_explain", "normal_chat")
+    recommend_mode: bool
     query: str  # user query
     history: Annotated[list[dict[str, str]], keep_last_10]  # user, assistant message 쌍
     answer: str  # LLM answer
@@ -145,7 +148,7 @@ def conditional_about_history(state: ChatState) -> dict:
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Dict: state에 업데이트 할 mode dict, mode = ("first_hello", "Nth_hello", "normal_chat")
+        Dict: state에 업데이트 할 mode dict, mode = ("first_hello", "Nth_hello", "agent_mode")
     """
     # 복합 조건 평가
     if not state["visited"]:
@@ -156,7 +159,7 @@ def conditional_about_history(state: ChatState) -> dict:
             mode = "Nth_hello"
 
         elif state["history"][-1]["state"] == "new":
-            mode = "normal_chat"
+            mode = "agent_mode"
 
         else:
             print("Mode를 찾을 수 없습니다.")
@@ -169,14 +172,14 @@ def conditional_about_history(state: ChatState) -> dict:
     }
 
 
-def mode_router(state: ChatState) -> Literal["first_hello", "Nth_hello", "normal_chat"]:
+def mode_router(state: ChatState) -> Literal["first_hello", "Nth_hello", "agent_mode"]:
     """
     Mode에 따라 라우팅
 
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Literal: ["first_hello", "Nth_hello", "normal_chat"] 중 하나의 값으로 제한
+        Literal: ["first_hello", "Nth_hello", "agent_mode"] 중 하나의 값으로 제한
     """
     return state["mode"]
 
@@ -229,34 +232,77 @@ def nth_conversation(state: ChatState) -> ChatState:
 
 def conditional_about_query(state: ChatState) -> dict:
     """
-    query에 따라 분기 발생.(하려했으나 DB search는 다른 함수로 빠졌기 때문에 RAG search만 존재)
+    query에 따라 분기 발생. user의 의도에 따라 4가지로 분기.
+    1. 금융 상품 추천
+    2. 계산기
+    3. 금융 용어 상담
+    4. 일반 채팅
 
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Dict: state에 업데이트 할 method dict, method = ("rag_search") # db_search
+        Dict: state에 업데이트 할 method dict,
+                agent_method = ("recommend", "calculator", "fin_word_explain", "normal_chat")
     """
-    # 복합 조건 평가
-    # query = state["query"]
-    # if "검색" in query:
-    #     method = "db_search"
-    # else:
-    method = "rag_search"
+    four_branch = (
+        "recommend : 질문의 의미가 금융 상품에 대한 추천을 원하면 'recommend'를 반환"
+        "calculator : 질문의 의미를 생각했을 때, 계산이 필요한 작업이 필요하면 'calculator'를 반환"
+        "fin_word_explain : 금융 도메인에 대한 지식 이해를 위해 설명이 필요할 때, 'fin_word_explain'을 반환"
+        "normal_chat : 위 세가지 의도가 담기지 않은 모든 경우에, 'normal_chat'을 반환"
+    )
+    user_query = state["query"]
+    messages = [
+        {
+            "role": "system",
+            "content": "너는 질문을 보고 목적을 생각해서 4가지 중에 하나로 분류 해야해.",
+        },
+        {"role": "user", "content": f"다음은 '4가지 경우야':\n{four_branch}"},
+        {
+            "role": "user",
+            "content": f"질문: {user_query}\n을 보고 4가지 경우 중 하나를 출력해줘. \
+                다른 설명은 필요없고 recommend, calculator, fin_word_explain, normal_chat\
+                    이 4가지 중에 무조건 하나를 반환해야해. 부연설명 붙이지 말고 마침표도 붙이지 마.",
+        },
+    ]
+
+    completion = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=messages,
+        max_tokens=400,
+    )
+
+    answer = completion.choices[0].message.content
+
+    if answer in ["recommend", "calculator", "fin_word_explain", "normal_chat"]:
+        method = answer
+    elif ("recommend" in answer) or ("rec" in answer) or ("추천" in answer):
+        method = "recommend"
+    elif ("calculator" in answer) or ("cal" in answer) or ("계산" in answer):
+        method = "calculaotr"
+    elif (
+        ("finword" in answer) or ("explain" in answer) or ("fin" in answer) or ("word" in answer) or ("설명" in answer)
+    ):
+        method = "fin_word_explain"
+    else:
+        method = "normal_chat"
+
     return {
-        "search_method": method,
+        "agent_method": method,
     }
 
 
-def method_router(state: ChatState) -> Literal["rag_search"]:  # "db_search",
+def agent_method_router(
+    state: ChatState,
+) -> Literal["recommend", "calculator", "fin_word_explain", "normal_chat"]:  # "db_search",
     """
     Search Method에 따라 라우팅
 
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Literal: ["rag_search"] 중 하나의 값으로 제한
+        Literal: ["recommend", "calculator", "fin_word_explain", "normal_chat"] 중 하나의 값으로 제한
     """
-    return state["search_method"]
+    return state["agent_method"]
 
 
 def db_search(state: ChatState) -> ChatState:
@@ -332,6 +378,105 @@ def rag_search(state: ChatState) -> ChatState:
         # tools=
     )
     answer = completion.choices[0].message.content
+    recommend_mode = True
+    return {"answer": answer, "recommend_mode": recommend_mode}
+
+
+def calculator(state: ChatState) -> ChatState:
+    """
+
+    Args:
+        state (TypedDict): Graph의 state
+    Returns:
+        Dict:
+    """
+
+    user_query = state["query"]
+
+    messages = [
+        {
+            "role": "system",
+            "content": "너는 금융 도메인 전문가이자 고객 상담 AI야. vector_db에서 제공된 정보를 근거로만 답변해야 해.",
+        },
+        {
+            "role": "user",
+            "content": f"질문: {user_query}\n이 'vector_db에서 찾은 정보'만 참고해서 사용자의 질문에 정확히 답변해줘.",
+        },
+    ]
+
+    completion = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=messages,
+        max_tokens=600,
+        # tools=
+    )
+    answer = completion.choices[0].message.content
+
+    return {"answer": answer}
+
+
+def fin_word_explain(state: ChatState) -> ChatState:
+    """
+
+    Args:
+        state (TypedDict): Graph의 state
+    Returns:
+        Dict:
+    """
+
+    user_query = state["query"]
+
+    messages = [
+        {
+            "role": "system",
+            "content": "너는 금융 도메인 전문가이자 고객 상담 AI야. vector_db에서 제공된 정보를 근거로만 답변해야 해.",
+        },
+        {
+            "role": "user",
+            "content": f"질문: {user_query}\n이 'vector_db에서 찾은 정보'만 참고해서 사용자의 질문에 정확히 답변해줘.",
+        },
+    ]
+
+    completion = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=messages,
+        max_tokens=600,
+        # tools=
+    )
+    answer = completion.choices[0].message.content
+
+    return {"answer": answer}
+
+
+def normal_chat(state: ChatState) -> ChatState:
+    """
+
+    Args:
+        state (TypedDict): Graph의 state
+    Returns:
+        Dict:
+    """
+
+    user_query = state["query"]
+
+    messages = [
+        {
+            "role": "system",
+            "content": "너는 금융 도메인 전문가이자 고객 상담 AI야. vector_db에서 제공된 정보를 근거로만 답변해야 해.",
+        },
+        {
+            "role": "user",
+            "content": f"질문: {user_query}\n이 'vector_db에서 찾은 정보'만 참고해서 사용자의 질문에 정확히 답변해줘.",
+        },
+    ]
+
+    completion = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=messages,
+        max_tokens=600,
+        # tools=
+    )
+    answer = completion.choices[0].message.content
 
     return {"answer": answer}
 
@@ -361,9 +506,13 @@ graph = StateGraph(ChatState)
 graph.add_node("conditional_about_history", conditional_about_history)
 graph.add_node("first_hello", first_conversation)
 graph.add_node("Nth_hello", nth_conversation)
-graph.add_node("normal_chat", first_conversation)
-graph.add_node("add_to_history", add_to_history)
+
+graph.add_node("conditional_about_query", conditional_about_query)
 graph.add_node("rag_search", rag_search)
+graph.add_node("calculator", calculator)
+graph.add_node("fin_word_explain", fin_word_explain)
+graph.add_node("normal_chat", normal_chat)
+graph.add_node("add_to_history", add_to_history)
 
 
 # Graph flow 구성
@@ -375,13 +524,22 @@ graph.add_conditional_edges(
     {
         "first_hello": "first_hello",
         "Nth_hello": "Nth_hello",
+        "agent_mode": "agent_mode",
+    },
+)
+graph.add_edge("first_hello", "add_to_history")
+graph.add_edge("Nth_hello", "add_to_history")
+graph.add_edge("agent_mode", "conditional_about_query")
+graph.add_conditional_edges(
+    "conditional_about_history",
+    agent_method_router,
+    {
+        "recommend": "rag_search",
+        "calculator": "calculator",
+        "fin_word_explain": "fin_word_explain",
         "normal_chat": "normal_chat",
     },
 )
-
-graph.add_edge("first_hello", "add_to_history")
-graph.add_edge("Nth_hello", "add_to_history")
-graph.add_edge("normal_chat", "rag_search")
 graph.add_edge("rag_search", "add_to_history")
 graph.add_edge("add_to_history", END)
 
