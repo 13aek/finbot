@@ -87,8 +87,9 @@ def get_ready_search(category="deposit"):
     # 컬렉션 이름 구성
     db_collection_name = f"finance_products_{category}"
 
-    # 모델 로드
+    print(">>> 실행됨: get_ready_search()")
     model = BGEM3FlagModel("BAAI/bge-m3", use_fp16=False)
+    print(">>> BGE 모델 로딩 완료")
 
     # Qdrant 서버 접속
     client = get_qdrant_server(
