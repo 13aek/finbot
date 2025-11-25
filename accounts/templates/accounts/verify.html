@@ -17,11 +17,16 @@
     <a href="{% url 'products:index' %}" class="main-link">
       <img src="{% static 'images/logo-white.png' %}" alt="FINBOT Logo">
     </a>
-
-    <p class="verify">개인정보 보호를 위해<br>
-        <span class="notice">비밀번호를 다시 입력해 주세요</span>
-    </p>
-
+    {# 사용자가 어느 페이지에서 요청을 보냈느냐에 따라 출력되는 문구를 다르게 합니다. #}
+    {% if session_key == "update" %}
+      <p class="verify">개인정보 보호를 위해<br>
+          <span class="notice">비밀번호를 다시 입력해 주세요</span>
+      </p>
+    {% else %}
+      <p class="verify">회원 탈퇴를 위해<br>
+          <span class="notice">비밀번호를 다시 입력해 주세요</span>
+      </p>
+    {% endif %}
     <form action="" method="POST">
       {% csrf_token %}
 
@@ -29,9 +34,14 @@
 
       {# 1. 비밀번호 입력 필드 #}
       <input type="password" name="password" placeholder="비밀번호 입력" required>
-
-      {# 2. 본인 확인 버튼 #}
-      <button type="submit">본인 확인</button>
+      {# 사용자가 어느 페이지에서 요청을 보냈느냐에 따라 출력되는 문구를 다르게 합니다. #}
+      {% if session_key == "update" %}
+        {# 2-1. 본인 확인 버튼 #}
+        <button type="submit">본인 확인</button>
+      {% else %}
+        {# 2-2. 회원 탈퇴 버튼 #}
+        <button type="submit">회원 탈퇴</button>
+      {% endif %}
     </form>
   </div>
   <script>

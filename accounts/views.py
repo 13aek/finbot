@@ -258,6 +258,13 @@ def verify(request):
     # 다음 목적지를 기본적으로 update 페이지로 설정합니다.
     # 만약 next 값이 들어오지 않았다면 next를 accounts:update로 두겠다는 설정입니다.
     next_url = request.GET.get("next") or request.POST.get("next") or reverse("accounts:update")
+    # 다음 목적지에 따라 세션에 담아놓을 session_key를 설정합니다.
+    # session_key의 기본값은 update 입니다.
+    session_key = "update"
+    if "delete" in next_url:
+        session_key = "delete"
+    else:
+        session_key = "update"
 
     if request.method == "POST":
         # DB에 저장된 사용자 정보에 인증을 시도하기 위해
@@ -270,20 +277,16 @@ def verify(request):
 
         # 인증되었다면 세션이 인증 상태를 저장합니다.
         if user is not None:
-            # 인증 후 사용자의 요청에 맞게 세션을 분기합니다.
-            if "delete" in next_url:
-                session_key = "delete"
-            else:
-                session_key = "update"
             # 인증을 한 시간을 체크합니다.
             # update 함수에서 시간이 지나면 인증이 만료되도록 처리합니다.
             request.session[session_key] = timezone.now().timestamp()
 
             # 목적지가 결정되지 않았다면 update, 결정되었다면 결정된 페이지로 리다이렉트합니다.
             return redirect(next_url)
-        # 인증되지 않았다면 error를 context에 담아 반환합니다.
+        # 인증되지 않았다면 error를 context에 담아 반환
         else:
+            context = {"error": "비밀번호가 올바르지 않습니다."}
             messages.error(request, "비밀번호가 올바르지 않습니다.", extra_tags="verify_error")
-            return render(request, "accounts/verify.html")
+            return render(request, "accounts/verify.html", context)
 
-    return render(request, "accounts/verify.html")
+    return render(request, "accounts/verify.html", {"session_key": session_key})
