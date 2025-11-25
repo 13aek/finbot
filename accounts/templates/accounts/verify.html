@@ -44,4 +44,11 @@
       {% endif %}
     </form>
   </div>
+  <script>
+    {% if messages %}
+      {% for msg in messages %}
+            alert("{{ msg }}")
+      {% endfor %}
+    {% endif %}
+  </script>
 {% endblock content %}
