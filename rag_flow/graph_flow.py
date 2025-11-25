@@ -131,7 +131,8 @@ class ChatState(TypedDict):
     #   (Nth_hello)first conversation & Nth meet,
     #   (Normal_chat)Nth conversation
     mode: str
-    agent_method: str  # agent method : ("rag_search", "calculator", "finword_explain", "normal_chat")
+    # agent method : ("rag_search", "calculator", "finword_explain", "normal_chat")
+    agent_method: str
     recommend_mode: bool
     query: str  # user query
     history: Annotated[list[dict[str, str]], keep_last_10]  # user, assistant message 쌍
