@@ -1,15 +1,28 @@
 services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: finbot_qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./qdrant_storage:/qdrant/storage
+    restart: always
+
   web:
     build: .
     container_name: finbot_web
-    command: gunicorn finbot.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout=180
+    command: gunicorn finbot.wsgi:application --bind 0.0.0.0:8000 --workers=3 --timeout=180
     env_file:
       - .env
+    environment:
+      QDRANT_URL: "http://qdrant:6333"   # ← 추가됨 (컨테이너 네트워크 내 DNS)
     volumes:
       - .:/app
       - ./staticfiles:/app/staticfiles
     expose:
       - "8000"
+    depends_on:
+      - qdrant                     # ← web은 qdrant 서버가 먼저 떠야 함
 
   nginx:
     image: nginx:latest

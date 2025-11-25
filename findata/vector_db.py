@@ -88,11 +88,18 @@ def save_vector_db(
 
 
 def get_ready_search(category="deposit"):
-    db_collection_name = "finance_products" + "_" + category
-    db_path = glob(os.getcwd() + "/**/qdrant_localdb", recursive=True)[0]
+    # 기존: "finance_products_deposit"
+    db_collection_name = f"finance_products_{category}"
 
+    # docker-compose 또는 로컬 환경에서 지정된 QDRANT_URL 사용
+    qdrant_url = os.getenv("QDRANT_URL", "http://qdrant:6333")
+
+    # 임베딩 모델 로드
     model = BGEM3FlagModel("BAAI/bge-m3", use_fp16=False)
-    client = get_qdrant_local(collection_name=db_collection_name, vector_size=1024, path=db_path)
+
+    # ★★★ 핵심: QdrantLocal(path=…) → Qdrant 서버로 전환 ★★★
+    client = QdrantClient(url=qdrant_url)
+
     return model, client
 
 
