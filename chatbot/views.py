@@ -14,15 +14,6 @@ from .models import ChatMessage, ChatRoom
 
 
 @login_required
-def chat_list(request):
-    """
-    GET 요청: 사용자의 조회 요청을 받아, 사용자에게 생성된 모든 채팅방을 조회합니다.
-    """
-    rooms = ChatRoom.objects.filter(user=request.user)
-    return render(request, "chatbot/chat_list.html", {"rooms": rooms})
-
-
-@login_required
 def chatroom_create(request):
     """
     POST 요청: 사용자의 요청을 받아 새로운 채팅방을 생성합니다.
