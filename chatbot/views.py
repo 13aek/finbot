@@ -49,7 +49,7 @@ def chatroom_delete(requset, chatroom_pk):
     if chatroom.user == requset.user:
         chatroom.delete()
         # 가장 최근의 채팅방으로 리다이렉트
-        return redirect("chat:currnet_chat")
+        return redirect("chat:current_chat")
 
 
 @login_required
