@@ -2,7 +2,7 @@ services:
   web:
     build: .
     container_name: finbot_web
-    command: gunicorn finbot.wsgi:application --bind 0.0.0.0:8000 --workers=1 --timeout=180
+    command: gunicorn finbot.wsgi:application --bind 0.0.0.0:8000 --workers 1 --timeout=180
     env_file:
       - .env
     volumes:
