@@ -1,11 +1,12 @@
-name: Format Check
+name: Lint & Format Check
 
 on:
   pull_request:
     branches: [develop, master]
 
 jobs:
-  format-check:
+  ruff-format-check:
+    name: Ruff Lint & Format
     runs-on: ubuntu-latest
 
     steps:
@@ -19,10 +20,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install black isort
+          python -m pip install --upgrade pip
+          pip install ruff==0.14.5 pre-commit==4.4.0
 
-      - name: Check Black formatting
-        run: black --check .
+      - name: Run Ruff Lint Check
+        run: |
+          ruff check .
 
-      - name: Check isort import order
-        run: isort --check-only .
+      - name: Run Ruff Format Check
+        run: |
+          ruff format --check .

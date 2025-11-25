@@ -109,7 +109,7 @@ def save_fin_products(data: list[dict]) -> None:
     inserted = 0
     updated = 0
 
-    for item in data:
+    for _idx, item in enumerate(data, start=1):
         # None / 누락 값 방지
         safe_item = {
             "상품카테고리": item.get("상품카테고리", "") or "",
