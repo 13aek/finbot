@@ -1,21 +1,12 @@
 # rag_engine/graph.py
-import os
-import sys
 from functools import partial
 from typing import Annotated, Literal, TypedDict
 
-from dotenv import load_dotenv
 from langgraph.graph import END, START, StateGraph
-from openai import OpenAI
 
-
-# 환경변수 경로 추가
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-
-load_dotenv("../.env")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-client = OpenAI(api_key=OPENAI_API_KEY)
+from finbot.singleton.ai_client import get_ai_client
+from finbot.singleton.embedding_model import get_embed_model
+from finbot.singleton.vectordb import get_qdrant_client
 
 
 class ChatSession:
@@ -173,6 +164,7 @@ def nth_conversation(state: ChatState) -> ChatState:
     Returns:
         Dict: state에 업데이트 할 answer.
     """
+    client = get_ai_client()
     histories = state["history"]
     questions = [history["content"] for history in histories if history["role"] == "user"]
 
@@ -235,6 +227,7 @@ def db_search(state: ChatState) -> ChatState:
     Returns:
         Dict: LLM의 답변과 새로운 answer를 반환
     """
+    client = get_ai_client()
     db_answer = "DB 검색 결과"
     user_query = state["query"]
     messages = [
@@ -268,8 +261,9 @@ def rag_search(state: ChatState) -> ChatState:
     Returns:
         Dict: LLM의 답변과 새로운 answer를 반환
     """
-    embed_model = state["embed_model"]
-    vector_db = state["vector_db"]
+    embed_model = get_embed_model()
+    vector_db = get_qdrant_client()
+    client = get_ai_client()
     topk = 3
     user_query = state["query"]
     q_vec = embed_model.encode([user_query], return_dense=True)["dense_vecs"][0]
