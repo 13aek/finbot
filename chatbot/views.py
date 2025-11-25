@@ -140,6 +140,7 @@ def chat_page(request, chatroom_pk=None):
     context = {
         "messages": messages,
         "rooms": rooms,
+        "chatroom_pk": chatroom_pk,  # 사용자가 어떤 채팅방에 머무르는지 확인할 수 있도록 현재 채팅방의 pk를 넘겨줍니다.
     }
     return render(request, "chatbot/chat.html", context)
 
