@@ -1,5 +1,6 @@
 # rag_engine/graph.py
-from functools import partial
+import time
+from functools import partial, wraps
 from typing import Annotated, Literal, TypedDict
 
 from langgraph.graph import END, START, StateGraph
@@ -7,6 +8,39 @@ from langgraph.graph import END, START, StateGraph
 from finbot.singleton.ai_client import ai_client
 from finbot.singleton.embedding_model import embed_model
 from finbot.singleton.vectordb import qdrant_client
+
+
+def timing_decorator(func):
+    """노드 실행 시간 측정 데코레이터"""
+
+    @wraps(func)
+    def wrapper(state):
+        start_time = time.time()
+        result = func(state)
+        execution_time = time.time() - start_time
+
+        # 실행 시간 추가
+        if isinstance(result, dict):
+            result["execution_time"] = execution_time
+
+        print(f"{func.__name__} executed in {execution_time:.3f} seconds")
+        return result
+
+    return wrapper
+
+
+def error_handling_decorator(func):
+    """에러 처리 데코레이터"""
+
+    @wraps(func)
+    def wrapper(state):
+        try:
+            return func(state)
+        except Exception as e:
+            print(f"Error in {func.__name__}: {e}")
+            return {"error": str(e), "error_node": func.__name__, "status": "failed"}
+
+    return wrapper
 
 
 class ChatSession:
@@ -100,6 +134,8 @@ class ChatState(TypedDict):
 # 노드 정의
 
 
+@timing_decorator
+@error_handling_decorator
 def conditional_about_history(state: ChatState) -> dict:
     """
     history에 따라 분기 발생
@@ -143,6 +179,8 @@ def mode_router(state: ChatState) -> Literal["first_hello", "Nth_hello", "agent_
     return state["mode"]
 
 
+@timing_decorator
+@error_handling_decorator
 def first_conversation(state: ChatState) -> ChatState:
     """
     이전 history 아예 없이 첫 방문 첫 인사
@@ -158,6 +196,8 @@ def first_conversation(state: ChatState) -> ChatState:
     return {"answer": answer}
 
 
+@timing_decorator
+@error_handling_decorator
 def nth_conversation(state: ChatState) -> ChatState:
     """
     이전 history 존재. 첫 인사.
@@ -190,6 +230,8 @@ def nth_conversation(state: ChatState) -> ChatState:
     return {"answer": answer}
 
 
+@timing_decorator
+@error_handling_decorator
 def conditional_about_query(state: ChatState) -> dict:
     """
     query에 따라 분기 발생. user의 의도에 따라 4가지로 분기.
@@ -299,6 +341,8 @@ def db_search(state: ChatState) -> ChatState:
     return {"answer": answer}
 
 
+@timing_decorator
+@error_handling_decorator
 def rag_search(state: ChatState) -> ChatState:
     """
     사용자의 query와 유사한 RAG 결과를 생성하고, RAG 결과를 바탕으로 답변 반환
@@ -342,6 +386,8 @@ def rag_search(state: ChatState) -> ChatState:
     return {"answer": answer, "recommend_mode": recommend_mode}
 
 
+@timing_decorator
+@error_handling_decorator
 def calculator(state: ChatState) -> ChatState:
     """
 
@@ -367,7 +413,7 @@ def calculator(state: ChatState) -> ChatState:
     completion = ai_client.chat.completions.create(
         model="gpt-4o-mini",
         messages=messages,
-        max_tokens=600,
+        # max_tokens=600,
         # tools=
     )
     answer = completion.choices[0].message.content
@@ -375,6 +421,8 @@ def calculator(state: ChatState) -> ChatState:
     return {"answer": answer}
 
 
+@timing_decorator
+@error_handling_decorator
 def fin_word_explain(state: ChatState) -> ChatState:
     """
 
@@ -408,6 +456,8 @@ def fin_word_explain(state: ChatState) -> ChatState:
     return {"answer": answer}
 
 
+@timing_decorator
+@error_handling_decorator
 def normal_chat(state: ChatState) -> ChatState:
     """
 
@@ -441,6 +491,8 @@ def normal_chat(state: ChatState) -> ChatState:
     return {"answer": answer}
 
 
+@timing_decorator
+@error_handling_decorator
 def add_to_history(state: ChatState) -> ChatState:
     """
     이전 대화 기록을 유지하면서 새 user message 추가
