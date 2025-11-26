@@ -1,29 +1,36 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: #F3F3F3;
-    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #FFFFFF;
+    font-family: 'Pretendard Variable', sans-serif;
     height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-size: 15px;
+    font-size: 16px;
     box-sizing: border-box;
 }
 
-/* ---------------- */
+/* --------------- */
 /* 1. 우측 상단 버튼 */
-/* ---------------- */
+/* --------------- */
 .header-buttons {
     width: 100%;
-    padding: 20px 40px;
+    padding: 20px 30px;
     box-sizing: border-box;
     display: flex;
-    justify-content: flex-end;
-    gap: 5px;
+    justify-content: space-between;
+    align-items: center;
+
     position: absolute;
     top: 0;
     right: 0;
+}
+
+.left-group,
+.right-group {
+    display: flex;
+    gap: 5px;
 }
 
 .header-buttons a {
@@ -32,36 +39,37 @@ body {
     align-items: center;
     justify-content: center;
     height: 40px;
-    width: 100px;
-    font-size: 13px;
+    width: 80px;
+    font-size: 15px;
     font-weight: 700;
-    border-radius: 30px;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
-/* AI CHAT 버튼 */
-.ai-chat-btn {
+/* 회원 정보, 관심 상품 버튼 */
+.info-btn {
     border: none;
     color: #8B8B8B;
 }
 
-/* MY PAGE 버튼 */
-.mypage-btn {
-    border: none;
-    color: #8B8B8B;
-}
-
-/* LOGOUT 버튼 */
+/* 로그인 or 로그아웃 버튼 */
 .logout-btn {
     border: none;
-    color: #336294;
+    color: #3F72AF;
 }
 
-/* -------------- */
+/* ------------- */
 /* 2. 중앙 검색 창 */
-/* -------------- */
+/* ------------- */
+
+/* 로고 */
+.main-link img {
+  height: 55px;
+  width: auto;
+  display: block;
+  padding-bottom: 70px;
+}
+
 .main-content {
-    margin-top: 30vh; 
+    margin-top: 20vh; 
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -83,6 +91,7 @@ body {
     align-items: center;
     padding: 0 20px;
     box-sizing: border-box;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .search-submit-btn {
@@ -114,12 +123,90 @@ body {
     border: none;
     outline: none; 
     background: none;
-    font-size: 15px;
+    font-size: 16px;
     color: #000000;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard Variable', sans-serif;
 }
 
 .search-input::placeholder {
     color: #A9A9A9;
-    font-size: 15px;
+    font-size: 16px;
+}
+
+
+/* --------------- */
+/* 3. 추천 상품 영역 */
+/* --------------- */
+
+.recommend-section {
+    margin-top: 70px;
+    width: 100%;
+    max-width: 1200px;
+    text-align: left;
+}
+
+.recommend-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 25px;
+    color: #5a5a5a;
+    padding-left: 5px;
+}
+
+.highlight-title {
+    color: #3F72AF;
+    font-weight: 800;
+}
+
+.card-container {
+    display: flex;
+    gap: 50px;
+    justify-content: center;
+}
+
+.rec-card {
+    width: 300px;
+    height: 200px;
+    padding: 25px;
+    background-color: #F3F3F3;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.rec-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #5a5a5a;
+}
+
+.rec-card p {
+    line-height: 1.5;
+    color: #5a5a5a;
+}
+
+.rec-card-inner {
+    margin-top: 20px;
+    padding: 0 10px 0 10px;
+}
+
+/* ----------------------- */
+/* 4. 오른쪽 하단 채팅 버튼  */
+/* ---------------------- */
+
+.chatbot-btn {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    display: block;
+    z-index: 1000;
+}
+
+.chatbot-btn img {
+    width: 60px;
+    height: 60px;
 }

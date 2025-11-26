@@ -1,7 +1,10 @@
-from django.contrib.auth import authenticate
-from django.contrib.auth import login as auth_login
-from django.contrib.auth import logout as auth_logout
-from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+from django.contrib.auth import (
+    authenticate,
+    login as auth_login,
+    logout as auth_logout,
+    update_session_auth_hash,
+)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.shortcuts import redirect, render
@@ -11,6 +14,7 @@ from django.utils import timezone
 from chatbot.models import ChatRoom
 
 from .forms import CustomUserChangeForm, CustomUserCreationForm
+
 
 # Create your views here.
 
@@ -31,8 +35,26 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             # 회원가입이 완료 된 시점에 해당 사용자의 채팅방을 생성
-            ChatRoom.objects.create(user=user, ever_visited=False)
+            ChatRoom.objects.create(display_id=1, user=user, ever_visited=False)
             return redirect("accounts:login")
+        errors = form.errors
+
+        if "username" in errors:
+            if any("이미 존재합니다" in e for e in errors["username"]):
+                messages.error(request, "이미 존재하는 아이디입니다.", extra_tags="id_error")
+            else:
+                messages.error(request, errors["username"], extra_tags="id_error")
+        elif "password2" in errors:
+            if any("일치하지 않습니다" in e for e in errors["password2"]):
+                messages.error(
+                    request,
+                    "비밀번호와 비밀번호 확인이 일치하지 않습니다.",
+                    extra_tags="password_error",
+                )
+            else:
+                messages.error(request, errors["username"], extra_tags="id_error")
+        else:
+            messages.error(request, "입력한 정보가 올바르지 않습니다.", extra_tags="default_error")
 
     # 사용자가 회원가입 페이지를 요청했을 때
     else:
@@ -58,11 +80,15 @@ def login_view(request):
         if form.is_valid():
             auth_login(request, form.get_user())
             return redirect("products:index")
+
+        else:
+            messages.error(
+                request,
+                "아이디 또는 비밀번호가 올바르지 않습니다.",
+                extra_tags="login_error",
+            )
     else:
         form = AuthenticationForm()
-    context = {
-        "form": form,
-    }
     return render(request, "accounts/login.html", {"form": form})
 
 
@@ -86,9 +112,7 @@ def update(request):
     if not verified_time or (timezone.now().timestamp() - verified_time > 300):
         # 세션이 없거나 만료되었다면 비밀번호를 재확인합니다.
         # 쿼리스트링을 통해 비밀번호 인증 후 다음에 이동할 페이지를 결정합니다.
-        return redirect(
-            f"{reverse('accounts:verify')}?next={reverse('accounts:update')}"
-        )
+        return redirect(f"{reverse('accounts:verify')}?next={reverse('accounts:update')}")
 
     # 인증이 완료되었다면 바로 인증이 필요한 서비스 이용 시 한번 더 인증하도록 세션을 삭제합니다.
     # request.session.pop("password_verified", None)
@@ -124,6 +148,34 @@ def password(request):
             user = form.save()
             update_session_auth_hash(request, user)  # 비밀번호 변경시 세션 유지
             return redirect("products:index")
+        errors = form.errors
+
+        if "old_password" in errors:
+            if any("잘못 입력하셨습니다." in e for e in errors["old_password"]):
+                messages.error(
+                    request,
+                    "기존 비밀번호를 잘못 입력하셨습니다.",
+                    extra_tags="old_password_error",
+                )
+            else:
+                messages.error(request, errors["old_password"], extra_tags="old_password_error")
+        elif "new_password2" in errors:
+            if any("최소 8자 이상" in e for e in errors["new_password2"]):
+                messages.error(
+                    request,
+                    "비밀번호는 최소 8자 이상이어야 합니다.",
+                    extra_tags="new_password2_error",
+                )
+            elif any("일치하지 않습니다." in e for e in errors["new_password2"]):
+                messages.error(
+                    request,
+                    "비밀번호와 비밀번호 확인이 일치하지 않습니다.",
+                    extra_tags="new_password2_error",
+                )
+            else:
+                messages.error(request, errors["new_password2"], extra_tags="new_password2_error")
+        else:
+            messages.error(request, "입력한 정보가 올바르지 않습니다.", extra_tags="default_error")
     else:
         form = PasswordChangeForm(request.user)
     context = {
@@ -147,10 +199,12 @@ def logout(request):
         HttpResponseRedirect: 로그아웃 처리 후 로그인 페이지(`accounts:login`)로 리다이렉트합니다.
     """
     # 현재까지 나눴던 대화를 DB에 저장
-    if request.session.get("chat"):
-        room = ChatRoom.objects.get(user=request.user)
-        room.history = request.session["chat"]
-        room.save()
+    rooms = ChatRoom.objects.filter(user=request.user)
+    # todo 채팅방마다 히스토리를 분리하여 따로 저장합니다.
+    for room in rooms:
+        room.history = request.session.get(f"chat{room.pk}")
+        if room.history:
+            room.save()
 
     auth_logout(request)
     return redirect("accounts:login")
@@ -180,9 +234,7 @@ def delete(request):
     verified_time = request.session.get("delete")
     if not verified_time or (timezone.now().timestamp() - verified_time > 300):
         # 세션이 없거나 만료된경우 비밀번호 인증 페이지로 이동합니다.
-        return redirect(
-            f"{reverse('accounts:verify')}?next={reverse('accounts:delete')}"
-        )
+        return redirect(f"{reverse('accounts:verify')}?next={reverse('accounts:delete')}")
     request.user.delete()
     return redirect("products:index")
 
@@ -205,11 +257,14 @@ def verify(request):
 
     # 다음 목적지를 기본적으로 update 페이지로 설정합니다.
     # 만약 next 값이 들어오지 않았다면 next를 accounts:update로 두겠다는 설정입니다.
-    next_url = (
-        request.GET.get("next")
-        or request.POST.get("next")
-        or reverse("accounts:update")
-    )
+    next_url = request.GET.get("next") or request.POST.get("next") or reverse("accounts:update")
+    # 다음 목적지에 따라 세션에 담아놓을 session_key를 설정합니다.
+    # session_key의 기본값은 update 입니다.
+    session_key = "update"
+    if "delete" in next_url:
+        session_key = "delete"
+    else:
+        session_key = "update"
 
     if request.method == "POST":
         # DB에 저장된 사용자 정보에 인증을 시도하기 위해
@@ -222,20 +277,16 @@ def verify(request):
 
         # 인증되었다면 세션이 인증 상태를 저장합니다.
         if user is not None:
-            # 인증 후 사용자의 요청에 맞게 세션을 분기합니다.
-            if "delete" in next_url:
-                session_key = "delete"
-            else:
-                session_key = "update"
             # 인증을 한 시간을 체크합니다.
             # update 함수에서 시간이 지나면 인증이 만료되도록 처리합니다.
             request.session[session_key] = timezone.now().timestamp()
 
             # 목적지가 결정되지 않았다면 update, 결정되었다면 결정된 페이지로 리다이렉트합니다.
             return redirect(next_url)
-        # 인증되지 않았다면 error를 context에 담아 반환합니다.
+        # 인증되지 않았다면 error를 context에 담아 반환
         else:
             context = {"error": "비밀번호가 올바르지 않습니다."}
+            messages.error(request, "비밀번호가 올바르지 않습니다.", extra_tags="verify_error")
             return render(request, "accounts/verify.html", context)
 
-    return render(request, "accounts/verify.html")
+    return render(request, "accounts/verify.html", {"session_key": session_key})

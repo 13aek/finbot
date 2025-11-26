@@ -46,6 +46,12 @@ def save_fin_products(data: list[dict]) -> None:
         autocommit=True,
     )
     cursor = conn.cursor()
+    # cursor.execute(
+    #     """
+    # ALTER TABLE fin_products
+    # ADD COLUMN description VARCHAR(100);
+    # """
+    # )
 
     # fin_products 테이블 생성 (없을 시 생성)
     cursor.execute(
@@ -65,6 +71,7 @@ def save_fin_products(data: list[dict]) -> None:
             disclosure_start VARCHAR(20),
             disclosure_end VARCHAR(20),
             disclosure_month VARCHAR(10),
+            description VARCHAR(100),
             UNIQUE KEY unique_product_month (product_code, disclosure_month)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         """
@@ -76,12 +83,13 @@ def save_fin_products(data: list[dict]) -> None:
             category, company_type, company_name, product_name, product_code,
             join_method, join_target, max_limit,
             maturity_interest, conditions,
-            disclosure_start, disclosure_end, disclosure_month
+            disclosure_start, disclosure_end, disclosure_month, description
         ) VALUES (
-            %(category)s, %(회사유형)s, %(금융회사명)s, %(금융상품명)s, %(금융상품코드)s,
+            %(상품카테고리)s, %(회사유형)s, %(금융회사명)s, %(금융상품명)s, %(금융상품코드)s,
             %(가입방법)s, %(가입대상)s, %(최고한도)s,
             %(만기후이자율)s, %(우대조건)s,
-            %(공시시작일)s, %(공시종료일)s, %(공시제출월)s
+            %(공시시작일)s, %(공시종료일)s, %(공시제출월)s,
+            %(상품설명)s
         )
         ON DUPLICATE KEY UPDATE
             company_type = VALUES(company_type),
@@ -93,7 +101,8 @@ def save_fin_products(data: list[dict]) -> None:
             maturity_interest = VALUES(maturity_interest),
             conditions = VALUES(conditions),
             disclosure_start = VALUES(disclosure_start),
-            disclosure_end = VALUES(disclosure_end)
+            disclosure_end = VALUES(disclosure_end),
+            description = VALUES(description)
     """
 
     # 데이터 삽입
@@ -103,7 +112,7 @@ def save_fin_products(data: list[dict]) -> None:
     for _idx, item in enumerate(data, start=1):
         # None / 누락 값 방지
         safe_item = {
-            "category": item.get("category", "") or "",
+            "상품카테고리": item.get("상품카테고리", "") or "",
             "회사유형": item.get("회사유형", "") or "",
             "금융회사명": item.get("금융회사명", "") or "",
             "금융상품명": item.get("금융상품명", "") or "",
@@ -116,6 +125,7 @@ def save_fin_products(data: list[dict]) -> None:
             "공시시작일": item.get("공시시작일", "") or "",
             "공시종료일": item.get("공시종료일", "") or "",
             "공시제출월": item.get("공시제출월", "") or "",
+            "상품설명": item.get("상품설명", "") or "",
         }
 
         cursor.execute(insert_query, safe_item)

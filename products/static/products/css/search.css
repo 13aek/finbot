@@ -1,38 +1,76 @@
 body {
-    margin: 0;
-    padding: 0;
     background-color: #F3F3F3;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard Variable', sans-serif;
 }
 
-.page-wrapper {
-    width: 100%;
-    min-height: 100vh;
+.content-wrapper {
+    width: 80%;
+    margin: 0 auto;
+}
+
+/* -------- */
+/* 1. 상단바 */
+/* -------- */
+
+.main-link img {
+  height: 23px;
+  padding-left: 10px;
+}
+
+.header {
+    box-sizing: border-box;
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    padding: 30px 0px 15px;
+}
+
+.left-group,
+.right-group {
+    display: flex;
+    gap: 35px;
+}
+
+.header a {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* 회원 정보, 관심 상품 버튼 */
+.info-btn {
+    border: none;
+    color: #8B8B8B;
+}
+
+/* 로그인 or 로그아웃 버튼 */
+.logout-btn {
+    border: none;
+    color: #3F72AF;
 }
 
 /* --------- */
-/* 1. 검색 창 */
+/* 2. 검색 창 */
 /* --------- */
+
 .search-header {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 60px 160px 40px;
   box-sizing: border-box;
 }
 
 .search-bar {
     flex-grow: 1;
-    margin-right: 40px;
 }
 
-/* 검색 메인 페이지의 요소와 동일하나, 그림자만 추가 */
 .search-input-wrapper {
-    flex: 1;
     max-width: 800px;
     min-width: 280px;
     height: 55px;
@@ -53,9 +91,14 @@ body {
     border: none;
     outline: none; 
     background: none;
-    font-size: 15px;
+    font-size: 16px;
     color: #000000;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard Variable', sans-serif;
+}
+
+.search-input::placeholder {
+    color: #A9A9A9;
+    font-size: 16px;
 }
 
 .search-submit-btn {
@@ -69,74 +112,71 @@ body {
     transition: color 0.2s;
 }
 
-.search-submit-btn:hover {
-    color: #000000;
-}
-
-/* 오른쪽 링크 영역 */
-.header-links {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-/* 개별 링크 */
-.header-links a {
-  text-decoration: none;
-  color: #8B8B8B;
-  font-size: 15px;
-  font-weight: 700;
-  transition: color 0.2s ease;
-}
-
 
 /* ----------- */
-/* 2. 검색 결과 */
+/* 3. 검색 결과 */
 /* ----------- */
-.result-wrapper {
-    flex-grow: 1;
-    background-color: #F3F3F3;
-    padding: 10px 160px 0px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-}
 
-/* 검색 결과 창 내부의 흰색 영역 */
 .result-container {
     width: 100%;
-    FLEX: 1; /* 부모와 동일한 높이 */
+    margin: 20px auto 50px auto;
     background-color: #FFFFFF;
-    border-radius: 20px 20px 0px 0px; /* 상단만 둥글게 */
-    padding: 50px 50px;
-    box-sizing: border-box;
-    min-height: calc(100vh - 200px);
+    border-radius: 30px;
 }
 
-/* 결과 내용 스타일 */
-.result-list {
+.result-item {
+    padding: 50px;
+}
+
+.result-item + .result-item {
+    border-top: 1px solid #F3F3F3;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    row-gap: 15px;
+    margin-top: 10px;
     font-size: 15px;
-    color: #000000;
+}
+
+.label {
+    font-weight: 600;
+    color: #5A5A5A;
+}
+
+.value {
+    color: #5A5A5A;
     line-height: 1.5;
 }
 
-/* 검색 결과가 없습니다 */
 .no-result {
-    width: 100%;
-    height: 400px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #8B8B8B;
-    font-size: 16px;
-    background-color: #FFFFFF;
-    border-radius: 16px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.03);
-    margin-top: 40px;
+    font-size: 15px;
+    color: #000000;
+    padding: 50px;
 }
 
-.no-result p {
-    margin: 0;
-    font-weight: 400;
+/* ------------- */
+/* 4. 페이지네이션 */
+/* ------------- */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding-bottom: 30px;
+    font-size: 15px;
+}
+
+.pagination a {
+    color: #8B8B8B;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
+.pagination span {
+    color: #3F72AF;
+    font-weight: 700;
+    padding: 5px 10px;
 }
