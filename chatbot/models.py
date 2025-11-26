@@ -11,10 +11,10 @@ class ChatRoom(models.Model):
 
     # 사용자가 이전 로그인 세션에서 나눴던 대화
     history = models.TextField(null=True)
-    
+
     # 사용자에게 보여줄 방 번호
-    display_id = models.PositiveIntegerField() # 음수가 없는 필드
-    
+    display_id = models.PositiveIntegerField()  # 음수가 없는 필드
+
     # 채팅방 이름
     title = models.CharField(max_length=15, null=True)
 
@@ -26,7 +26,7 @@ class ChatMessage(models.Model):
     ]
     # 유저와 연결
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    
+
     # 채팅방과 연결
     room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE)
 
