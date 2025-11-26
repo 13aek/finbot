@@ -102,7 +102,8 @@ def chat_page(request, chatroom_pk=None):
 
             # 챗봇 응답 저장
             reply = chat.ask(user_message)
-            ChatMessage.objects.create(user=request.user, room=chat_room, role="bot", message=reply)
+            answer = reply["answer"]
+            ChatMessage.objects.create(user=request.user, room=chat_room, role="bot", message=answer)
 
         # POST 후 새로고침 시 중복 전송 방지를 위해 리다이렉트
         return redirect("chat:chat_page", chatroom_pk)
@@ -114,16 +115,18 @@ def chat_page(request, chatroom_pk=None):
         chat_room.save()
         # langgraph flow에 따라 질문이 없다면 인삿말을 출력합니다.
         reply = chat.ask(None)
+        answer = reply["answer"]
         # 중복 인사를 방지하기 위해 세션에 로그인 상태를 기록합니다.
         request.session[f"login_visited{chatroom_pk}"] = True
-        ChatMessage.objects.create(user=request.user, room=chat_room, role="bot", message=reply)
+        ChatMessage.objects.create(user=request.user, room=chat_room, role="bot", message=answer)
 
     # 2번째 방문 이상이고 그 로그인의 첫 방문인 경우 인삿말을 출력합니다.
     if not request.session.get(f"login_visited{chatroom_pk}") and chat_history:
         reply = chat.ask(None)
+        answer = reply["answer"]
         # 중복 인사를 방지하기 위해 세션에 로그인 상태를 기록합니다.
         request.session[f"login_visited{chatroom_pk}"] = True
-        ChatMessage.objects.create(user=request.user, room=chat_room, role="bot", message=reply)
+        ChatMessage.objects.create(user=request.user, room=chat_room, role="bot", message=answer)
     # 사용자의 모든 채팅방을 조회
     rooms = ChatRoom.objects.filter(user=request.user)
     # 현재 채팅방의 메시지만 조회

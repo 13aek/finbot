@@ -60,7 +60,7 @@ class ChatSession:
         else:
             self.state["query"] = query
             self.state = app_graph.invoke(self.state)
-        return self.state["answer"]
+        return self.state
 
 
 # Node 정의
