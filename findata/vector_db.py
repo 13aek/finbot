@@ -1,6 +1,5 @@
 import os
 import uuid
-from glob import glob
 
 from FlagEmbedding import BGEM3FlagModel
 from qdrant_client import QdrantClient
@@ -10,10 +9,6 @@ from tqdm import tqdm
 from findata.call_findata_api import fetch_findata
 from findata.simple_chunk import chunk
 
-
-# ===============================
-# 🚫 기존 QdrantLocal 기반 코드 제거
-# ===============================
 
 def get_qdrant_server(collection_name: str, vector_size: int = 1024) -> QdrantClient:
     """
@@ -28,19 +23,11 @@ def get_qdrant_server(collection_name: str, vector_size: int = 1024) -> QdrantCl
     # 존재하지 않을 경우 컬렉션 생성
     if not client.collection_exists(collection_name):
         client.create_collection(
-            collection_name=collection_name,
-            vectors_config=VectorParams(
-                size=vector_size,
-                distance=Distance.COSINE
-            )
+            collection_name=collection_name, vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE)
         )
 
     return client
 
-
-# ===============================
-# 🟢 서버 기반 VectorDB 저장 함수
-# ===============================
 
 def save_vector_db(
     chunked_docs: list[str],
@@ -52,6 +39,18 @@ def save_vector_db(
     VectorDB에 Chunked data 저장하는 함수 (Qdrant 서버 기반)
     - BGE-m3 임베딩
     - Qdrant 서버에 직접 업로드
+
+    VectorDB에 Chunked data 저장하는 함수
+    - "BAAI/bge-m3" Embedding Model 사용
+    - Qdrant VectorDB 사용
+    arguments:
+        (List[str]) chunked_docs: Chunking된 금융데이터 리스트
+        (str) collection_name: 금융데이터 DB 이름
+        (str) category: 세부 카테고리
+        (int) vector_size: embedding vector size
+        (str) path: VectorDB 저장 경로
+    return:
+        QdrantClient: Qdrant VectorDB Client
     """
 
     model = BGEM3FlagModel("BAAI/bge-m3", use_fp16=False)
@@ -75,10 +74,6 @@ def save_vector_db(
     return client
 
 
-# ===============================
-# 🟦 검색에 사용되는 Ready 함수
-# ===============================
-
 def get_ready_search(category="deposit"):
     """
     임베딩 모델 로드 + Qdrant 서버 접속 반환
@@ -99,10 +94,6 @@ def get_ready_search(category="deposit"):
 
     return model, client
 
-
-# ===============================
-# 🧪 테스트용 스크립트
-# ===============================
 
 if __name__ == "__main__":
     save_vector_db(chunk(fetch_findata()))
