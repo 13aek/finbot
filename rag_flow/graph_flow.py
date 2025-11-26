@@ -1,14 +1,19 @@
 from langgraph.graph import END, START, StateGraph
+from langgraph.types import Command
 
+from finbot.singleton.chat_checkpoint import memory, memory_store
 from rag_flow.graph_nodes import (
     ChatState,
     add_to_history,
     agent_method_router,
     calculator,
+    classify_feedback,
     conditional_about_history,
     conditional_about_query,
+    feedback_router,
     fin_word_explain,
     first_conversation,
+    human_feedback,
     mode_router,
     normal_chat,
     nth_conversation,
@@ -24,7 +29,7 @@ class ChatSession:
 
     def __init__(self, user_history):
         self.state = {"visited": False, "history": []}
-
+        self.state["need_user_feedback"] = False
         """
         DB에서 history 들고와서 저장해야함. 
         각 history는 Dict 하나로 저장.
@@ -35,16 +40,18 @@ class ChatSession:
             self.state["history"].append({"role": "user", "content": user_history, "state": "old"})
             self.state["visited"] = True
 
-    def ask(self, query: str):
+    def ask(self, query: str, thread: dict, need_user_feedback: bool = False):
         """
         사용자의 질문을 받고 Langgraph를 거쳐 답변을 생성
 
         Args:
             query (str): 사용자의 질문 query
+            thread (dict): 영속성을 위한 사용자 정보, 채팅룸 정보
             visited (bool): 사용자 방문여부(history유무)
         Returns:
             answer (str): Langgraph state의 answer
         """
+
         self.state["recommend_mode"] = False
 
         # history 유무에 따라 분기
@@ -56,10 +63,15 @@ class ChatSession:
             self.state["visited"] = True
 
         if not visited:
-            self.state = app_graph.invoke(self.state)
+            self.state = app_graph.invoke(self.state, thread)
         else:
-            self.state["query"] = query
-            self.state = app_graph.invoke(self.state)
+            if not need_user_feedback:
+                self.state["query"] = query
+                self.state = app_graph.invoke(self.state, thread)
+                print(self.state)
+            else:
+                self.state["query"] = query
+                self.state = app_graph.invoke(Command(resume=query, update=self.state), thread)
         return self.state
 
 
@@ -72,6 +84,8 @@ graph.add_node("Nth_hello", nth_conversation)
 
 graph.add_node("conditional_about_query", conditional_about_query)
 graph.add_node("rag_search", rag_search)
+graph.add_node("human_feedback", human_feedback)
+graph.add_node("classify_feedback", classify_feedback)
 graph.add_node("calculator", calculator)
 graph.add_node("fin_word_explain", fin_word_explain)
 graph.add_node("normal_chat", normal_chat)
@@ -102,11 +116,21 @@ graph.add_conditional_edges(
         "normal_mode": "normal_chat",
     },
 )
-graph.add_edge("rag_search", "add_to_history")
+graph.add_edge("rag_search", "human_feedback")
+graph.add_edge("human_feedback", "classify_feedback")
+graph.add_conditional_edges(
+    "classify_feedback",
+    feedback_router,
+    {
+        "yes": "calculator",
+        "no": "conditional_about_query",
+    },
+)
+graph.add_edge("classify_feedback", "add_to_history")
 graph.add_edge("calculator", "add_to_history")
 graph.add_edge("fin_word_explain", "add_to_history")
 graph.add_edge("normal_chat", "add_to_history")
 graph.add_edge("add_to_history", END)
 
 # 인스턴스 생성
-app_graph = graph.compile()
+app_graph = graph.compile(checkpointer=memory, store=memory_store)

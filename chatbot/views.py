@@ -82,6 +82,7 @@ def chat_page(request, chatroom_pk=None):
     # langgraph_flow를 따르기 위해 ChatSession의 인스턴스를 생성합니다.
     # 현재 사용자의 이전 로그인 시점의 대화 히스토리를 인스턴스 변수로 생성합니다.
     chat = ChatSession(chat_history)
+    user_thread = {"configurable": {"thread_id": chatroom_pk, "user_id": request.user.pk}}
 
     # POST 요청일 경우 (사용자가 메시지 입력)
     if request.method == "POST":
@@ -101,8 +102,17 @@ def chat_page(request, chatroom_pk=None):
             chat.state["history"].append({"role": "user", "content": user_message, "state": "new"})
 
             # 챗봇 응답 저장
-            reply = chat.ask(user_message)
-            answer = reply["answer"]
+            if request.session.get("need_user_feedback"):
+                reply = chat.ask(user_message, user_thread, request.session["need_user_feedback"])
+                request.session["need_user_feedback"] = False
+            else:
+                reply = chat.ask(user_message, user_thread)
+
+            if reply["need_user_feedback"]:
+                answer = [reply["answer"], reply["__interrupt__"][0].value]
+            else:
+                answer = reply["answer"]
+            request.session["need_user_feedback"] = reply["need_user_feedback"]
             ChatMessage.objects.create(user=request.user, room=chat_room, role="bot", message=answer)
 
         # POST 후 새로고침 시 중복 전송 방지를 위해 리다이렉트
@@ -114,7 +124,7 @@ def chat_page(request, chatroom_pk=None):
         chat_room.ever_visited = True
         chat_room.save()
         # langgraph flow에 따라 질문이 없다면 인삿말을 출력합니다.
-        reply = chat.ask(None)
+        reply = chat.ask(None, user_thread)
         answer = reply["answer"]
         # 중복 인사를 방지하기 위해 세션에 로그인 상태를 기록합니다.
         request.session[f"login_visited{chatroom_pk}"] = True
@@ -122,7 +132,7 @@ def chat_page(request, chatroom_pk=None):
 
     # 2번째 방문 이상이고 그 로그인의 첫 방문인 경우 인삿말을 출력합니다.
     if not request.session.get(f"login_visited{chatroom_pk}") and chat_history:
-        reply = chat.ask(None)
+        reply = chat.ask(None, user_thread)
         answer = reply["answer"]
         # 중복 인사를 방지하기 위해 세션에 로그인 상태를 기록합니다.
         request.session[f"login_visited{chatroom_pk}"] = True

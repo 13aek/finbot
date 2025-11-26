@@ -1,6 +1,8 @@
 from functools import partial
 from typing import Annotated, Literal, TypedDict
 
+from langgraph.types import interrupt
+
 from finbot.singleton.ai_client import ai_client
 from finbot.singleton.embedding_model import embed_model
 from finbot.singleton.vectordb import qdrant_client
@@ -38,6 +40,9 @@ class ChatState(TypedDict):
     query: str  # user query
     history: Annotated[list[dict[str, str]], partial(keep_last_n, n=10)]  # user, assistant message 쌍
     answer: str  # LLM answer
+    user_feedback: str  # 사용자 중간 입력
+    need_user_feedback: bool  # 사용자 입력 요청
+    pos_or_neg: str
 
 
 # 노드 정의
@@ -204,7 +209,7 @@ def conditional_about_query(state: ChatState) -> dict:
 
 def agent_method_router(
     state: ChatState,
-) -> Literal["recommend_mode", "calculate_mode", "explain_mode", "normal_mode"]:  # "db_search",
+) -> Literal["recommend_mode", "calculate_mode", "explain_mode", "normal_mode"]:
     """
     Search Method에 따라 라우팅
 
@@ -292,7 +297,81 @@ def rag_search(state: ChatState) -> ChatState:
     )
     answer = completion.choices[0].message.content
     recommend_mode = True
-    return {"answer": answer, "recommend_mode": recommend_mode}
+    return {"answer": answer, "recommend_mode": recommend_mode, "need_user_feedback": True}
+
+
+@timing_decorator
+@error_handling_decorator
+def human_feedback(state: ChatState) -> ChatState:
+    """
+    사용자에게 graph flow 중간에 피드백을 입력 받음
+
+    :param state: Description
+    :type state: ChatState
+    :return: Description
+    :rtype: ChatState
+    """
+
+    human_text = interrupt("추천 상품에 대한 수익/이자 계산이 필요하신가요?")
+    return {"query": human_text, "need_user_feedback": False}
+
+
+@timing_decorator
+@error_handling_decorator
+def classify_feedback(state: ChatState) -> ChatState:
+    """
+    사용자의 중간 feedback에 대한 긍, 부정 판단
+
+    Args:
+        state (TypedDict): Graph의 state
+    Returns:
+        Dict: LLM의 답변과 새로운 answer를 반환
+    """
+
+    user_feedback = state["query"]
+
+    messages = [
+        {
+            "role": "system",
+            "content": "너는 '입력'을 보고 yes, no을 판단해야해. 다른 말 하지말고 yes, no 중에 한 단어만 출력해",
+        },
+        {
+            "role": "user",
+            "content": f"입력: {user_feedback}\n을 보고 yes, no 중에 한 단어만 출력해. 마침표도 필요없어.",
+        },
+    ]
+
+    completion = ai_client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=messages,
+        max_tokens=100,
+    )
+    pos_or_neg = completion.choices[0].message.content
+
+    pos_word = ["yes", "긍정", "예", "맞", "그래", "응", "그렇", "sure"]
+    neg_word = ["no", "부정", "아니", "안", "no", "싫어", "왜"]
+    if any([word in pos_or_neg for word in pos_word]):
+        pos_or_neg = "yes"
+    elif any([word in pos_or_neg for word in neg_word]):
+        pos_or_neg = "no"
+
+    return {"pos_or_neg": pos_or_neg}
+
+
+@timing_decorator
+@error_handling_decorator
+def feedback_router(
+    state: ChatState,
+) -> Literal["yes", "no"]:
+    """
+    사용자 중간 feedback에 따라 라우팅
+
+    Args:
+        state (TypedDict): Graph의 state
+    Returns:
+        Literal: ["yes", "no"] 중 하나의 값으로 제한
+    """
+    return state["pos_or_neg"]
 
 
 @timing_decorator
@@ -323,7 +402,6 @@ def calculator(state: ChatState) -> ChatState:
         model="gpt-4o-mini",
         messages=messages,
         # max_tokens=600,
-        # tools=
     )
     answer = completion.choices[0].message.content
 
@@ -358,7 +436,6 @@ def fin_word_explain(state: ChatState) -> ChatState:
         model="gpt-4o-mini",
         messages=messages,
         max_tokens=600,
-        # tools=
     )
     answer = completion.choices[0].message.content
 
@@ -393,7 +470,6 @@ def normal_chat(state: ChatState) -> ChatState:
         model="gpt-4o-mini",
         messages=messages,
         max_tokens=600,
-        # tools=
     )
     answer = completion.choices[0].message.content
 
@@ -418,4 +494,4 @@ def add_to_history(state: ChatState) -> ChatState:
         new_history.append({"role": "assistant", "content": state["answer"], "state": "new"})
     else:
         new_history.append({"role": "assistant", "content": state["answer"], "state": "new"})
-    return {"history": new_history, "visited": True}
+    return {"history": new_history, "visited": True, "need_user_feedback": False}
