@@ -15,14 +15,14 @@ services:
     env_file:
       - .env
     environment:
-      QDRANT_URL: "http://qdrant:6333"   # ← 추가됨 (컨테이너 네트워크 내 DNS)
+      QDRANT_URL: "http://qdrant:6333" 
     volumes:
       - ./staticfiles:/app/staticfiles
       - ./media:/app/media
     expose:
       - "8000"
     depends_on:
-      - qdrant                     # ← web은 qdrant 서버가 먼저 떠야 함
+      - qdrant 
 
   nginx:
     image: nginx:latest

@@ -5,7 +5,7 @@ FROM python:3.11
 WORKDIR /app
 
 # -------------------------------
-# 🔥 필수 시스템 패키지 설치
+# 필수 시스템 패키지 설치
 # -------------------------------
 # torch, transformers, datasets, lxml, pyarrow, mysqlclient 등
 # 모든 패키지가 빌드될 수 있게 필요한 의존성들을 설치한다.
@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # --------------------------------
-# 🔥 torch를 별도 설치 (CPU 버전)
+# torch를 별도 설치 (CPU 버전)
 # --------------------------------
 # requirements.txt에 torch가 포함되어 있으면 빌드 실패 가능성 매우 큼.
 # CPU 전용 wheel을 명확하게 지정해서 설치한다.
