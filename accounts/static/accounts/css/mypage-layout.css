@@ -94,6 +94,7 @@ input::placeholder {
 /* 3. 버튼 공통 스타일 */
 /* ----------------- */
 button {
+  font-family: 'Pretendard', sans-serif;
   background-color: #3F72AF;
   color: #FFFFFF;
   border: none;
