@@ -1,6 +1,6 @@
 body {
     background-color: #F3F3F3;
-    font-family: 'Pretendard Variable', sans-serif;
+    font-family: 'Pretendard', sans-serif;
 }
 
 .content-wrapper {
@@ -93,7 +93,7 @@ body {
     background: none;
     font-size: 16px;
     color: #000000;
-    font-family: 'Pretendard Variable', sans-serif;
+    font-family: 'Pretendard', sans-serif;
 }
 
 .search-input::placeholder {

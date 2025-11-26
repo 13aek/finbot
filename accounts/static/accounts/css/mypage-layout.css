@@ -8,7 +8,7 @@
 html, body {
   height: 100%;
   background-color: #FFFFFF;
-  font-family: 'Pretendard Variable', sans-serif;
+  font-family: 'Pretendard', sans-serif;
 }
 
 /* 컨테이너 */
@@ -76,7 +76,7 @@ form input:focus {
 }
 
 input, select {
-  font-family: 'Pretendard Variable', sans-serif;
+  font-family: 'Pretendard', sans-serif;
   border: 1px solid #E5E5E5;
   border-radius: 30px;
   background-color: #FFFFFF;
