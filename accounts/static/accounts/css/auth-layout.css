@@ -8,7 +8,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #F3F3F3;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard Variable', sans-serif;
     height: 100vh;
     display: flex; 
     justify-content: center;
@@ -55,7 +55,7 @@ form button {
     padding: 0 20px;
     font-size: 15px;
     box-sizing: border-box;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard Variable', sans-serif;
 }
 
 form input:focus {
@@ -71,7 +71,6 @@ input::placeholder {
 button {
     background-color: #3F72AF;
     color: #FFFFFF;
-    font-size: 15px;
     font-weight: 700;
     border: none;
     cursor: pointer;
