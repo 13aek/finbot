@@ -2,11 +2,11 @@
         margin: 0;
         padding: 20px;
         background-color: #FFFFFF;
-        font-family: 'Noto Sans KR', sans-serif;
+        font-family: 'Pretendard', sans-serif;
         height: 100vh;
         display: flex;
         overflow: hidden;
-        font-size: 15px;
+        font-size: 16px;
         box-sizing: border-box;
     }
     
@@ -78,8 +78,8 @@
 
     /* 대화 내역 저장 */
     .recent-title {
-        font-size: 15px;
-        font-weight: bold;
+        font-size: 16px;
+        font-weight: 700;
         margin: 70px 0 15px 20px; 
         color: #8B8B8B; 
         padding: 0;
@@ -151,8 +151,8 @@
     .chat-header .nav-link {
         text-decoration: none;
         color: #8B8B8B;
-        font-weight: 600;
-        font-size: 16px;
+        font-weight: 700;
+        font-size: 15px;
         transition: color 0.2s;
 }
 
@@ -255,7 +255,7 @@
         resize: none; 
         box-sizing: border-box;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        font-family: 'Noto Sans KR', sans-serif;
+        font-family: 'Pretendard', sans-serif;
 }
 
 /* 호버 시 색상 변경 없음 */

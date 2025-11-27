@@ -8,7 +8,7 @@
 html, body {
   height: 100%;
   background-color: #FFFFFF;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Pretendard', sans-serif;
 }
 
 /* 컨테이너 */
@@ -46,14 +46,13 @@ html, body {
 /* 내부 글씨 */
 .sidebar a {
   text-decoration: none;
-  font-size: 15px;
+  font-size: 16px;
   color: #8B8B8B;
-  font-weight: 500;
 }
 
 .sidebar a.active {
   color: #3F72AF;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* 로그아웃 */
@@ -77,7 +76,7 @@ form input:focus {
 }
 
 input, select {
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Pretendard', sans-serif;
   border: 1px solid #E5E5E5;
   border-radius: 30px;
   background-color: #FFFFFF;
@@ -95,11 +94,12 @@ input::placeholder {
 /* 3. 버튼 공통 스타일 */
 /* ----------------- */
 button {
+  font-family: 'Pretendard', sans-serif;
   background-color: #3F72AF;
   color: #FFFFFF;
   border: none;
   border-radius: 30px;
   font-size: 15px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
 }

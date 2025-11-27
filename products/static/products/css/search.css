@@ -1,6 +1,6 @@
 body {
     background-color: #F3F3F3;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard', sans-serif;
 }
 
 .content-wrapper {
@@ -38,7 +38,7 @@ body {
     align-items: center;
     justify-content: center;
     height: 40px;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
 }
 
@@ -91,14 +91,14 @@ body {
     border: none;
     outline: none; 
     background: none;
-    font-size: 15px;
+    font-size: 16px;
     color: #000000;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard', sans-serif;
 }
 
 .search-input::placeholder {
     color: #A9A9A9;
-    font-size: 15px;
+    font-size: 16px;
 }
 
 .search-submit-btn {
@@ -137,7 +137,7 @@ body {
     grid-template-columns: 150px 1fr;
     row-gap: 15px;
     margin-top: 10px;
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .label {
@@ -165,7 +165,7 @@ body {
     justify-content: center;
     gap: 10px;
     padding-bottom: 30px;
-    font-size: 13px;
+    font-size: 15px;
 }
 
 .pagination a {
