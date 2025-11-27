@@ -34,6 +34,23 @@ COMMON_BASE_FIELDS = {
     "dcls_month",
 }
 
+OPTION_UNIQUE_KEYS = {
+    "fixed_deposit": ["fin_prdt_cd", "intr_rate_type_nm", "save_trm", "dcls_month"],
+    "installment_deposit": [
+        "fin_prdt_cd",
+        "rsrv_type_nm",
+        "intr_rate_type_nm",
+        "save_trm",
+        "dcls_month",
+    ],
+    "jeonse_loan": [
+        "fin_prdt_cd",
+        "rpay_type_nm",
+        "lend_rate_type_nm",
+        "dcls_month",
+    ],
+}
+
 OPTION_KEEP = {
     "fixed_deposit": {
         "join_member",
@@ -85,15 +102,12 @@ def save_fin_product(cur, p: dict, category_en: str, eng_to_han: dict):
     cols = []
     vals = []
 
-    # 공통 필드만 저장
     for eng_key in COMMON_BASE_FIELDS:
         han_key = eng_to_han.get(eng_key)
-        if not han_key:
-            continue
-        cols.append(eng_key)
-        vals.append(p.get(han_key))
+        if han_key:
+            cols.append(eng_key)
+            vals.append(p.get(han_key))
 
-    # 메타 필드
     cols.append("company_type")
     vals.append(p.get("회사유형"))
 
@@ -116,7 +130,7 @@ def save_fin_product(cur, p: dict, category_en: str, eng_to_han: dict):
 
 
 # 옵션 저장 (카테고리별)
-def insert_option(cur, category_en: str, fin_prdt_cd: str, p: dict, opt: dict, eng_to_han: dict):
+def upsert_option(cur, category_en: str, fin_prdt_cd: str, p: dict, opt: dict, eng_to_han: dict):
     """
     옵션 테이블 3종
     - table: fixed_deposit_option / installment_deposit_option / jeonse_loan_option
@@ -124,33 +138,39 @@ def insert_option(cur, category_en: str, fin_prdt_cd: str, p: dict, opt: dict, e
       (opt 에 있으면 opt에서, 없으면 p에서) 가져와 1 row로 저장
     """
     table = f"{category_en}_option"
-
-    # 새 ID 생성
-    cur.execute(f"SELECT IFNULL(MAX(id), 0) + 1 FROM {table}")
-    new_id = cur.fetchone()[0]
-
-    cols = ["id", "fin_prdt_cd"]
-    vals = [new_id, fin_prdt_cd]
-
     allowed_fields = OPTION_KEEP[category_en]
+    unique_keys = OPTION_UNIQUE_KEYS[category_en]
 
+    cols = []
+    vals = []
+
+    # Unique Key + 기타 옵션 필드 모두 컬럼화
     for eng_key in allowed_fields:
         han_key = eng_to_han.get(eng_key)
+
         if not han_key:
-            # config에 정의 안된 필드면 스킵
             continue
 
-        # 옵션(dict opt)에 우선권, 없으면 baseList(dict p)에서
         value = opt.get(han_key, p.get(han_key))
-
         cols.append(eng_key)
         vals.append(value)
 
+    # fin_prdt_cd 강제 삽입
+    cols.insert(0, "fin_prdt_cd")
+    vals.insert(0, fin_prdt_cd)
+
     placeholders = ",".join(["%s"] * len(vals))
+
+    # ON DUPLICATE KEY UPDATE에서 unique key는 제외하고 일반 필드만 업데이트
+    update_cols = [c for c in cols if c not in unique_keys]
+
+    update_clause = ",".join([f"{c}=VALUES({c})" for c in update_cols])
 
     query = f"""
         INSERT INTO {table} ({",".join(cols)})
         VALUES ({placeholders})
+        ON DUPLICATE KEY UPDATE
+            {update_clause}
     """
 
     cur.execute(query, vals)
@@ -161,23 +181,19 @@ def save_to_db_final(data: list[dict]):
     conn = get_conn()
     cur = conn.cursor()
 
-    print(f"save_to_db.py {len(data)}건 저장 시작")
+    print(f"save_to_db_final: {len(data)}건 저장 시작")
 
     for p in data:
-        category_kor = p["상품카테고리"]  # 정기예금 / 적금 / 전세자금대출
-        category_en = conf.category[category_kor]  # fixed_deposit / installment_deposit / jeonse_loan
-
+        category_kor = p["상품카테고리"]
+        category_en = conf.category[category_kor]
         fin_prdt_cd = p["금융상품코드"]
 
-        # config.json: eng → han 매핑
         eng_to_han = conf.tags[category_en]
 
-        # fin_products 저장
         save_fin_product(cur, p, category_en, eng_to_han)
 
-        # 옵션 저장
         for opt in p.get("옵션", []):
-            insert_option(cur, category_en, fin_prdt_cd, p, opt, eng_to_han)
+            upsert_option(cur, category_en, fin_prdt_cd, p, opt, eng_to_han)
 
     conn.commit()
     cur.close()
