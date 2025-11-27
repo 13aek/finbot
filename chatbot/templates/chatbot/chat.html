@@ -90,6 +90,15 @@
       {% empty %}
         <p>아직 대화가 없습니다. 첫 메시지를 입력해보세요!</p>
       {% endfor %}
+      {# 추천 상품을 받았다면 #}
+      {% if product %}
+      <div class=></div>
+        <div class="bubble">
+          <p>금융 상품 이름: {{  product.fin_prdt_nm }} <br>
+          은행: {{ product.kor_co_nm }} <br>
+          설명: {{ product.description }}</p>
+        </div>
+      {% endif %}
   </div>
 </div>
 

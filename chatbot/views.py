@@ -7,6 +7,7 @@ AJAX(JSON) 대신 Django의 기본 POST 방식 사용
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
+from products.models import FinProduct
 from rag_flow.graph_flow import ChatSession
 
 from .forms import ChatRoomForm
@@ -103,7 +104,10 @@ def chat_page(request, chatroom_pk=None):
             # 챗봇 응답 저장
             reply = chat.ask(user_message)
             ChatMessage.objects.create(user=request.user, room=chat_room, role="bot", message=reply)
-
+            # 챗봇의 응답을 바탕으로 추천받은 금융 상품이 있다면 pk만 가져옵니다.(세션 부하 최소화)
+            if chat.state.get("product_code"):
+                # 이후 응답 시 세션으로 pk만 받음
+                request.session["product_code"] = chat.state["product_code"]
         # POST 후 새로고침 시 중복 전송 방지를 위해 리다이렉트
         return redirect("chat:chat_page", chatroom_pk)
 
@@ -133,6 +137,12 @@ def chat_page(request, chatroom_pk=None):
         "rooms": rooms,
         "chatroom_pk": chatroom_pk,  # 사용자가 어떤 채팅방에 머무르는지 확인할 수 있도록 현재 채팅방의 pk를 넘겨줍니다.
     }
+    # 추천받은 상품의 id가 세션에 저장되어 있다면 컨텍스트에 추가합니다.
+    if request.session.get("product_code"):
+        product = FinProduct.objects.get(fin_prdt_cd=request.session["product_code"])
+        context.setdefault("product", product)
+        # 1회성으로만 유지되도록 컨텍스트에 추가했다면 삭제
+        del request.session["product_code"]
     return render(request, "chatbot/chat.html", context)
 
 

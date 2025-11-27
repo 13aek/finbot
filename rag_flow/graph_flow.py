@@ -95,6 +95,7 @@ class ChatState(TypedDict):
     query: str  # user query
     history: Annotated[list[dict[str, str]], keep_last_10]  # user, assistant message 쌍
     answer: str  # LLM answer
+    product_code: str  # LLM이 추천하는 상품의 상품코드
 
 
 # 노드 정의
@@ -337,9 +338,11 @@ def rag_search(state: ChatState) -> ChatState:
         max_tokens=600,
         # tools=
     )
+    product_code = vector_db_answer["금융상품코드"]
+    print(product_code)
     answer = completion.choices[0].message.content
     recommend_mode = True
-    return {"answer": answer, "recommend_mode": recommend_mode}
+    return {"answer": answer, "recommend_mode": recommend_mode, "product_code": product_code}
 
 
 def calculator(state: ChatState) -> ChatState:
