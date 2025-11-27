@@ -59,8 +59,8 @@ class FinProduct(models.Model):
 
     join_way = models.CharField(max_length=255, null=True)  # 가입방법
 
-    company_type = models.CharField(maxlength=50, null=True)  # 회사유형
-    category = models.CharField(maxlength=50, null=True)  # 카테고리
+    company_type = models.CharField(max_length=50, null=True)  # 회사유형
+    category = models.CharField(max_length=50, null=True)  # 카테고리
 
     dcls_strt_day = models.CharField(max_length=20, null=True)  # 공시 시작일
     dcls_end_day = models.CharField(max_length=20, null=True)  # 공시 종료일
