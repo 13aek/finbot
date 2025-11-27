@@ -2,7 +2,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #FFFFFF;
-    font-family: 'Pretendard Variable', sans-serif;
+    font-family: 'Pretendard', sans-serif;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -125,7 +125,7 @@ body {
     background: none;
     font-size: 16px;
     color: #000000;
-    font-family: 'Pretendard Variable', sans-serif;
+    font-family: 'Pretendard', sans-serif;
 }
 
 .search-input::placeholder {

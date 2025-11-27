@@ -2,7 +2,7 @@
         margin: 0;
         padding: 20px;
         background-color: #FFFFFF;
-        font-family: 'Pretendard Variable', sans-serif;
+        font-family: 'Pretendard', sans-serif;
         height: 100vh;
         display: flex;
         overflow: hidden;
@@ -255,7 +255,7 @@
         resize: none; 
         box-sizing: border-box;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        font-family: 'Pretendard Variable', sans-serif;
+        font-family: 'Pretendard', sans-serif;
 }
 
 /* 호버 시 색상 변경 없음 */
