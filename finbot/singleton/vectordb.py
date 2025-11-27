@@ -1,22 +1,24 @@
-import os
 from functools import lru_cache
-from glob import glob
 
-from findata.vector_db import get_qdrant_local
+from findata.vector_db import get_ready_search
 
 
 @lru_cache(maxsize=1)
 def get_qdrant_client(category="deposit"):
     """
+    Qdrant 서버용 Singleton Client 생성
+    - get_ready_search()는 (model, client)을 반환하므로
+      여기서는 client만 반환하면 된다.
+
     Embedding Model Singleton instance 생성
 
     parameter (str) : category 지정
     return QdrnatClient : QdrnatClient Vector DB Client 객체
     """
-    db_collection_name = "finance_products" + "_" + category
-    db_path = glob(os.getcwd() + "/**/qdrant_localdb", recursive=True)[0]
-    print("Singleton Qdrant Client를 생성합니다....")
-    return get_qdrant_local(collection_name=db_collection_name, vector_size=1024, path=db_path)
+    _, qdrant_client = get_ready_search(category=category)
+    print("Singleton Qdrant Client를 생성했습니다 (Qdrant 서버 모드).")
+    return qdrant_client
 
 
+# 앱 전역에서 사용할 싱글톤 QdrantClient
 qdrant_client = get_qdrant_client()
