@@ -226,3 +226,19 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     fetch_findata(category=args.category)
+
+
+def get_all_products() -> list[dict]:
+    """
+    정기예금 + 적금 + 전세자금대출 전체 데이터 반환
+    """
+    all_data = []
+    categories = ["fixed_deposit", "installment_deposit", "jeonse_loan"]
+
+    for cat in categories:
+        print(f"\n=== {cat} 데이터 호출 시작 ===")
+        data = fetch_findata(category=cat)
+        all_data.extend(data)
+
+    print(f"\n총 {len(all_data)}건 통합 데이터 반환 완료")
+    return all_data
