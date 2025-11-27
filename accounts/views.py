@@ -207,7 +207,7 @@ def logout(request):
             room.save()
 
     auth_logout(request)
-    return redirect("accounts:login")
+    return redirect("products:index")
 
 
 @login_required
