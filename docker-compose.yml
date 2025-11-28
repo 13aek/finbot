@@ -1,0 +1,41 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: finbot_qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./qdrant_storage:/qdrant/storage
+    restart: always
+
+  web:
+    build: .
+    container_name: finbot_web
+    command: gunicorn finbot.wsgi:application --bind 0.0.0.0:8000 --workers=1 --timeout=180
+    env_file:
+      - .env
+    environment:
+      QDRANT_URL: "http://qdrant:6333" 
+    volumes:
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
+    expose:
+      - "8000"
+    depends_on:
+      - qdrant 
+
+  nginx:
+    image: nginx:latest
+    container_name: finbot_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
+    depends_on:
+      - web
+
+
+volumes:
+  qdrant-storage:
