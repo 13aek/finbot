@@ -104,10 +104,13 @@ def chat_page(request, chatroom_pk=None):
             # 챗봇 응답 저장
             reply = chat.ask(user_message)
             ChatMessage.objects.create(user=request.user, room=chat_room, role="bot", message=reply)
-            # 챗봇의 응답을 바탕으로 추천받은 금융 상품이 있다면 pk만 가져옵니다.(세션 부하 최소화)
+            # 챗봇의 응답을 바탕으로 추천받은 금융 상품이 있다면 해당 상품을 외래키로 가지는 채팅을 하나 추가합니다.
             if chat.state.get("product_code"):
-                # 이후 응답 시 세션으로 pk만 받음
-                request.session["product_code"] = chat.state["product_code"]
+                # 추천받은 상품
+                product = FinProduct.objects.get(fin_prdt_cd=chat.state["product_code"])
+                ChatMessage.objects.create(
+                    user=request.user, room=chat_room, role="bot", message="추천상품", product=product
+                )
         # POST 후 새로고침 시 중복 전송 방지를 위해 리다이렉트
         return redirect("chat:chat_page", chatroom_pk)
 
@@ -137,12 +140,6 @@ def chat_page(request, chatroom_pk=None):
         "rooms": rooms,
         "chatroom_pk": chatroom_pk,  # 사용자가 어떤 채팅방에 머무르는지 확인할 수 있도록 현재 채팅방의 pk를 넘겨줍니다.
     }
-    # 추천받은 상품의 id가 세션에 저장되어 있다면 컨텍스트에 추가합니다.
-    if request.session.get("product_code"):
-        product = FinProduct.objects.get(fin_prdt_cd=request.session["product_code"])
-        context.setdefault("product", product)
-        # 1회성으로만 유지되도록 컨텍스트에 추가했다면 삭제
-        del request.session["product_code"]
     return render(request, "chatbot/chat.html", context)
 
 
