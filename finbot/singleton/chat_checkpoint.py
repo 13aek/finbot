@@ -10,7 +10,7 @@ def get_checkpoint():
     Embedding Model Singleton instance 생성
 
     parameter () : None
-    return BGEM3FlagModel : BGEM3FlagModel Embedding Model 객체
+    return MemorySaver, InMemoryStore : 휘발성 memory 객체 생성
     """
     print("Chatting Checkpoint를 생성합니다....")
     return MemorySaver(), InMemoryStore()

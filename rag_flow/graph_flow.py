@@ -10,6 +10,7 @@ from rag_flow.graph_nodes import (
     classify_feedback,
     conditional_about_history,
     conditional_about_query,
+    conditional_about_recommend,
     feedback_router,
     fin_word_explain,
     first_conversation,
@@ -18,6 +19,7 @@ from rag_flow.graph_nodes import (
     normal_chat,
     nth_conversation,
     rag_search,
+    recommend_method_router,
 )
 
 
@@ -68,7 +70,6 @@ class ChatSession:
             if not need_user_feedback:
                 self.state["query"] = query
                 self.state = app_graph.invoke(self.state, thread)
-                print(self.state)
             else:
                 self.state["query"] = query
                 self.state = app_graph.invoke(Command(resume=query, update=self.state), thread)
@@ -83,6 +84,7 @@ graph.add_node("first_hello", first_conversation)
 graph.add_node("Nth_hello", nth_conversation)
 
 graph.add_node("conditional_about_query", conditional_about_query)
+graph.add_node("conditional_about_recommend", conditional_about_recommend)
 graph.add_node("rag_search", rag_search)
 graph.add_node("human_feedback", human_feedback)
 graph.add_node("classify_feedback", classify_feedback)
@@ -90,7 +92,6 @@ graph.add_node("calculator", calculator)
 graph.add_node("fin_word_explain", fin_word_explain)
 graph.add_node("normal_chat", normal_chat)
 graph.add_node("add_to_history", add_to_history)
-
 
 # Graph flow 구성
 
@@ -110,10 +111,20 @@ graph.add_conditional_edges(
     "conditional_about_query",
     agent_method_router,
     {
-        "recommend_mode": "rag_search",
+        "recommend_mode": "conditional_about_recommend",
         "calculate_mode": "calculator",
         "explain_mode": "fin_word_explain",
         "normal_mode": "normal_chat",
+    },
+)
+graph.add_conditional_edges(
+    "conditional_about_recommend",
+    recommend_method_router,
+    {
+        "fixed_deposit": "rag_search",
+        "installment_deposit": "rag_search",
+        "jeonse_loan": "rag_search",
+        "all": "rag_search",
     },
 )
 graph.add_edge("rag_search", "human_feedback")

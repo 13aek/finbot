@@ -36,6 +36,7 @@ class ChatState(TypedDict):
     mode: str
     # agent method : ("rag_search", "calculator", "finword_explain", "normal_chat")
     agent_method: str
+    recommend_method: str  # ("fixed_deposit", "installment_deposit", "jeonse_loan", "all")
     recommend_mode: bool
     query: str  # user query
     history: Annotated[list[dict[str, str]], partial(keep_last_n, n=10)]  # user, assistant message 쌍
@@ -145,7 +146,7 @@ def nth_conversation(state: ChatState) -> ChatState:
 
 
 @timing_decorator
-@error_handling_decorator
+# @error_handling_decorator
 def conditional_about_query(state: ChatState) -> dict:
     """
     query에 따라 분기 발생. user의 의도에 따라 4가지로 분기.
@@ -256,7 +257,82 @@ def db_search(state: ChatState) -> ChatState:
 
 
 @timing_decorator
-@error_handling_decorator
+# @error_handling_decorator
+def conditional_about_recommend(state: ChatState) -> dict:
+    """
+    query에 따라 분기 발생. user의 의도에 따라 4가지로 분기.
+    1. 예금 추천
+    2. 적금 추천
+    3. 대출 추천
+    4. 그외 추천
+
+    Args:
+        state (TypedDict): Graph의 state
+    Returns:
+        Dict: state에 업데이트 할 method dict,
+                agent_method = ("fixed_deposit", "installment_deposit", "jeonse_loan", "all")
+    """
+    four_branch = (
+        "fixed_deposit : 질문의 의미가 예금 상품에 대한 정보를 원하면 'fixed_deposit'를 반환"
+        "installment_deposit : 질문의 의미를 생각했을 때, 적금 상품에 대한 정보를 원하면 'installment_deposit'를 반환"
+        "jeonse_loan : 질문의 의미가 대출 관련 상품에 대한 정보를 원하면, 'jeonse_loan'을 반환"
+        "all : 위 세가지 의도가 담기지 않은 모든 경우에, 'all'을 반환"
+    )
+    user_query = state["query"]
+    messages = [
+        {
+            "role": "system",
+            "content": "너는 질문을 보고 목적을 생각해서 4가지 중에 하나로 분류 해야해.",
+        },
+        {"role": "user", "content": f"다음은 '4가지 경우야':\n{four_branch}"},
+        {
+            "role": "user",
+            "content": f"질문: {user_query}\n을 보고 4가지 경우 중 하나를 출력해줘. \
+                다른 설명은 필요없고 fixed_deposit, installment_deposit, jeonse_loan, all\
+                    이 4가지 중에 무조건 하나를 반환해야해. 부연설명 붙이지 말고 마침표도 붙이지 마.",
+        },
+    ]
+
+    completion = ai_client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=messages,
+        max_tokens=400,
+    )
+
+    answer = completion.choices[0].message.content
+
+    if answer in ["fixed_deposit", "installment_deposit", "jeonse_loan", "all"]:
+        method = answer
+    elif ("예금" in answer) or ("fix" in answer):
+        method = "fixed_deposit"
+    elif ("적금" in answer) or ("install" in answer):
+        method = "installment_deposit"
+    elif ("대출" in answer) or ("loan" in answer) or ("jeo" in answer):
+        method = "jeonse_loan"
+    else:
+        method = "all"
+
+    return {
+        "recommend_method": method,
+    }
+
+
+def recommend_method_router(
+    state: ChatState,
+) -> Literal["fixed_deposit", "installment_deposit", "jeonse_loan", "all"]:
+    """
+    Search Method에 따라 라우팅
+
+    Args:
+        state (TypedDict): Graph의 state
+    Returns:
+        Literal: ["fixed_deposit", "installment_deposit", "jeonse_loan", "all"] 중 하나의 값으로 제한
+    """
+    return state["recommend_method"]
+
+
+@timing_decorator
+# @error_handling_decorator
 def rag_search(state: ChatState) -> ChatState:
     """
     사용자의 query와 유사한 RAG 결과를 생성하고, RAG 결과를 바탕으로 답변 반환
@@ -269,23 +345,39 @@ def rag_search(state: ChatState) -> ChatState:
 
     topk = 3
     user_query = state["query"]
-    q_vec = embed_model.encode([user_query], return_dense=True)["dense_vecs"][0]
-    hits = qdrant_client.search(collection_name="finance_products_deposit", query_vector=q_vec, limit=topk)
+    q_vec = embed_model.encode([user_query], convert_to_numpy=True)[0]
+    if state["recommend_method"] == "fixed_deposit":
+        print("*" * 10, "예금 추천", "*" * 10)
+        hits = qdrant_client.query_points(collection_name="finance_products_fixed_deposit", query=q_vec, limit=topk)
+    elif state["recommend_method"] == "installment_deposit":
+        print("*" * 10, "적금 추천", "*" * 10)
+        hits = qdrant_client.query_points(
+            collection_name="finance_products_installment_deposit", query=q_vec, limit=topk
+        )
+    elif state["recommend_method"] == "jeonse_loan":
+        print("*" * 10, "대출 추천", "*" * 10)
+        hits = qdrant_client.query_points(collection_name="finance_products_jeonse_loan", query=q_vec, limit=topk)
+    else:
+        print("*" * 10, "any 추천", "*" * 10)
+        hits = qdrant_client.query_points(collection_name="finance_products_all", query=q_vec, limit=topk)
 
-    vector_db_answer = hits[0].payload
+    vector_db_answer = hits.points[0].payload
 
     messages = [
         {
             "role": "system",
-            "content": "너는 금융 도메인 전문가이자 고객 상담 AI야. vector_db에서 제공된 정보를 근거로만 답변해야 해.",
+            "content": (
+                "너는 금융 도메인 전문가이자 고객 상담 AI야. vector_db에서 제공된 정보를 근거로만 답변해야 해."
+                "마크다운 형식은 사용하지말고 단락을 잘 나눠서 출력해."
+            ),
         },
         {
             "role": "user",
-            "content": f"다음은 vector_db에서 찾은 정보야:\n{vector_db_answer}",
+            "content": f"다음은 vector_db 정보야:\n{vector_db_answer}",
         },
         {
             "role": "user",
-            "content": f"질문: {user_query}\n이 'vector_db에서 찾은 정보'만 참고해서 사용자의 질문에 정확히 답변해줘.",
+            "content": f"질문: {user_query}\n이 'vector_db 정보'만 참고해서 사용자의 질문에 정확히 답변해줘.",
         },
     ]
 
@@ -301,7 +393,7 @@ def rag_search(state: ChatState) -> ChatState:
 
 
 @timing_decorator
-@error_handling_decorator
+# @error_handling_decorator
 def human_feedback(state: ChatState) -> ChatState:
     """
     사용자에게 graph flow 중간에 피드백을 입력 받음
@@ -317,7 +409,7 @@ def human_feedback(state: ChatState) -> ChatState:
 
 
 @timing_decorator
-@error_handling_decorator
+# @error_handling_decorator
 def classify_feedback(state: ChatState) -> ChatState:
     """
     사용자의 중간 feedback에 대한 긍, 부정 판단
@@ -358,8 +450,6 @@ def classify_feedback(state: ChatState) -> ChatState:
     return {"pos_or_neg": pos_or_neg}
 
 
-@timing_decorator
-@error_handling_decorator
 def feedback_router(
     state: ChatState,
 ) -> Literal["yes", "no"]:
@@ -375,7 +465,7 @@ def feedback_router(
 
 
 @timing_decorator
-@error_handling_decorator
+# @error_handling_decorator
 def calculator(state: ChatState) -> ChatState:
     """
 
@@ -390,7 +480,9 @@ def calculator(state: ChatState) -> ChatState:
     messages = [
         {
             "role": "system",
-            "content": "너는 금융 도메인 전문가이자 계산 전문가야.",
+            "content": (
+                "너는 금융 도메인 전문가이자 계산 전문가야.마크다운 형식은 사용하지말고 단락을 잘 나눠서 출력해."
+            ),
         },
         {
             "role": "user",
@@ -409,7 +501,7 @@ def calculator(state: ChatState) -> ChatState:
 
 
 @timing_decorator
-@error_handling_decorator
+# @error_handling_decorator
 def fin_word_explain(state: ChatState) -> ChatState:
     """
 
@@ -424,7 +516,10 @@ def fin_word_explain(state: ChatState) -> ChatState:
     messages = [
         {
             "role": "system",
-            "content": "너는 금융 도메인 전문가이자 고객 상담 AI야. user의 질문에 답해줘.",
+            "content": (
+                "너는 금융 도메인 전문가이자 고객 상담 AI야. user의 질문에 답해줘."
+                "마크다운 형식은 사용하지말고 단락을 잘 나눠서 출력해."
+            ),
         },
         {
             "role": "user",
@@ -443,7 +538,7 @@ def fin_word_explain(state: ChatState) -> ChatState:
 
 
 @timing_decorator
-@error_handling_decorator
+# @error_handling_decorator
 def normal_chat(state: ChatState) -> ChatState:
     """
 
@@ -458,7 +553,10 @@ def normal_chat(state: ChatState) -> ChatState:
     messages = [
         {
             "role": "system",
-            "content": "너는 금융 도메인 전문가이자 고객 상담 AI야. 질문에 상담사처럼 상담해줘.",
+            "content": (
+                "너는 금융 도메인 전문가이자 고객 상담 AI야. user의 질문에 상담사처럼 답해줘."
+                "마크다운 형식은 사용하지말고 단락을 잘 나눠서 출력해."
+            ),
         },
         {
             "role": "user",
@@ -477,7 +575,7 @@ def normal_chat(state: ChatState) -> ChatState:
 
 
 @timing_decorator
-@error_handling_decorator
+# @error_handling_decorator
 def add_to_history(state: ChatState) -> ChatState:
     """
     이전 대화 기록을 유지하면서 새 user message 추가
