@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from chatbot.models import ChatRoom
+from products.models import FinProduct
 
 from .forms import CustomUserChangeForm, CustomUserCreationForm
 
@@ -290,3 +291,23 @@ def verify(request):
             return render(request, "accounts/verify.html", context)
 
     return render(request, "accounts/verify.html", {"session_key": session_key})
+
+
+def bookmark(request, product_code):
+    """
+    사용자로부터 요청받은 상품을 북마크하는 함수입니다.
+
+    Args:
+        request: 사용자의 요청 객체
+
+    Returns:
+        - POST 요청일 경우, 사용자가 북마크를 요청한 상품을 DB에 반영합니다.
+    """
+    # 북마크할 상품을 조회합니다.
+    product = FinProduct.objects.get(fin_prdt_cd=product_code)
+    # 사용자가 해당 상품을 북마크 했는지 여부에 따라 분기합니다.
+    if request.user in product.users.all():
+        product.users.remove(request.user)
+    else:
+        product.users.add(request.user)
+    return redirect("products:index")

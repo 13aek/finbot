@@ -13,4 +13,5 @@ urlpatterns = [
     path("logout/", views.logout, name="logout"),
     path("delete/", views.delete, name="delete"),  # 계정 삭제 추가
     path("verify/", views.verify, name="verify"),  # 비밀번호 추가 인증 url 추가
+    path("bookmark/<str:product_code>/", views.bookmark, name="bookmark"),  # 북마크 url
 ]
