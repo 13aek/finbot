@@ -311,3 +311,18 @@ def bookmark(request, product_code):
     else:
         product.users.add(request.user)
     return redirect("products:index")
+
+
+def bookmark_list(request):
+    """
+    사용자의 모든 북마크된 상품을 조회하는 함수입니다.
+
+    Args:
+        request: 사용자의 요청 객체
+
+    Returns:
+        - GET 요청일 경우, 사용자의 모든 북마크된 상품을 반환합니다.
+    """
+    # 해당 사용자가 북마크한 모든 상품을 조회합니다.
+    products = FinProduct.objects.filter(users=request.user)
+    return render(request, "accounts/bookmark_list.html", {"products": products})
