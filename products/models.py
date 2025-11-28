@@ -14,13 +14,10 @@ class FinProductManager(models.Manager):
     """
 
     def upsert_from_api(self, base: dict, *, description: str | None = None):
-        """
-        금융위 baseList의 한 row(dict)를 입력받아 Upsert 수행
-        """
+        fin_prdt_cd = base["fin_prdt_cd"]
 
-        fin_prdt_cd = base["fin_prdt_cd"]  # 중복 판단 기준이 되는 자연키(PK)
+        desc_value = description if description is not None else base.get("description")
 
-        # 업데이트될 필드(기존 row가 있으면 이 값으로 UPDATE)
         defaults = {
             "kor_co_nm": base.get("kor_co_nm"),
             "fin_co_no": base.get("fin_co_no"),
@@ -31,13 +28,9 @@ class FinProductManager(models.Manager):
             "dcls_strt_day": base.get("dcls_strt_day"),
             "dcls_end_day": base.get("dcls_end_day"),
             "dcls_month": base.get("dcls_month"),
-            "description": base.get("description"),
+            "description": desc_value,
         }
 
-        # Upsert 수행
-        # fin_prdt_cd 기준으로 기존 레코드 찾거나 새로 생성
-        # 존재하면 defaults 값으로 업데이트
-        # 존재하지 않으면 새로 생성
         obj, created = self.update_or_create(
             fin_prdt_cd=fin_prdt_cd,
             defaults=defaults,
@@ -132,7 +125,16 @@ class FixedDepositOption(models.Model):
     """
 
     id = models.AutoField(primary_key=True)
-    fin_prdt_cd = models.CharField(max_length=50)
+
+    # FK: fin_products.fin_prdt_cd
+    fin_prdt_cd = models.ForeignKey(
+        FinProduct,
+        to_field="fin_prdt_cd",
+        db_column="fin_prdt_cd",
+        on_delete=models.CASCADE,
+        related_name="fixed_options",
+        db_index=True,
+    )
 
     # baseList 비공통 필드
     join_member = models.CharField(max_length=255, null=True)
@@ -142,8 +144,8 @@ class FixedDepositOption(models.Model):
     max_limit = models.CharField(max_length=255, null=True)
 
     # optionList 필드
-    intr_rate_type_nm = models.TextField(null=True)
-    save_trm = models.TextField(null=True)
+    intr_rate_type_nm = models.CharField(max_length=255, null=True)
+    save_trm = models.CharField(max_length=255, null=True)
     intr_rate = models.TextField(null=True)
     intr_rate2 = models.TextField(null=True)
     dcls_month = models.CharField(max_length=20, null=True)
@@ -161,18 +163,21 @@ class FixedDepositOption(models.Model):
             )
         ]
 
+    def __str__(self):
+        return f"[정기예금 옵션] {self.fin_prdt_cd_id} / {self.save_trm} / {self.intr_rate2}"
+
 
 # 3. InstallmentDepositOption (적금 옵션)
 class InstallmentDepositOptionManager(models.Manager):
     """
     적금 옵션 테이블 Upsert
 
-    ✔ 중복판단기준
-        - fin_prdt_cd
-        - rsrv_type_nm        (적립유형: 정액적립/자유적립 등)
-        - intr_rate_type_nm
-        - save_trm
-        - dcls_month
+    중복판단기준
+    - fin_prdt_cd
+    - rsrv_type_nm        (적립유형: 정액적립/자유적립 등)
+    - intr_rate_type_nm
+    - save_trm
+    - dcls_month
     """
 
     def upsert_from_api(self, base: dict, option: dict):
@@ -212,17 +217,27 @@ class InstallmentDepositOption(models.Model):
     """
 
     id = models.AutoField(primary_key=True)
-    fin_prdt_cd = models.CharField(max_length=50)
+
+    # FK: fin_products.fin_prdt_cd
+    fin_prdt_cd = models.ForeignKey(
+        FinProduct,
+        to_field="fin_prdt_cd",
+        db_column="fin_prdt_cd",
+        on_delete=models.CASCADE,
+        related_name="installment_options",
+        db_index=True,
+    )
+
     join_member = models.CharField(max_length=255, null=True)
-    mtrt_int = models.TextField(null=True)
-    spcl_cnd = models.TextField(null=True)
+    mtrt_int = models.CharField(max_length=255, null=True)
+    spcl_cnd = models.CharField(max_length=255, null=True)
     join_deny = models.CharField(max_length=10, null=True)
     max_limit = models.CharField(max_length=255, null=True)
-    rsrv_type_nm = models.TextField(null=True)
-    intr_rate_type_nm = models.TextField(null=True)
-    save_trm = models.TextField(null=True)
-    intr_rate = models.TextField(null=True)
-    intr_rate2 = models.TextField(null=True)
+    rsrv_type_nm = models.CharField(max_length=255, null=True)
+    intr_rate_type_nm = models.CharField(max_length=255, null=True)
+    save_trm = models.CharField(max_length=255, null=True)
+    intr_rate = models.CharField(max_length=255, null=True)
+    intr_rate2 = models.CharField(max_length=255, null=True)
     dcls_month = models.CharField(max_length=20, null=True)
 
     objects = InstallmentDepositOptionManager()
@@ -243,6 +258,9 @@ class InstallmentDepositOption(models.Model):
             )
         ]
 
+    def __str__(self):
+        return f"[적금 옵션] {self.fin_prdt_cd_id} / {self.rsrv_type_nm} / {self.save_trm}"
+
 
 # 4. JeonseLoanOption (전세자금대출 옵션)
 class JeonseLoanOptionManager(models.Manager):
@@ -257,10 +275,6 @@ class JeonseLoanOptionManager(models.Manager):
     """
 
     def upsert_from_api(self, base: dict, option: dict):
-        """
-        (fin_prdt_cd, rpay_type_nm, lend_rate_type_nm, dcls_month) 기준 upsert
-        """
-
         lookup = dict(
             fin_prdt_cd=base["fin_prdt_cd"],
             rpay_type_nm=option.get("rpay_type_nm"),
@@ -287,14 +301,23 @@ class JeonseLoanOptionManager(models.Manager):
         return obj, created
 
 
-class JaonseLoanOption(models.Model):
+class JeonseLoanOption(models.Model):
     """
     전세자금대출 옵션 테이블
     - baseList 비공통 필드 + optionList 금리/상환 유형
     """
 
     id = models.AutoField(primary_key=True)
-    fin_prdt_cd = models.CharField(max_length=50)
+
+    # FK: fin_products.fin_prdt_cd
+    fin_prdt_cd = models.ForeignKey(
+        FinProduct,
+        to_field="fin_prdt_cd",
+        db_column="fin_prdt_cd",
+        on_delete=models.CASCADE,
+        related_name="jeonse_options",
+        db_index=True,
+    )
 
     # baseList 전용 필드
     loan_inci_expn = models.TextField(null=True)
@@ -303,8 +326,8 @@ class JaonseLoanOption(models.Model):
     loan_lmt = models.CharField(max_length=255, null=True)
 
     # optionList 필드
-    rpay_type_nm = models.TextField(null=True)
-    lend_rate_type_nm = models.TextField(null=True)
+    rpay_type_nm = models.CharField(max_length=255, null=True)
+    lend_rate_type_nm = models.CharField(max_length=255, null=True)
     lend_rate_min = models.TextField(null=True)
     lend_rate_max = models.TextField(null=True)
     lend_rate_avg = models.TextField(null=True)
@@ -314,7 +337,7 @@ class JaonseLoanOption(models.Model):
 
     class Meta:
         managed = True
-        db_table = "jeonse_loan_option"
+        db_table = "jeonse_loan_option"  # ← 여기 때문에 실제 테이블 이름이 이걸로 고정
         constraints = [
             models.UniqueConstraint(
                 fields=[
@@ -326,3 +349,6 @@ class JaonseLoanOption(models.Model):
                 name="uq_jeonse_loan_option_key",
             )
         ]
+
+    def __str__(self):
+        return f"[전세자금 옵션] {self.fin_prdt_cd_id} / {self.rpay_type_nm} / {self.lend_rate_type_nm}"
