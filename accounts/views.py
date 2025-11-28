@@ -316,7 +316,6 @@ def bookmark(request, product_code):
     # 만약 url을 브라우저에 직접 입력해서 보냈다면 메인 페이지로 리다이렉트합니다.
     if not next_url:
         next_url = "products:index"
-    print(next_url)
     return redirect(next_url)
 
 
