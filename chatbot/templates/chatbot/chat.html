@@ -88,6 +88,16 @@
                 상품 이름: {{ msg.product.fin_prdt_nm}}
                 은행: {{ msg.product.kor_co_nm }}
                 설명: {{ msg.product.description }}
+                {# 북마크 버튼 구현 #}
+                <form action="{% url "accounts:bookmark" msg.product.fin_prdt_cd %}" method="POST">
+                  {% csrf_token %}
+                  {# 사용자의 북마크 여부에 따라 출력되는 텍스트를 다르게 구현 #}
+                  {% if request.user in msg.product.users.all %}
+                    <input type="submit" value="북마크 취소">
+                  {% else %}
+                    <input type="submit" value="북마크">
+                  {% endif %}
+                </form>
               </div>
             </div>
           {% else %}
