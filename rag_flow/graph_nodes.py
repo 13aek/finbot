@@ -45,6 +45,7 @@ class ChatState(TypedDict):
     need_user_feedback: bool  # 사용자 입력 요청
     pos_or_neg: str  # 사용자 입력의 긍부정 판단
     product_code: str  # LLM이 추천하는 상품의 상품 코드
+    product_data: dict  # calculator에 넘겨줄 상품 데이터
 
 
 # 노드 정의
