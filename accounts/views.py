@@ -293,6 +293,7 @@ def verify(request):
     return render(request, "accounts/verify.html", {"session_key": session_key})
 
 
+@login_required
 def bookmark(request, product_code):
     """
     사용자로부터 요청받은 상품을 북마크하는 함수입니다.
@@ -313,6 +314,7 @@ def bookmark(request, product_code):
     return redirect("products:index")
 
 
+@login_required
 def bookmark_list(request):
     """
     사용자의 모든 북마크된 상품을 조회하는 함수입니다.
