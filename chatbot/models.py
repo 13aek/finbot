@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.db import models
 
+from products.models import FinProduct
+
 
 class ChatRoom(models.Model):
     # 외래키와 같은 방식으로 User모델과 관계를 맺지만, 각 객체가 오직 하나의 연결만 가지도록 설정
@@ -38,6 +40,11 @@ class ChatMessage(models.Model):
 
     # 생성 시각
     created_at = models.DateTimeField(auto_now_add=True)
+
+    # 상품 추천 메시지라면 FK로 저장
+    product = models.ForeignKey(
+        FinProduct, on_delete=models.SET_NULL, null=True, blank=True, related_name="recommended_messages"
+    )
 
     class Meta:
         ordering = ["created_at"]  # 최신순 정렬

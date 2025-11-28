@@ -80,11 +80,23 @@
         {% else %}
 
           {# 채팅 봇의 메시지 #}
-          <div class="message-container bot-message">
-            <div class="bubble">
-              {{ msg.message }}
+          {# 만약 추천 상품이 담겨있는 채팅이라면 #}
+          {% if msg.product %}
+            <div class="message-container bot-message">
+              <div class="bubble">
+                {{ msg.message }}
+                상품 이름: {{ msg.product.fin_prdt_nm}}
+                은행: {{ msg.product.kor_co_nm }}
+                설명: {{ msg.product.description }}
+              </div>
             </div>
-          </div>
+          {% else %}
+            <div class="message-container bot-message">
+              <div class="bubble">
+                {{ msg.message }}
+              </div>
+            </div>
+          {% endif %}
         {% endif %}
 
       {% empty %}
