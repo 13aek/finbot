@@ -2,7 +2,7 @@
 	"category": {
 		"정기예금": "fixed_deposit",
 		"적금": "installment_deposit",
-		"전세대출": "jeonse_loan"
+		"전세자금대출": "jeonse_loan"
 	},
 	"urls": {
 		"fixed_deposit": "http://finlife.fss.or.kr/finlifeapi/depositProductsSearch.json?",
