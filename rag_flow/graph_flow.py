@@ -312,11 +312,26 @@ def rag_search(state: ChatState) -> ChatState:
 
     topk = 3
     user_query = state["query"]
-    q_vec = embed_model.encode([user_query], return_dense=True)["dense_vecs"][0]
-    hits = qdrant_client.search(collection_name="finance_products_deposit", query_vector=q_vec, limit=topk)
+    q_vec = embed_model.encode([user_query], convert_to_numpy=True)[0]
+    if "예금" in user_query:
+        # hits = qdrant_client.search(collection_name="finance_products_fixed_deposit", query_vector=q_vec, limit=topk)
+        hits = qdrant_client.query_points(collection_name="finance_products_fixed_deposit", query=q_vec, limit=topk)
 
-    vector_db_answer = hits[0].payload
+    elif "적금" in user_query:
+        hits = qdrant_client.query_points(
+            collection_name="finance_products_installment_deposit", query=q_vec, limit=topk
+        )
 
+    elif "대출" in user_query:
+        hits = qdrant_client.query_points(collection_name="finance_products_jeonse_loan", query=q_vec, limit=topk)
+
+    elif "추천" in user_query:
+        hits = qdrant_client.query_points(collection_name="finance_products_all", query=q_vec, limit=topk)
+
+    else:
+        hits = qdrant_client.query_points(collection_name="finance_products_all", query=q_vec, limit=topk)
+
+    vector_db_answer = hits.points[0].payload
     messages = [
         {
             "role": "system",
@@ -324,11 +339,14 @@ def rag_search(state: ChatState) -> ChatState:
         },
         {
             "role": "user",
-            "content": f"다음은 vector_db에서 찾은 정보야:\n{vector_db_answer}",
+            "content": f"다음은 vector_db 정보야:\n{vector_db_answer}",
         },
         {
             "role": "user",
-            "content": f"질문: {user_query}\n이 'vector_db에서 찾은 정보'만 참고해서 사용자의 질문에 정확히 답변해줘.",
+            "content": (
+                "질문: {user_query}이 'vector_db 정보'만 참고해서 중요한 특징을 찾아서 답변을 대화처럼 구성해줘."
+                "마크다운 형식은 빼."
+            ),
         },
     ]
 

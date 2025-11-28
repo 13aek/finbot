@@ -20,7 +20,7 @@ python -m findata.main
 import pickle
 from pathlib import Path
 
-from findata.save_to_db import save_fin_products
+from findata.save_to_db_findata import save_to_db_final
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     try:
         if loaded_data:
             print(f"{len(loaded_data)}건 수집 → DB 저장")
-            save_fin_products(loaded_data)
+            save_to_db_final(loaded_data)
             print("저장 완료")
         else:
             print("데이터 없음")
