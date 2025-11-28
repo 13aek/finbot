@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -12,6 +10,14 @@ def make_embedding_ready_text_deposit(product: dict) -> str:
     """
 
     text = f"{product['금융회사명']}의 {product['금융상품명']}은 {product['가입대상']}이 가입할 수 있습니다. "
+    # 가입 제한 (1: 제한없음, 2: 서민전용, 3: 일부 제한)
+    if "가입제한" in product:
+        if product["가입제한"] == "1":
+            text += "가입 제한은 없으며 누구나 가입할 수 있습니다. "
+        elif product["가입제한"] == "2":
+            text += "이 상품은 서민전용 상품으로 가입이 제한됩니다. "
+        elif product["가입제한"] == "3":
+            text += "일부 고객에게 가입이 제한되는 상품입니다. "
     text += f"가입 방법은 {product['가입방법']}으로 가능합니다. 우대조건은 {product['우대조건']}입니다. "
     text += f"만기 후 이자율은 {product['만기후이자율']}입니다. "
     if "옵션" in product and product["옵션"]:
@@ -35,7 +41,7 @@ def make_embedding_ready_text_installment(product: dict) -> str:
 
     text = (
         f"{product['금융회사명']}의 {product['금융상품명']}은 "
-        f"{product['가입대상']}이 가입할 수 있는 정기적금 상품입니다. "
+        f"{product['가입대상']}이 가입할 수 있는 적금 상품입니다. "
         f"가입 방법은 {product['가입방법']}으로 가능합니다. "
         f"우대조건은 {product['우대조건']}입니다. "
     )
@@ -140,15 +146,21 @@ def chunk(json_data_list: list[dict]) -> list[str]:
     arguments : (List[Dict]) 모든 금융 데이터 json List[Dict]
     return : (List[str]) 모든 금융 데이터의 chunk data List
     """
-    splitter = RecursiveCharacterTextSplitter(chunk_size=150, chunk_overlap=30, separators=["\n\n", ",", ".", " "])
+
+    splitter = RecursiveCharacterTextSplitter(chunk_size=250, chunk_overlap=30)  # , separators=["\n\n", ",", ".", " "])
     docs = []
     for json_product in json_data_list:
-        text = make_embedding_ready_text_deposit(json_product)
+        if json_product["상품카테고리"] == "정기예금":
+            text = make_embedding_ready_text_deposit(json_product)
+        elif json_product["상품카테고리"] == "적금":
+            text = make_embedding_ready_text_installment(json_product)
+        elif json_product["상품카테고리"] == "전세자금대출":
+            text = make_embedding_ready_text_jeonse_loan(json_product)
         base_doc = Document(page_content=text, metadata=json_product)
         # chunk 분리
         chunks = splitter.split_documents([base_doc])
         docs.extend(chunks)
 
     print(f"Chunked Documents: {len(docs)}개 생성 완료\n")
-    pprint("Chunked Documents sample : ", docs[0])
+    print("Chunked Documents sample : ", docs[0])
     return docs

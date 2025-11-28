@@ -1,6 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,django,venv
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,django,venv
 
+### qdrant storage ###
+qdrant_storage
+
 ### Django ###
 *.log
 *.pot
