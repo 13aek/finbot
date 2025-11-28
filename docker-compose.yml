@@ -35,3 +35,7 @@ services:
       - ./media:/app/media
     depends_on:
       - web
+
+
+volumes:
+  qdrant-storage:
