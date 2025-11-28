@@ -91,6 +91,8 @@
                 {# 북마크 버튼 구현 #}
                 <form action="{% url "accounts:bookmark" msg.product.fin_prdt_cd %}" method="POST">
                   {% csrf_token %}
+                  {# 북마크를 요청한 페이지로 리다이렉트 되도록 서버에 현재 url을 담아서 보냄 #}
+                  <input type="hidden" name="next" value="{{ request.get_full_path }}">
                   {# 사용자의 북마크 여부에 따라 출력되는 텍스트를 다르게 구현 #}
                   {% if request.user in msg.product.users.all %}
                     <input type="submit" value="북마크 취소">

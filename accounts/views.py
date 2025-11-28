@@ -311,7 +311,13 @@ def bookmark(request, product_code):
         product.users.remove(request.user)
     else:
         product.users.add(request.user)
-    return redirect("products:index")
+    # 상품 검색 페이지나 채팅 페이지에서 북마크 요청을 보낸 경우 요청을 보낸 페이지로 리다이렉트합니다.
+    next_url = request.POST.get("next")
+    # 만약 url을 브라우저에 직접 입력해서 보냈다면 메인 페이지로 리다이렉트합니다.
+    if not next_url:
+        next_url = "products:index"
+    print(next_url)
+    return redirect(next_url)
 
 
 @login_required
