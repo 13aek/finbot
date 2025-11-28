@@ -44,6 +44,7 @@ class ChatState(TypedDict):
     user_feedback: str  # 사용자 중간 입력
     need_user_feedback: bool  # 사용자 입력 요청
     pos_or_neg: str
+    product_code: str  # LLM이 추천하는 상품의 상품 코드
 
 
 # 노드 정의
@@ -389,7 +390,15 @@ def rag_search(state: ChatState) -> ChatState:
     )
     answer = completion.choices[0].message.content
     recommend_mode = True
-    return {"answer": answer, "recommend_mode": recommend_mode, "need_user_feedback": True}
+    # 추천받은 상품을 view로 연결
+    print(vector_db_answer)
+    product_code = vector_db_answer["금융상품코드"]
+    return {
+        "answer": answer,
+        "recommend_mode": recommend_mode,
+        "need_user_feedback": True,
+        "product_code": product_code,
+    }
 
 
 @timing_decorator
