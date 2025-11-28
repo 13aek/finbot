@@ -35,15 +35,15 @@ class ChatState(TypedDict):
     #   (Normal_chat)Nth conversation
     mode: str
     # agent method : ("rag_search", "calculator", "finword_explain", "normal_chat")
-    agent_method: str
+    agent_method: str  # query의도에 따라 나뉘는 분기
     recommend_method: str  # ("fixed_deposit", "installment_deposit", "jeonse_loan", "all")
-    recommend_mode: bool
+    recommend_mode: bool  # recommend 로직에 들어오게 되면 True
     query: str  # user query
     history: Annotated[list[dict[str, str]], partial(keep_last_n, n=10)]  # user, assistant message 쌍
     answer: str  # LLM answer
     user_feedback: str  # 사용자 중간 입력
     need_user_feedback: bool  # 사용자 입력 요청
-    pos_or_neg: str
+    pos_or_neg: str  # 사용자 입력의 긍부정 판단
     product_code: str  # LLM이 추천하는 상품의 상품 코드
 
 
