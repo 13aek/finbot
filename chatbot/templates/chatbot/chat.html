@@ -53,16 +53,25 @@
     </form>
     </ul>
     <hr>
-    
 </div>
 
 <div class="chat-container">
 
   {# 상단바 #}
-  <div class="chat-header">
-    <a href="{% url 'products:index' %}" class="nav-link left">HOME</a>
-    <a href="{% url 'accounts:logout' %}" class="nav-link right">LOGOUT</a>
-  </div>
+  <header class="header">
+    <div class="left-group">
+      {# 로고 이미지 #}
+      <a href="{% url 'products:index' %}" class="main-link">
+        <img src="{% static 'images/logo-white.png' %}" alt="FINBOT Logo">
+      </a>
+    </div>
+
+    <div class="right-group">
+      <a href="{% url 'accounts:update' %}" class="info-btn">회원 정보</a>
+      <a href="{% url 'accounts:bookmark_list' %}" class="info-btn">관심 상품</a>
+      <a href="{% url 'accounts:logout' %}" class="logout-btn">로그아웃</a>
+    </div>
+  </header>
 
   {# 채팅 화면 #}
   <div class="chat-main">
