@@ -37,6 +37,7 @@ def signup(request):
             user = form.save()
             # 회원가입이 완료 된 시점에 해당 사용자의 채팅방을 생성
             ChatRoom.objects.create(display_id=1, user=user, ever_visited=False)
+            messages.success(request, "회원가입이 완료되었습니다.", extra_tags="signup_success")
             return redirect("accounts:login")
         errors = form.errors
 
