@@ -180,3 +180,20 @@ body {
     font-weight: 700;
     padding: 5px 10px;
 }
+
+
+/* ------------------ */
+/* 5. 채팅 페이지 버튼  */
+/* ----------------- */
+
+.chatbot-btn {
+    position: fixed;
+    bottom: 40px;
+    right: 25px;
+    display: block;
+    z-index: 1000;
+}
+
+.chatbot-btn img {
+    width: 145px;
+}
