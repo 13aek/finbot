@@ -141,7 +141,7 @@ def calculator_installment_deposit(data: dict, use_favor: bool = False):
         "우대조건": data["우대조건"]
     }
 
-def calc_jeonse_loan_monthly_interest(data: dict, use_max_rate: bool = False):
+def calculator_jeonse_loan(data: dict, use_max_rate: bool = False):
     """
     전세대출 월 이자 계산 함수
     data 예시:

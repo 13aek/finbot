@@ -108,7 +108,7 @@ def chat_page(request, chatroom_pk=None):
                 request.session["need_user_feedback"] = False
             else:
                 reply = chat.ask(user_message, user_thread)
-
+            print(reply)
             if reply["need_user_feedback"]:
                 answer = [reply["answer"], reply["__interrupt__"][0].value]
             else:
