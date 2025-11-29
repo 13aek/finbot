@@ -13,7 +13,6 @@ from rag_flow.graph_nodes import (
     calc_jeonse_loan,
     calculator_method_router,
     check_findata,
-    # calculator,
     classify_feedback,
     conditional_about_fin_type,
     conditional_about_history,
@@ -112,7 +111,7 @@ graph.add_node("calc_installment_deposit", calc_installment_deposit)
 graph.add_node("calc_jeonse_loan", calc_jeonse_loan)
 graph.add_node("after_calculate", after_calculate)
 
-# graph.add_node("calculator", calculator)
+
 graph.add_node("fin_word_explain", fin_word_explain)
 graph.add_node("normal_chat", normal_chat)
 graph.add_node("add_to_history", add_to_history)

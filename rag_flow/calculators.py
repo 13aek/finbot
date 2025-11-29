@@ -57,7 +57,7 @@ def calculator_fixed_deposit(data: dict, use_favor: bool = False):
         "적용금리(%)": annual_rate * 100,
         "기간(개월)": months,
         "이자방식": interest_type,
-        "우대조건": data["우대조건"]
+        "우대조건": data["우대조건"],
     }
 
 
@@ -83,9 +83,8 @@ def calculator_installment_deposit(data: dict, use_favor: bool = False):
     months = data["저축개월"]
     if data["저축금리유형명"]:
         interest_type = data["저축금리유형명"]
-    else: 
+    else:
         interest_type = "복리"
-    
 
     # 금리 선택 (기본/우대)
     if use_favor:
@@ -114,12 +113,7 @@ def calculator_installment_deposit(data: dict, use_favor: bool = False):
         if monthly_rate == 0:  # 금리가 0일 때
             maturity_before_tax = total_principal
         else:
-            maturity_before_tax = (
-                monthly
-                * ((1 + monthly_rate) ** months - 1)
-                / monthly_rate
-                * (1 + monthly_rate)
-            )
+            maturity_before_tax = monthly * ((1 + monthly_rate) ** months - 1) / monthly_rate * (1 + monthly_rate)
 
         interest = maturity_before_tax - total_principal
 
@@ -143,8 +137,9 @@ def calculator_installment_deposit(data: dict, use_favor: bool = False):
         "적용금리(%)": annual_rate * 100,
         "기간(개월)": months,
         "이자방식": interest_type,
-        "우대조건": data["우대조건"]
+        "우대조건": data["우대조건"],
     }
+
 
 def calculator_jeonse_loan(data: dict, use_max_rate: bool = False):
     """
@@ -195,4 +190,3 @@ def calculator_jeonse_loan(data: dict, use_max_rate: bool = False):
         "월이자": int(monthly_interest),
         "연간이자": int(monthly_interest * 12),
     }
-

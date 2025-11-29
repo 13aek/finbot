@@ -15,6 +15,8 @@ from rag_flow.calculators import (
     calculator_jeonse_loan,
 )
 from rag_flow.decorators import timing_decorator
+
+
 # from rag_flow.graph_flow import ChatState
 
 
@@ -26,18 +28,18 @@ calculator_config = jm.values.calculator
 
 
 class CalcState(TypedDict, total=False):
-    
     product_data: dict  # calculator에 넘겨줄 상품 데이터
     category: Literal["fixed_deposit", "installment_deposit", "jeonse_loan"]
-    data_columns: list # product_data의 컬럼들 모음
-    calculator_columns: list #calculator에 필요한 컬럼들 (카테고리별로 상이)
+    data_columns: list  # product_data의 컬럼들 모음
+    calculator_columns: list  # calculator에 필요한 컬럼들 (카테고리별로 상이)
 
-    calculator_data: dict # calculator에 쓸 데이터
-    calculated_data: dict # 계산된 데이터
+    calculator_data: dict  # calculator에 쓸 데이터
+    calculated_data: dict  # 계산된 데이터
     need_human_data: str
 
+
 @timing_decorator
-def check_findata(state: CalcState) -> CalcState: #Command[Literal["fill_calculator_data", "conditional_about_fin_type"]]:
+def check_findata(state: CalcState) -> CalcState:
     """
     데이터 확인 후 다음 단계 결정
     process_findata : findata를 받았으면 data 기반으로 계산
@@ -51,18 +53,18 @@ def check_findata(state: CalcState) -> CalcState: #Command[Literal["fill_calcula
         cat_dict = {
             "정기예금": "fixed_deposit",
             "적금": "installment_deposit",
-            "전세자금대출":"jeonse_loan",
+            "전세자금대출": "jeonse_loan",
         }
         category = cat_dict[state["product_data"]["상품카테고리"]]
         data_columns = list(config[category].values())
         calculator_columns = calculator_config[category]
         calculator_method = "using_recommended_data"
         return {
-                "calculator_method" : calculator_method,
-                "category" : category,
-                "data_columns" : data_columns,
-                "calculator_columns" : calculator_columns,
-            }
+            "calculator_method": calculator_method,
+            "category": category,
+            "data_columns": data_columns,
+            "calculator_columns": calculator_columns,
+        }
     else:
         calculator_method = "using_only_user_input_data"
         return {
@@ -82,6 +84,7 @@ def check_findata(state: CalcState) -> CalcState: #Command[Literal["fill_calcula
     #         goto="conditional_about_fin_type",
     #         )
 
+
 def calculator_method_router(
     state: CalcState,
 ) -> Literal["using_recommended_data", "using_only_user_input_data"]:
@@ -94,6 +97,7 @@ def calculator_method_router(
         Literal: ["recommend_mode", "calculate_mode", "explain_mode", "normal_mode"] 중 하나의 값으로 제한
     """
     return state["calculator_method"]
+
 
 @timing_decorator
 def conditional_about_fin_type(state: CalcState) -> CalcState:
@@ -122,7 +126,7 @@ def conditional_about_fin_type(state: CalcState) -> CalcState:
             "role": "system",
             "content": "너는 질문을 보고 목적을 생각해서 4가지 중에 하나로 분류 해야해.",
         },
-        {   "role": "user", "content": f"다음은 '4가지 경우야':\n{four_branch}"},
+        {"role": "user", "content": f"다음은 '4가지 경우야':\n{four_branch}"},
         {
             "role": "user",
             "content": f"질문: {user_query}\n을 보고 4가지 경우 중 하나를 출력해줘. \
@@ -156,6 +160,7 @@ def conditional_about_fin_type(state: CalcState) -> CalcState:
         "agent_method": method,
     }
 
+
 @timing_decorator
 def fill_calculator_data(state: CalcState) -> CalcState:
     """
@@ -166,17 +171,18 @@ def fill_calculator_data(state: CalcState) -> CalcState:
     :return: Description
     :rtype: ChatState
     """
-    
+
     if state["product_data"]:
         data = state["product_data"]
         calculator_columns = state["calculator_columns"]
         category = state["category"]
         if data.get("옵션"):
-            calculator_data = { key: None for key in state["calculator_columns"]}
+            calculator_data = {key: None for key in state["calculator_columns"]}
             for key in data.keys():
                 if key in calculator_columns:
                     calculator_data[key] = data[key]
-                else: continue
+                else:
+                    continue
             for option in data["옵션"]:
                 for key in option.keys():
                     if key in calculator_columns:
@@ -190,10 +196,10 @@ def fill_calculator_data(state: CalcState) -> CalcState:
                     else:
                         continue
         else:
-            print(f'계산 가능한 {category}옵션이 없습니다')
+            print(f"계산 가능한 {category}옵션이 없습니다")
 
-        return {"calculator_data": calculator_data,
-                "need_user_feedback": True}
+        return {"calculator_data": calculator_data, "need_user_feedback": True}
+
 
 @timing_decorator
 def check_need_data(state: CalcState) -> CalcState:
@@ -223,9 +229,8 @@ def check_need_data(state: CalcState) -> CalcState:
         }
 
 
-
 @timing_decorator
-def user_feedback(state: CalcState) -> CalcState: #Command[Literal["get_user_data", "calc_fixed_deposit", "calc_installment_deposit", "calc_jeonse_loan"]]:
+def user_feedback(state: CalcState) -> CalcState:
     """
     사용자에게 graph flow 중간에 피드백을 입력 받음
 
@@ -238,33 +243,34 @@ def user_feedback(state: CalcState) -> CalcState: #Command[Literal["get_user_dat
     calculator_data = state["calculator_data"]
     category = state["category"]
     for key in calculator_data.keys():
-        if key == "최고한도": continue
+        if key == "최고한도":
+            continue
         if calculator_data[key]:
             continue
         else:
             need_columns.append(key)
-    feedback = ', '.join(need_columns)
+    feedback = ", ".join(need_columns)
     if need_columns:
         human_text = interrupt(f"{feedback}에 대한 입력이 필요합니다. 정보를 알려주시면 계산해드릴게요.")
         loop_or_not_method = "get_user_data"
         return {
-            "query": human_text, 
+            "query": human_text,
             "need_user_feedback": False,
-            "loop_or_not_method" : loop_or_not_method,
-            }
+            "loop_or_not_method": loop_or_not_method,
+        }
         # return Command(
         #     goto="get_user_data",
         #     update= {
-        #         "query": human_text, 
+        #         "query": human_text,
         #         "need_user_feedback": False
         #     }
         # )
-        
+
     else:
         if category == "fixed_deposit":
             loop_or_not_method = "calc_fixed_deposit"
             return {
-            "loop_or_not_method" : loop_or_not_method,
+                "loop_or_not_method": loop_or_not_method,
             }
             # return Command(
             #     goto="calc_fixed_deposit"
@@ -272,7 +278,7 @@ def user_feedback(state: CalcState) -> CalcState: #Command[Literal["get_user_dat
         elif category == "installment_deposit":
             loop_or_not_method = "calc_installment_deposit"
             return {
-            "loop_or_not_method" : loop_or_not_method,
+                "loop_or_not_method": loop_or_not_method,
             }
             # return Command(
             #     goto="calc_installment_deposit"
@@ -280,12 +286,12 @@ def user_feedback(state: CalcState) -> CalcState: #Command[Literal["get_user_dat
         elif category == "jeonse_loan":
             loop_or_not_method = "calc_jeonse_loan"
             return {
-            "loop_or_not_method" : loop_or_not_method,
+                "loop_or_not_method": loop_or_not_method,
             }
             # return Command(
             #     goto="calc_jeonse_loan"
             # )
-    
+
 
 def loop_or_not_method_router(
     state: CalcState,
@@ -296,9 +302,11 @@ def loop_or_not_method_router(
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Literal: ["get_user_data", "calc_fixed_deposit", "calc_installment_deposit", "calc_jeonse_loan"] 중 하나의 값으로 제한
+        Literal: ["get_user_data", "calc_fixed_deposit", "calc_installment_deposit", "calc_jeonse_loan"]
+        중 하나의 값으로 제한
     """
     return state["loop_or_not_method"]
+
 
 class FixedDeposit(BaseModel):
     납입액: int
@@ -309,6 +317,7 @@ class FixedDeposit(BaseModel):
     저축금리: float
     최고우대금리: float
 
+
 class InstallmentDeposit(BaseModel):
     납입액: int
     우대조건: str
@@ -317,6 +326,7 @@ class InstallmentDeposit(BaseModel):
     저축금리유형명: str
     저축금리: float
     최고우대금리: float
+
 
 class JeonseLoan(BaseModel):
     대출액: int
@@ -336,7 +346,7 @@ def get_user_data(state: CalcState) -> CalcState:
     Returns:
         Command
     """
-    
+
     user_query = state["query"]
     calculator_data = state["calculator_data"]
     messages = [
@@ -344,7 +354,7 @@ def get_user_data(state: CalcState) -> CalcState:
             "role": "system",
             "content": "너는 사용자 입력을 보고 정보를 추출해서 데이터에 채워넣어야해.",
         },
-        {   "role": "user", "content": f"다음은 '데이터'야:\n{calculator_data}"},
+        {"role": "user", "content": f"다음은 '데이터'야:\n{calculator_data}"},
         {
             "role": "user",
             "content": (
@@ -353,23 +363,22 @@ def get_user_data(state: CalcState) -> CalcState:
                 "돈 관련 입력은 '원' 단위로 환산해서 integer 타입으로 변환해야해."
                 "만약 '데이터'의 빈 곳에 맞는 정보가 없으면 None 타입을 채워넣어."
                 "다른 설명은 필요없고 데이터의 빈곳을 채운 새 데이터를 format에 맞춰서 반환해줘."
-            )
+            ),
         },
     ]
     text_format = {
-        'fixed_deposit' : FixedDeposit,
-        'installment_deposit' : InstallmentDeposit,
-        'jeonse_loan' : JeonseLoan,
-
+        "fixed_deposit": FixedDeposit,
+        "installment_deposit": InstallmentDeposit,
+        "jeonse_loan": JeonseLoan,
     }
     category = state["category"]
 
     completion = ai_client.responses.parse(
         model="gpt-4o-mini",
-        input=messages, 
+        input=messages,
         # JSON 스키마 지정
-        text_format=text_format[category]
-        )
+        text_format=text_format[category],
+    )
 
     answer = json.loads(completion.output_text)
 
@@ -380,29 +389,28 @@ def get_user_data(state: CalcState) -> CalcState:
     #     else:
     #         need_columns.append(key)
 
-
-    # 논리 오류. json output을 강제 했기 때문에 사용자가 입력을 하지 않아도 
-    # 강제된 입력 형식을 맞춰서 채워넣었을 가능성이 있음. 
+    # 논리 오류. json output을 강제 했기 때문에 사용자가 입력을 하지 않아도
+    # 강제된 입력 형식을 맞춰서 채워넣었을 가능성이 있음.
     # 추후 확인 해봐야함.
     return {
-        "calculator_data" : answer,
+        "calculator_data": answer,
     }
 
     # if need_columns:
     #     return Command(
     #         goto="user_feedback",
     #         update= {
-    #             "calculator_data": answer, 
+    #             "calculator_data": answer,
     #             "need_user_feedback": True
     #         }
     #     )
-            
+
     # else:
     #     if category == "fixed_deposit":
     #         return Command(
     #             goto="calc_fixed_deposit",
     #             update= {
-    #             "calculator_data": answer, 
+    #             "calculator_data": answer,
     #             "need_user_feedback": False
     #         }
     #         )
@@ -410,7 +418,7 @@ def get_user_data(state: CalcState) -> CalcState:
     #         return Command(
     #             goto="calc_installment_deposit",
     #             update= {
-    #             "calculator_data": answer, 
+    #             "calculator_data": answer,
     #             "need_user_feedback": False
     #         }
     #         )
@@ -418,16 +426,17 @@ def get_user_data(state: CalcState) -> CalcState:
     #         return Command(
     #             goto="calc_jeonse_loan",
     #             update= {
-    #             "calculator_data": answer, 
+    #             "calculator_data": answer,
     #             "need_user_feedback": False
     #         }
     #         )
+
 
 @timing_decorator
 def calc_fixed_deposit(state: CalcState) -> CalcState:
     """
 
-    return : dict, 
+    return : dict,
     {
         "상품카테고리": "fixed_deposit",
         "원금": int(principal),
@@ -444,14 +453,15 @@ def calc_fixed_deposit(state: CalcState) -> CalcState:
     calculated_data = calculator_fixed_deposit(state["calculator_data"])
 
     return {
-        "calculated_data" : calculated_data,
+        "calculated_data": calculated_data,
     }
+
 
 @timing_decorator
 def calc_installment_deposit(state: CalcState) -> CalcState:
     """
 
-    return : dict, 
+    return : dict,
     {
         "상품카테고리": "fixed_deposit",
         "원금": int(principal),
@@ -468,14 +478,15 @@ def calc_installment_deposit(state: CalcState) -> CalcState:
     calculated_data = calculator_installment_deposit(state["calculator_data"])
 
     return {
-        "calculated_data" : calculated_data,
+        "calculated_data": calculated_data,
     }
+
 
 @timing_decorator
 def calc_jeonse_loan(state: CalcState) -> CalcState:
     """
 
-    return : dict, 
+    return : dict,
     {
         "상품카테고리": "fixed_deposit",
         "원금": int(principal),
@@ -492,7 +503,7 @@ def calc_jeonse_loan(state: CalcState) -> CalcState:
     calculated_data = calculator_jeonse_loan(state["calculator_data"])
 
     return {
-        "calculated_data" : calculated_data,
+        "calculated_data": calculated_data,
     }
 
 
@@ -500,12 +511,13 @@ def calc_jeonse_loan(state: CalcState) -> CalcState:
 def after_calculate(state: CalcState) -> CalcState:
     """
 
-    return : dict, 
+    return : dict,
     """
 
     return {
-        "answer" : state["calculated_data"],
+        "answer": state["calculated_data"],
     }
+
 
 def build_calculator_subgraph():
     graph = StateGraph(CalcState)
@@ -520,7 +532,6 @@ def build_calculator_subgraph():
     graph.add_node("calc_installment_deposit", calc_installment_deposit)
     graph.add_node("calc_jeonse_loan", calc_jeonse_loan)
 
-    
     # 시작 → route
     # graph.add_edge(START, "check_findata")
     # graph.add_edge("check_findata", "fill_calculator_data")
