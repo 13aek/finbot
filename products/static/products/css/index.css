@@ -11,9 +11,9 @@ body {
     box-sizing: border-box;
 }
 
-/* --------------- */
-/* 1. 우측 상단 버튼 */
-/* --------------- */
+/* --------- */
+/* 1. 상단바 */
+/* --------- */
 .header-buttons {
     width: 100%;
     padding: 20px 30px;
@@ -24,6 +24,7 @@ body {
     position: absolute;
     top: 0;
     right: 0;
+    gap: 15px;
 }
 
 .header-buttons a {
