@@ -149,6 +149,7 @@ def password(request):
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)  # 비밀번호 변경시 세션 유지
+            messages.success(request, "비밀번호가 변경되었습니다.", extra_tags="password_success")
             return redirect("products:index")
         errors = form.errors
 
