@@ -50,6 +50,8 @@
               <h3>{{ p.fin_prdt_nm }}</h3>
 
               <div class="info-grid">
+
+
                   <div class="label">회사명</div>
                   <div class="value">{{ p.kor_co_nm }}</div>
 
@@ -61,6 +63,17 @@
 
                   <div class="label">상품 설명</div>
                   <div class="value">{{ p.description }}</div>
+
+                  <form method="POST" action="{% url 'accounts:bookmark' p.fin_prdt_cd %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    
+                    {% if request.user in p.users.all %}
+                      <input type="submit" value="★ 북마크 해제">
+                    {% else %}
+                      <input type="submit" value="☆ 북마크">
+                    {% endif %}
+                  </form>
               </div>
           </div>
           {% endfor %}
