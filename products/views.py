@@ -23,7 +23,35 @@ def index(request):
     Returns:
         HttpResponse: 검색창이 포함된 'products/search.html' 템플릿 렌더링 결과
     """
-    return render(request, "products/index.html")
+    bookmarked = []
+    if request.user.is_authenticated:
+        bookmarked = request.user.products.all()
+    # return render(request, "products/index.html", {"bookmarked": bookmarked})
+    # 페이지당 상품 수: 3
+    # 페이지네이션 그룹 단위: 10
+    paginator = Paginator(bookmarked, 3)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    current_page = page_obj.number
+    start_page = ((current_page - 1) // 10) * 10 + 1
+    end_page = min(start_page + 9, paginator.num_pages)
+
+    previous_page = max(current_page - 1, 1)
+    next_page = min(current_page + 1, paginator.num_pages)
+
+    show_previous_10 = current_page > 1  # 이전 10개 버튼을 표시할지 여부
+    show_next_10 = current_page < paginator.num_pages
+    context = {
+        "page_obj": page_obj,
+        "start_page": start_page,
+        "end_page": end_page,
+        "previous_page": previous_page,
+        "next_page": next_page,
+        "show_previous_10": show_previous_10,
+        "show_next_10": show_next_10,
+    }
+    return render(request, "products/index.html", context)
 
 
 def search(request):
