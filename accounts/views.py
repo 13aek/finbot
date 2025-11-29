@@ -238,6 +238,7 @@ def delete(request):
         # 세션이 없거나 만료된경우 비밀번호 인증 페이지로 이동합니다.
         return redirect(f"{reverse('accounts:verify')}?next={reverse('accounts:delete')}")
     request.user.delete()
+    messages.success(request, "회원 탈퇴가 완료되었습니다.", extra_tags="delete_success")
     return redirect("products:index")
 
 

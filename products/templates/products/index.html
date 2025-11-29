@@ -108,4 +108,11 @@
     <img src="{% static 'images/finbot.png' %}" alt="FINBOT Chat">
   </a>
 </main>
+<script>
+  {% if messages %}
+    {% for msg in messages %}
+      alert("{{ msg }}");
+    {% endfor %}
+  {% endif %}
+</script>
 {% endblock content %}
