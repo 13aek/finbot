@@ -15,6 +15,7 @@ body {
 
 .main-link img {
   height: 23px;
+  padding-left: 10px;
 }
 
 .header {
@@ -58,7 +59,6 @@ body {
 /* --------------- */
 /* 2. 관심 상품 목록 */
 /* --------------- */
-
 .bookmark-container {
     width: 100%;
     margin: 20px auto 50px auto;
@@ -69,7 +69,7 @@ body {
     font-weight: 800;
     margin-bottom: 25px;
     color: #5a5a5a;
-    padding-left: 5px;
+    padding-left: 10px;
 }
 
 .highlight-title {
@@ -77,33 +77,41 @@ body {
     font-weight: 800;
 }
 
-.card-container {
+.product-container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
     gap: 40px;
-    margin-top: 20px;
 }
 
-.card {
-    padding: 0 30px;
-    height: 150px;
+.bookmark-item {
+    padding: 0 50px;
+    height: 180px;
     background-color: #FFFFFF;
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-radius: 30px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
 }
 
-.card .product-name {
+.bookmark-item .product-name {
     font-size: 18px;
     font-weight: 700;
     color: #000000;
 }
 
-.card p {
+.bookmark-item p {
+    font-size: 15px;
     color: #5a5a5a;
-    margin: 5px;
+    margin: 7px 0;
+}
+
+.no-item {
+    font-size: 17px;
+    font-weight: 600;
+    color: #222222;
+    display: flex;
+    justify-content: center;
+    padding-top: 200px;
 }
 
 
@@ -121,4 +129,11 @@ body {
 
 .chatbot-btn img {
     width: 145px;
+}
+
+@media (max-width: 1024px) {
+    .chatbot-btn img {
+        content: url('/static/images/finbot-btn-short.png');
+        width: 55px;
+    }
 }

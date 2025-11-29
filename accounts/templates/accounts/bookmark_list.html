@@ -30,14 +30,20 @@
       {{ request.user.name }}님의 <span class="highlight-title">관심 상품 목록</span>
     </h2>
 
-    <div class="card-container">
+    <div class="product-container">
+      {% if products %}
       {% for product in products %}
-      <div class="card">
+      <div class="bookmark-item">
         <p class="product-name">{{ product.fin_prdt_nm }}</p>
-        <p>{{ product.kor_co_nm }}</p>
-        <p>{{ product.description }}</p>
+          <p style="font-weight: bold">{{ product.kor_co_nm }}</p>
+          <p>{{ product.description }}</p>
       </div>
-      {% endfor %}
+    {% endfor %}
+
+    {% else %}
+      <p class="no-item">아직 등록한 관심 상품이 없습니다.
+        마음에 드는 상품을 추가해 보세요.</p>
+    {% endif %}
     </div>
   </div>
 
