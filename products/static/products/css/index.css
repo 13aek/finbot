@@ -188,6 +188,15 @@ body {
     padding: 0 10px 0 10px;
 }
 
+.no-item {
+    font-size: 16px;
+    font-weight: 600;
+    color: #222222;
+    display: flex;
+    justify-content: center;
+    padding-top: 100px;
+}
+
 
 /* ------------- */
 /* 4. 페이지네이션 */
