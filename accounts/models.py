@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from products.models import FinProduct
+
 
 # Create your models here.
 
@@ -63,3 +65,5 @@ class User(AbstractUser):
     job = models.CharField(max_length=30, null=True, choices=JOB_CHOICES, verbose_name="직업")
     earnings = models.CharField(max_length=20, null=True, choices=EARNINGS_CHOICES, verbose_name="소득")
     life_area = models.CharField(max_length=20, null=True, choices=LIFE_AREA_CHOICES, verbose_name="거주지역")
+    # 북마크 기능을 위해 상품 정보 테이블과 연결합니다.
+    products = models.ManyToManyField(FinProduct, related_name="users")

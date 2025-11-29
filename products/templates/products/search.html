@@ -47,20 +47,33 @@
         {% if page_obj %}
           {% for p in page_obj %}
           <div class="result-item">
-              <h3>{{ p.product_name }}</h3>
+              <h3>{{ p.fin_prdt_nm }}</h3>
 
               <div class="info-grid">
+
+
                   <div class="label">회사명</div>
-                  <div class="value">{{ p.company_name }}</div>
+                  <div class="value">{{ p.kor_co_nm }}</div>
 
-                  <div class="label">이자율</div>
-                  <div class="value">{{ p.maturity_interest }}</div>
+                  <div class="label">카테고리</div>
+                  <div class="value">{{ p.category }}</div>
 
-                  <div class="label">가입대상</div>
-                  <div class="value">{{ p.join_target }}</div>
+                  <div class="label">가입 방법</div>
+                  <div class="value">{{ p.join_way }}</div>
 
-                  <div class="label">최고한도</div>
-                  <div class="value">{{ p.max_limit }}</div>
+                  <div class="label">상품 설명</div>
+                  <div class="value">{{ p.description }}</div>
+
+                  <form method="POST" action="{% url 'accounts:bookmark' p.fin_prdt_cd %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    
+                    {% if request.user in p.users.all %}
+                      <input type="submit" value="★ 북마크 해제">
+                    {% else %}
+                      <input type="submit" value="☆ 북마크">
+                    {% endif %}
+                  </form>
               </div>
           </div>
           {% endfor %}

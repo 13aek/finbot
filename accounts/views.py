@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from chatbot.models import ChatRoom
+from products.models import FinProduct
 
 from .forms import CustomUserChangeForm, CustomUserCreationForm
 
@@ -36,6 +37,7 @@ def signup(request):
             user = form.save()
             # 회원가입이 완료 된 시점에 해당 사용자의 채팅방을 생성
             ChatRoom.objects.create(display_id=1, user=user, ever_visited=False)
+            messages.success(request, "회원가입이 완료되었습니다.", extra_tags="signup_success")
             return redirect("accounts:login")
         errors = form.errors
 
@@ -121,6 +123,7 @@ def update(request):
         form = CustomUserChangeForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
+            messages.success(request, "회원 정보 등록이 완료되었습니다.", extra_tags="update_success")
             return redirect("accounts:update")
     else:
         form = CustomUserChangeForm(instance=request.user)
@@ -147,6 +150,7 @@ def password(request):
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)  # 비밀번호 변경시 세션 유지
+            messages.success(request, "비밀번호가 변경되었습니다.", extra_tags="password_success")
             return redirect("products:index")
         errors = form.errors
 
@@ -236,6 +240,7 @@ def delete(request):
         # 세션이 없거나 만료된경우 비밀번호 인증 페이지로 이동합니다.
         return redirect(f"{reverse('accounts:verify')}?next={reverse('accounts:delete')}")
     request.user.delete()
+    messages.success(request, "회원 탈퇴가 완료되었습니다.", extra_tags="delete_success")
     return redirect("products:index")
 
 
@@ -290,3 +295,45 @@ def verify(request):
             return render(request, "accounts/verify.html", context)
 
     return render(request, "accounts/verify.html", {"session_key": session_key})
+
+
+@login_required
+def bookmark(request, product_code):
+    """
+    사용자로부터 요청받은 상품을 북마크하는 함수입니다.
+
+    Args:
+        request: 사용자의 요청 객체
+
+    Returns:
+        - POST 요청일 경우, 사용자가 북마크를 요청한 상품을 DB에 반영합니다.
+    """
+    # 북마크할 상품을 조회합니다.
+    product = FinProduct.objects.get(fin_prdt_cd=product_code)
+    # 사용자가 해당 상품을 북마크 했는지 여부에 따라 분기합니다.
+    if request.user in product.users.all():
+        product.users.remove(request.user)
+    else:
+        product.users.add(request.user)
+    # 상품 검색 페이지나 채팅 페이지에서 북마크 요청을 보낸 경우 요청을 보낸 페이지로 리다이렉트합니다.
+    next_url = request.POST.get("next")
+    # 만약 url을 브라우저에 직접 입력해서 보냈다면 메인 페이지로 리다이렉트합니다.
+    if not next_url:
+        next_url = "products:index"
+    return redirect(next_url)
+
+
+@login_required
+def bookmark_list(request):
+    """
+    사용자의 모든 북마크된 상품을 조회하는 함수입니다.
+
+    Args:
+        request: 사용자의 요청 객체
+
+    Returns:
+        - GET 요청일 경우, 사용자의 모든 북마크된 상품을 반환합니다.
+    """
+    # 해당 사용자가 북마크한 모든 상품을 조회합니다.
+    products = FinProduct.objects.filter(users=request.user)
+    return render(request, "accounts/bookmark_list.html", {"products": products})
