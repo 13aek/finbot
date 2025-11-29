@@ -48,30 +48,69 @@
     <h2 class="recommend-title">
       사용자님의 <span class="highlight-title">관심 상품</span>
     </h2>
-
-    <div class="card-container">
-      <div class="rec-card">
-        <div class="rec-card-inner">
-          <h3>NH 고향사랑기부적금</h3>
-          <p>고향 발전을 위한 기부금도 쌓고, 우대금리도 받고!</p>
+      {% if page_obj %}
+        <div class="card-container">
+          {% for product in page_obj %}
+          
+            <div class="rec-card">
+              <div class="rec-card-inner">
+                <h3>{{ product.fin_prdt_nm }}</h3>
+                <p>{{ product.description }}</p>
+              </div>
+            </div>
+          {% endfor %}
         </div>
-      </div>
+        <div class="pagination">
+          {# 이전 페이지 #}
+          {% if show_previous_10 %}
+            <a href="?query={{ query }}&page={{ previous_page }}">이전</a>
+          {% endif %}
 
-      <div class="rec-card">
-        <div class="rec-card-inner">
-          <h3>신한 안녕, 반가워 적금</h3>
-          <p>새롭게 금융 거래를 시작하는 고객님을 위해 준비했어요.</p>
-        </div>
-      </div>
+          {# 페이지 번호 그룹 표시 (1부터 10까지) #}
+          {% for num in page_obj.paginator.page_range %}
+            {% if num >= start_page and num <= end_page %}
+              {% if num == page_obj.number %}
+                <span>{{ num }}</span>
+              {% else %}
+                <a href="?query={{ query }}&page={{ num }}">{{ num }}</a>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
 
-      <div class="rec-card">
-        <div class="rec-card-inner">
-          <h3>WON 적금</h3>
-          <p>복잡하지 않고 간단한 적금</p>
+          {# 다음 페이지 #}
+          {% if show_next_10 %}
+            <a href="?query={{ query }}&page={{ next_page }}">다음</a>
+          {% endif %}
         </div>
-      </div>
-    </div>
-    
+      {% else %}
+        <h2 class="recommend-title">
+          고객님께 추천해 드리는 <span class="highlight-title">금주의 상품</span>
+        </h2>
+
+        <div class="card-container">
+          <div class="rec-card">
+            <div class="rec-card-inner">
+              <h3>NH 고향사랑기부적금</h3>
+              <p>고향 발전을 위한 기부금도 쌓고, 우대금리도 받고!</p>
+            </div>
+          </div>
+
+          <div class="rec-card">
+            <div class="rec-card-inner">
+              <h3>신한 안녕, 반가워 적금</h3>
+              <p>새롭게 금융 거래를 시작하는 고객님을 위해 준비했어요.</p>
+            </div>
+          </div>
+
+          <div class="rec-card">
+            <div class="rec-card-inner">
+              <h3>WON 적금</h3>
+              <p>복잡하지 않고 간단한 적금</p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
     {% else %}
     {# 비로그인 사용자 #}
     <h2 class="recommend-title">
