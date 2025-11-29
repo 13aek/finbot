@@ -66,6 +66,8 @@ if __name__ == "__main__":
     """
 
     BASE_DIR = Path(__file__).resolve().parent.parent
+    save_path = BASE_DIR / "findata" / "config.json"
+
     jm = JsonConfigManager()
     jm.values.category = {
         "정기예금": "fixed_deposit",
@@ -147,4 +149,34 @@ if __name__ == "__main__":
         "dcls_month": "공시제출월",  # 공시제출월d
     }
 
-    jm.save(BASE_DIR / "findata" / "config.json")
+    jm.values.calculator = {}
+    jm.values.calculator.fixed_deposit = [
+        "납입액",
+        "우대조건",
+        "최고한도",
+        "저축개월",
+        "저축금리유형명",
+        "저축금리",
+        "최고우대금리"
+    ]
+
+    jm.values.calculator.installment_deposit = [
+        "납입액",
+        "우대조건",
+        "최고한도",
+        "저축개월",
+        "저축금리유형명",
+        "저축금리",
+        "최고우대금리"
+    ]
+
+    jm.values.calculator.jeonse_loan = [
+        "대출액",
+        "대출한도",
+        "대출금리유형", # 고정금리 # 변동금리
+        "대출금리최저",
+        "대출금리최고",
+    ]
+        
+
+    jm.save(save_path)

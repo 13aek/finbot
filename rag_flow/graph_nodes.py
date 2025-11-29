@@ -286,7 +286,7 @@ def conditional_about_recommend(state: ChatState) -> dict:
             "role": "system",
             "content": "너는 질문을 보고 목적을 생각해서 4가지 중에 하나로 분류 해야해.",
         },
-        {"role": "user", "content": f"다음은 '4가지 경우야':\n{four_branch}"},
+        {   "role": "user", "content": f"다음은 '4가지 경우야':\n{four_branch}"},
         {
             "role": "user",
             "content": f"질문: {user_query}\n을 보고 4가지 경우 중 하나를 출력해줘. \
@@ -362,7 +362,7 @@ def rag_search(state: ChatState) -> ChatState:
     else:
         print("*" * 10, "any 추천", "*" * 10)
         hits = qdrant_client.query_points(collection_name="finance_products_all", query=q_vec, limit=topk)
-
+    
     vector_db_answer = hits.points[0].payload
 
     messages = [

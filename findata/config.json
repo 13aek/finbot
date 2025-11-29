@@ -2,7 +2,7 @@
 	"category": {
 		"정기예금": "fixed_deposit",
 		"적금": "installment_deposit",
-		"전세자금대출": "jeonse_loan"
+		"전세대출": "jeonse_loan"
 	},
 	"urls": {
 		"fixed_deposit": "http://finlife.fss.or.kr/finlifeapi/depositProductsSearch.json?",
@@ -75,5 +75,33 @@
 			"dcls_end_day": "공시종료일",
 			"dcls_month": "공시제출월"
 		}
+	},
+	"calculator": {
+		"fixed_deposit": [
+			"납입액",
+			"우대조건",
+			"최고한도",
+			"저축개월",
+			"저축금리유형명",
+			"저축금리",
+			"최고우대금리"
+		],
+		"installment_deposit": [
+			"납입액",
+			"우대조건",
+			"최고한도",
+			"저축개월",
+			"적립유형명저축금리유형명",
+			"저축금리",
+			"최고우대금리"
+		],
+		"jeonse_loan": [
+			"대출액",
+			"대출한도",
+			"대출금리유형",
+			"저축개월",
+			"대출금리최저",
+			"대출금리최고"
+		]
 	}
 }
