@@ -1,5 +1,6 @@
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Value
+from django.db.models.functions import Replace
 from django.shortcuts import render
 
 from .models import FinProduct
@@ -42,12 +43,18 @@ def search(request):
     """
 
     query = request.GET.get("query", "")
+    clean_query = query.replace(" ", "")
     results = []
 
     if query:
-        results = FinProduct.objects.filter(
-            Q(product_name__icontains=query) | Q(company_name__icontains=query)
-        ).order_by("id")
+        results = (
+            FinProduct.objects.annotate(
+                product=Replace("fin_prdt_nm", Value(" "), Value("")),
+                company=Replace("kor_co_nm", Value(" "), Value("")),
+            )
+            .filter(Q(product__icontains=clean_query) | Q(company__icontains=clean_query))
+            .order_by("fin_prdt_cd")
+        )
     # 페이지당 상품 수: 5
     # 페이지네이션 그룹 단위: 10
     paginator = Paginator(results, 5)
