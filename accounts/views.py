@@ -123,6 +123,7 @@ def update(request):
         form = CustomUserChangeForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
+            messages.success(request, "회원 정보 등록이 완료되었습니다.", extra_tags="update_success")
             return redirect("accounts:update")
     else:
         form = CustomUserChangeForm(instance=request.user)
