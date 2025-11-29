@@ -5,35 +5,33 @@ from finbot.singleton.chat_checkpoint import memory, memory_store
 from rag_flow.graph_nodes import (
     ChatState,
     add_to_history,
+    after_calculate,
     agent_method_router,
     before_calculate,
+    calc_fixed_deposit,
+    calc_installment_deposit,
+    calc_jeonse_loan,
+    calculator_method_router,
+    check_findata,
     # calculator,
     classify_feedback,
+    conditional_about_fin_type,
     conditional_about_history,
     conditional_about_query,
     conditional_about_recommend,
     feedback_router,
+    fill_calculator_data,
     fin_word_explain,
     first_conversation,
+    get_user_data,
     human_feedback,
+    loop_or_not_method_router,
     mode_router,
     normal_chat,
     nth_conversation,
     rag_search,
     recommend_method_router,
-)
-from rag_flow.graph_nodes import (
-    check_findata,
-    calculator_method_router,
-    fill_calculator_data,
-    conditional_about_fin_type,
     user_feedback,
-    loop_or_not_method_router,
-    get_user_data,
-    calc_fixed_deposit,
-    calc_installment_deposit,
-    calc_jeonse_loan,
-    after_calculate
 )
 
 
@@ -186,9 +184,11 @@ graph.add_conditional_edges(
 )
 
 graph.add_edge("get_user_data", "user_feedback")
-graph.add_edge("calc_fixed_deposit", "add_to_history")
-graph.add_edge("calc_installment_deposit", "add_to_history")
-graph.add_edge("calc_jeonse_loan", "add_to_history")
+graph.add_edge("calc_fixed_deposit", "after_calculate")
+graph.add_edge("calc_installment_deposit", "after_calculate")
+graph.add_edge("calc_jeonse_loan", "after_calculate")
+graph.add_edge("after_calculate", "add_to_history")
+
 
 graph.add_edge("fin_word_explain", "add_to_history")
 graph.add_edge("normal_chat", "add_to_history")
@@ -196,15 +196,3 @@ graph.add_edge("add_to_history", END)
 
 # 인스턴스 생성
 app_graph = graph.compile(checkpointer=memory, store=memory_store)
-
-
-
-
-graph.add_node("check_findata", check_findata)
-graph.add_node("fill_calculator_data", fill_calculator_data)
-graph.add_node("conditional_about_fin_type", conditional_about_fin_type)
-graph.add_node("user_feedback", user_feedback)
-graph.add_node("get_user_data", get_user_data)
-graph.add_node("calc_fixed_deposit", calc_fixed_deposit)
-graph.add_node("calc_installment_deposit", calc_installment_deposit)
-graph.add_node("calc_jeonse_loan", calc_jeonse_loan)

@@ -1,20 +1,22 @@
+import json
 from functools import partial
-from typing import Annotated, Literal, TypedDict
 from pathlib import Path
-from pydantic import BaseModel
+from typing import Annotated, Literal, TypedDict
 
 from langgraph.types import interrupt
+from pydantic import BaseModel
 
 from finbot.singleton.ai_client import ai_client
 from finbot.singleton.embedding_model import embed_model
 from finbot.singleton.vectordb import qdrant_client
-from rag_flow.decorators import error_handling_decorator, timing_decorator
 from rag_flow.calculators import (
-    calculator_fixed_deposit, 
+    calculator_fixed_deposit,
     calculator_installment_deposit,
     calculator_jeonse_loan,
 )
-from rag_flow.subgraph_calculators import CalcState, build_calculator_subgraph
+from rag_flow.decorators import error_handling_decorator, timing_decorator
+from rag_flow.subgraph_calculators import build_calculator_subgraph
+from findata.config_manager import JsonConfigManager
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 config_path = BASE_DIR / "findata" / "config.json"
@@ -63,6 +65,7 @@ class ChatState(TypedDict, total=False):
     # calculate datas
     calculator_method: Literal["fill_calculator_data", "conditional_about_fin_type"] # 기존데이터 vs only 사용자입력
     category: Literal["fixed_deposit", "installment_deposit", "jeonse_loan"]
+    loop_or_not_method: str #사용자 입력 루프
     data_columns: list # product_data의 컬럼들 모음
     calculator_columns: list #calculator에 필요한 컬럼들 (카테고리별로 상이)
 
@@ -834,13 +837,13 @@ def check_need_data(state: ChatState) -> ChatState:
             need_columns.append(key)
 
     if need_columns:
-        # 🟥 아직 부족한 데이터가 있어서, 여기서 subgraph를 멈출 것임
+        # 아직 부족한 데이터가 있어서, 여기서 subgraph를 멈출 것임
         return {
             "need_user_feedback": True,
             "need_columns": need_columns,
         }
     else:
-        # 🟩 이제 계산 가능 → 어떤 계산을 할지 category로 parent가 분기하게 둔다
+        # 이제 계산 가능 → 어떤 계산을 할지 category로 parent가 분기하게 둔다
         return {
             "need_user_feedback": False,
             "need_columns": [],
@@ -862,7 +865,7 @@ def user_feedback(state: ChatState) -> ChatState: #Command[Literal["get_user_dat
     calculator_data = state["calculator_data"]
     category = state["category"]
     for key in calculator_data.keys():
-        if key == "최고한도": continue
+        if key in ["최고한도", "적립유형명", "저축금리유형명","적립유형명저축금리유형명"]: continue
         if calculator_data[key]:
             continue
         else:

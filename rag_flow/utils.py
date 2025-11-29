@@ -1,5 +1,6 @@
 import re
 
+
 def parse_money_to_int(value):
     """
     다양한 한국어 금액 표현을 모두 int(원 단위)로 변환한다.

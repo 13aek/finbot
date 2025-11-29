@@ -40,7 +40,8 @@ def calculator_fixed_deposit(data: dict, use_favor: bool = False):
         interest = maturity - principal
 
     else:
-        raise ValueError("저축금리유형명은 '단리' 또는 '복리'여야 합니다.")
+        interest_type = "단리"
+        # raise ValueError("저축금리유형명은 '단리' 또는 '복리'여야 합니다.")
 
     # 세금
     tax = interest * tax_rate
@@ -80,7 +81,11 @@ def calculator_installment_deposit(data: dict, use_favor: bool = False):
 
     monthly = data["납입액"]
     months = data["저축개월"]
-    interest_type = data["저축금리유형명"]
+    if data["저축금리유형명"]:
+        interest_type = data["저축금리유형명"]
+    else: 
+        interest_type = "복리"
+    
 
     # 금리 선택 (기본/우대)
     if use_favor:
@@ -129,7 +134,7 @@ def calculator_installment_deposit(data: dict, use_favor: bool = False):
     maturity_after_tax = maturity_before_tax - tax
 
     return {
-        "상품카테고리": "fixed_deposit",
+        "상품카테고리": "installment_deposit",
         "원금": int(total_principal),
         "세전이자": int(interest),
         "세전만기금액": int(maturity_before_tax),
@@ -159,6 +164,8 @@ def calculator_jeonse_loan(data: dict, use_max_rate: bool = False):
 
     loan_amount = data["대출액"]
     rate_type = data["대출금리유형"]
+    if rate_type not in ["고정금리", "변동금리"]:
+        rate_type = "고정금리"
 
     # ----------------------
     # 금리 선택
@@ -181,7 +188,7 @@ def calculator_jeonse_loan(data: dict, use_max_rate: bool = False):
     monthly_interest = loan_amount * annual_rate / 12
 
     return {
-        "상품카테고리": "fixed_deposit",
+        "상품카테고리": "jeonse_loan",
         "대출금리유형": rate_type,
         "적용금리(%)": annual_rate * 100,
         "대출액": int(loan_amount),

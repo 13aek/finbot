@@ -1,6 +1,8 @@
 from functools import lru_cache
 from pathlib import Path
-from findata.vector_db import get_qdrant_server, get_qdrant_local
+
+from findata.vector_db import get_qdrant_local, get_qdrant_server
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 vectordb_path = BASE_DIR / "findata" / "qdrant_localdb"

@@ -1,20 +1,21 @@
 # calculator_graph.py
-from typing import Literal, TypedDict
-from pathlib import Path
-from pydantic import BaseModel
 import json
-from langgraph.types import Command, interrupt
+from pathlib import Path
+from typing import Literal, TypedDict
+
 from langgraph.graph import END, START, StateGraph
+from langgraph.types import interrupt
+from pydantic import BaseModel
 
 from finbot.singleton.ai_client import ai_client
 from findata.config_manager import JsonConfigManager
-from rag_flow.graph_flow import ChatState
 from rag_flow.calculators import (
-    calculator_fixed_deposit, 
+    calculator_fixed_deposit,
     calculator_installment_deposit,
     calculator_jeonse_loan,
 )
-from rag_flow.decorators import error_handling_decorator, timing_decorator
+from rag_flow.decorators import timing_decorator
+# from rag_flow.graph_flow import ChatState
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -36,7 +37,7 @@ class CalcState(TypedDict, total=False):
     need_human_data: str
 
 @timing_decorator
-def check_findata(state: ChatState) -> ChatState: #Command[Literal["fill_calculator_data", "conditional_about_fin_type"]]:
+def check_findata(state: CalcState) -> CalcState: #Command[Literal["fill_calculator_data", "conditional_about_fin_type"]]:
     """
     데이터 확인 후 다음 단계 결정
     process_findata : findata를 받았으면 data 기반으로 계산
@@ -82,7 +83,7 @@ def check_findata(state: ChatState) -> ChatState: #Command[Literal["fill_calcula
     #         )
 
 def calculator_method_router(
-    state: ChatState,
+    state: CalcState,
 ) -> Literal["using_recommended_data", "using_only_user_input_data"]:
     """
     Search Method에 따라 라우팅
@@ -95,7 +96,7 @@ def calculator_method_router(
     return state["calculator_method"]
 
 @timing_decorator
-def conditional_about_fin_type(state: ChatState) -> ChatState:
+def conditional_about_fin_type(state: CalcState) -> CalcState:
     """
     query에 따라 분기 발생. user의 의도에 따라 4가지로 분기.
     1. fixed_deposit
@@ -156,7 +157,7 @@ def conditional_about_fin_type(state: ChatState) -> ChatState:
     }
 
 @timing_decorator
-def fill_calculator_data(state: ChatState) -> ChatState:
+def fill_calculator_data(state: CalcState) -> CalcState:
     """
     calculator에 필요한 데이터 입력
 
@@ -195,7 +196,7 @@ def fill_calculator_data(state: ChatState) -> ChatState:
                 "need_user_feedback": True}
 
 @timing_decorator
-def check_need_data(state: ChatState) -> ChatState:
+def check_need_data(state: CalcState) -> CalcState:
     """
     calculator_data에서 비어 있는 컬럼(=사용자에게 물어봐야 할 값)을 찾고,
     - 있으면: need_user_feedback=True, need_columns 설정 후 여기서 END (subgraph 종료)
@@ -224,7 +225,7 @@ def check_need_data(state: ChatState) -> ChatState:
 
 
 @timing_decorator
-def user_feedback(state: ChatState) -> ChatState: #Command[Literal["get_user_data", "calc_fixed_deposit", "calc_installment_deposit", "calc_jeonse_loan"]]:
+def user_feedback(state: CalcState) -> CalcState: #Command[Literal["get_user_data", "calc_fixed_deposit", "calc_installment_deposit", "calc_jeonse_loan"]]:
     """
     사용자에게 graph flow 중간에 피드백을 입력 받음
 
@@ -287,7 +288,7 @@ def user_feedback(state: ChatState) -> ChatState: #Command[Literal["get_user_dat
     
 
 def loop_or_not_method_router(
-    state: ChatState,
+    state: CalcState,
 ) -> Literal["get_user_data", "calc_fixed_deposit", "calc_installment_deposit", "calc_jeonse_loan"]:
     """
     Loop Method에 따라 라우팅
@@ -326,7 +327,7 @@ class JeonseLoan(BaseModel):
 
 
 @timing_decorator
-def get_user_data(state: ChatState) -> ChatState:
+def get_user_data(state: CalcState) -> CalcState:
     """
     query로 계산에 필요한 정보 추출
 
@@ -423,7 +424,7 @@ def get_user_data(state: ChatState) -> ChatState:
     #         )
 
 @timing_decorator
-def calc_fixed_deposit(state: ChatState) -> ChatState:
+def calc_fixed_deposit(state: CalcState) -> CalcState:
     """
 
     return : dict, 
@@ -447,7 +448,7 @@ def calc_fixed_deposit(state: ChatState) -> ChatState:
     }
 
 @timing_decorator
-def calc_installment_deposit(state: ChatState) -> ChatState:
+def calc_installment_deposit(state: CalcState) -> CalcState:
     """
 
     return : dict, 
@@ -471,7 +472,7 @@ def calc_installment_deposit(state: ChatState) -> ChatState:
     }
 
 @timing_decorator
-def calc_jeonse_loan(state: ChatState) -> ChatState:
+def calc_jeonse_loan(state: CalcState) -> CalcState:
     """
 
     return : dict, 
@@ -496,7 +497,7 @@ def calc_jeonse_loan(state: ChatState) -> ChatState:
 
 
 @timing_decorator
-def after_calculate(state: ChatState) -> ChatState:
+def after_calculate(state: CalcState) -> CalcState:
     """
 
     return : dict, 
