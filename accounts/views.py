@@ -37,6 +37,7 @@ def signup(request):
             user = form.save()
             # 회원가입이 완료 된 시점에 해당 사용자의 채팅방을 생성
             ChatRoom.objects.create(display_id=1, user=user, ever_visited=False)
+            messages.success(request, "회원가입이 완료되었습니다.", extra_tags="signup_success")
             return redirect("accounts:login")
         errors = form.errors
 
@@ -122,6 +123,7 @@ def update(request):
         form = CustomUserChangeForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
+            messages.success(request, "회원 정보 등록이 완료되었습니다.", extra_tags="update_success")
             return redirect("accounts:update")
     else:
         form = CustomUserChangeForm(instance=request.user)
@@ -148,6 +150,7 @@ def password(request):
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)  # 비밀번호 변경시 세션 유지
+            messages.success(request, "비밀번호가 변경되었습니다.", extra_tags="password_success")
             return redirect("products:index")
         errors = form.errors
 
@@ -237,6 +240,7 @@ def delete(request):
         # 세션이 없거나 만료된경우 비밀번호 인증 페이지로 이동합니다.
         return redirect(f"{reverse('accounts:verify')}?next={reverse('accounts:delete')}")
     request.user.delete()
+    messages.success(request, "회원 탈퇴가 완료되었습니다.", extra_tags="delete_success")
     return redirect("products:index")
 
 

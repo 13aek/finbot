@@ -78,4 +78,11 @@
     <button type="submit" class="btn-bottom-right">정보 수정</button>
   </form>
 </div>
+<script>
+  {% if messages %}
+    {% for msg in messages %}
+      alert("{{ msg }}");
+    {% endfor %}
+  {% endif %}
+</script>
 {% endblock content %}
