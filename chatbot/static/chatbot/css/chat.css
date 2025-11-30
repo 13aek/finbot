@@ -216,8 +216,8 @@ body {
     /* 스크롤 하단 고정 */
     flex-direction: column-reverse;
     background-color: #FFFFFF;
-    margin-left: 10px; 
     border-radius: 20px;
+    padding-left: 15px;
     overflow-x: hidden;
     max-width: 1200px;
     margin: 0 auto;
