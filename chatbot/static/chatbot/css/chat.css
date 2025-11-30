@@ -332,3 +332,72 @@ body {
     background-color: transparent;
     color: #000000; 
 }
+
+
+/* ----------- */
+/* 5. 상품 추천 */
+/* ----------- */
+/* 상품 추천 카드 */
+.recommend-message .bubble {
+  display: flex;
+  flex-direction: column;
+  background-color: #FFFFFF;
+  color: #000;
+  border: 1px solid #E0E0E0;
+  border-radius: 20px;
+  border-bottom-left-radius: 0;
+  align-items: flex-start;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  padding: 30px;
+}
+
+/* 상단 (추천 문구 + 북마크) */
+.recommend-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+}
+
+.recommend-title {
+    font-weight: 700;
+    font-size: 16px;
+    margin: 0;
+}
+
+.recommend-grid {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    row-gap: 15px;
+    font-size: 16px;
+}
+
+.recommend-label {
+    font-weight: 700;
+}
+
+/* 북마크 버튼 */
+.bookmark-btn {
+    display: flex;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #A9A9A9;
+    align-items: center;
+    line-height: 0;
+}
+
+.bookmark-btn svg {
+    width: 25px;
+    height: 25px;
+}
+
+.bookmark-btn.bookmarked {
+    color: #FFBF30;
+}
+
+.bookmark-btn:not(.bookmarked) svg {
+    transform: scale(0.92);
+    transform-origin: center;
+}

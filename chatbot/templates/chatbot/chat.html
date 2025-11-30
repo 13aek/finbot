@@ -138,25 +138,42 @@
       {# 채팅 봇의 메시지 #}
         {# 만약 추천 상품이 담겨있는 채팅이라면 #}
         {% if msg.product %}
-          <div class="message-container bot-message">
+          <div class="message-container recommend-message">
             <div class="bubble">
-              {{ msg.message }}
-              상품 이름: {{ msg.product.fin_prdt_nm}}
-              은행: {{ msg.product.kor_co_nm }}
-              설명: {{ msg.product.description }}
+              <div class="recommend-header">
+                <p class="recommend-title">{{ msg.message }}</p>
+                {# 북마크 버튼 #}
+                <form action="{% url "accounts:bookmark" msg.product.fin_prdt_cd %}" method="POST">
+                  {% csrf_token %}
+                  {# 북마크를 요청한 페이지로 리다이렉트 되도록 서버에 현재 url을 담아서 보냄 #}
+                  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                  {# 사용자의 북마크 여부에 따라 출력되는 텍스트를 다르게 구현 #}
+                  {% if request.user in msg.product.users.all %}
+                    <button type="submit" class="bookmark-btn bookmarked">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 3.5l2.3 4.7 5.2.8-3.8 3.7.9 5.2L12 15.8l-4.6 2.4.9-5.2-3.8-3.7 5.2-.8L12 3.5z" fill="currentColor">
+                      </svg>
+                    </button>
+                  {% else %}
+                    <button type="submit" class="bookmark-btn">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 3.5l2.3 4.7 5.2.8-3.8 3.7.9 5.2L12 15.8l-4.6 2.4.9-5.2-3.8-3.7 5.2-.8L12 3.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+                      </svg>
+                    </button>
+                  {% endif %}
+                </form>
+              </div>
 
-              {# 북마크 버튼 #}
-              <form action="{% url "accounts:bookmark" msg.product.fin_prdt_cd %}" method="POST">
-                {% csrf_token %}
-                {# 북마크를 요청한 페이지로 리다이렉트 되도록 서버에 현재 url을 담아서 보냄 #}
-                <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                {# 사용자의 북마크 여부에 따라 출력되는 텍스트를 다르게 구현 #}
-                {% if request.user in msg.product.users.all %}
-                  <input type="submit" value="북마크 취소">
-                {% else %}
-                  <input type="submit" value="북마크">
-                {% endif %}
-              </form>
+              <div class="recommend-grid">
+                <span class="recommend-label">상품 이름</span>
+                <span class="recommend-value">{{ msg.product.fin_prdt_nm}}</span>
+
+                <span class="recommend-label">은행</span>
+                <span class="recommend-value">{{ msg.product.kor_co_nm }}</span>
+
+                <span class="recommend-label">설명</span>
+                <span class="recommend-value">{{ msg.product.description }}</span>
+              </div>
             </div>
           </div>
 
