@@ -1,9 +1,9 @@
 /* 비밀번호 인증 안내 문구 */
 .verify {
     text-align: center;
-    font-size: 16px;
+    font-size: 17px;
     color: #000000;
-    margin-bottom: 50px;
+    margin: 0 0 50px 0;
 }
 
 .verify .notice {

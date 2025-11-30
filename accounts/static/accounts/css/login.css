@@ -1,8 +1,8 @@
 /* 회원 가입 안내 문구 */
 .text {
-    font-size: 16px;
+    font-size: 17px;
     color: #000000;
-    margin-top: 25px;
+    margin: 0 0 50px 0;
 }
 
 /* 가입 링크의 색상과 밑줄을 없애기 위한 요소 */
