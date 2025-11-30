@@ -115,10 +115,10 @@ def chat_page(request, chatroom_pk=None):
             request.session["need_user_feedback"] = reply["need_user_feedback"]
             ChatMessage.objects.create(user=request.user, room=chat_room, role="bot", message=answer)
 
-            # 챗봇의 응답을 바탕으로 추천받은 금융 상품이 있다면 해당 상품을 외래키로 가지는 채팅을 하나 추가합니다.
-            if chat.state.get("product_code"):
+            # 사용자의 채팅을 바탕으로 현재 챗봇이 recommend mode라면 추천 상품 정보를 채팅에 추가합니다.
+            if reply["recommend_mode"]:
                 # 추천받은 상품
-                product = FinProduct.objects.get(fin_prdt_cd=chat.state["product_code"])
+                product = FinProduct.objects.get(fin_prdt_cd=reply["product_code"])
                 ChatMessage.objects.create(
                     user=request.user, room=chat_room, role="bot", message="추천상품", product=product
                 )
