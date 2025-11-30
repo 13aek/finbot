@@ -37,6 +37,15 @@
             <p class="product-name">{{ product.fin_prdt_nm }}</p>
             <p style="font-weight: bold">{{ product.kor_co_nm }}</p>
             <p>{{ product.description }}</p>
+            <form method="POST" action="{% url 'accounts:bookmark' product.fin_prdt_cd %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            {% if request.user in product.users.all %}
+              <input type="submit" class="bookmark-btn bookmarked" value='북마크 해제'>
+            {% else %}
+              <input type="submit" class="bookmark-btn" value='북마크'>
+            {% endif %}
+          </form>
           </div>
         {% endfor %}
 
