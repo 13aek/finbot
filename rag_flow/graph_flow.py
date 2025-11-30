@@ -5,21 +5,32 @@ from finbot.singleton.chat_checkpoint import memory, memory_store
 from rag_flow.graph_nodes import (
     ChatState,
     add_to_history,
+    after_calculate,
     agent_method_router,
-    calculator,
+    before_calculate,
+    calc_fixed_deposit,
+    calc_installment_deposit,
+    calc_jeonse_loan,
+    calculator_method_router,
+    check_findata,
     classify_feedback,
+    conditional_about_fin_type,
     conditional_about_history,
     conditional_about_query,
     conditional_about_recommend,
     feedback_router,
+    fill_calculator_data,
     fin_word_explain,
     first_conversation,
+    get_user_data,
     human_feedback,
+    loop_or_not_method_router,
     mode_router,
     normal_chat,
     nth_conversation,
     rag_search,
     recommend_method_router,
+    user_feedback,
 )
 
 
@@ -88,7 +99,19 @@ graph.add_node("conditional_about_recommend", conditional_about_recommend)
 graph.add_node("rag_search", rag_search)
 graph.add_node("human_feedback", human_feedback)
 graph.add_node("classify_feedback", classify_feedback)
-graph.add_node("calculator", calculator)
+graph.add_node("before_calculate", before_calculate)
+
+graph.add_node("check_findata", check_findata)
+graph.add_node("fill_calculator_data", fill_calculator_data)
+graph.add_node("conditional_about_fin_type", conditional_about_fin_type)
+graph.add_node("user_feedback", user_feedback)
+graph.add_node("get_user_data", get_user_data)
+graph.add_node("calc_fixed_deposit", calc_fixed_deposit)
+graph.add_node("calc_installment_deposit", calc_installment_deposit)
+graph.add_node("calc_jeonse_loan", calc_jeonse_loan)
+graph.add_node("after_calculate", after_calculate)
+
+
 graph.add_node("fin_word_explain", fin_word_explain)
 graph.add_node("normal_chat", normal_chat)
 graph.add_node("add_to_history", add_to_history)
@@ -112,7 +135,7 @@ graph.add_conditional_edges(
     agent_method_router,
     {
         "recommend_mode": "conditional_about_recommend",
-        "calculate_mode": "calculator",
+        "calculate_mode": "before_calculate",
         "explain_mode": "fin_word_explain",
         "normal_mode": "normal_chat",
     },
@@ -133,12 +156,39 @@ graph.add_conditional_edges(
     "classify_feedback",
     feedback_router,
     {
-        "yes": "calculator",
+        "yes": "before_calculate",
         "no": "conditional_about_query",
     },
 )
-graph.add_edge("classify_feedback", "add_to_history")
-graph.add_edge("calculator", "add_to_history")
+graph.add_edge("before_calculate", "check_findata")
+graph.add_conditional_edges(
+    "check_findata",
+    calculator_method_router,
+    {
+        "using_recommended_data": "fill_calculator_data",
+        "using_only_user_input_data": "conditional_about_fin_type",
+    },
+)
+
+graph.add_edge("fill_calculator_data", "user_feedback")
+graph.add_conditional_edges(
+    "user_feedback",
+    loop_or_not_method_router,
+    {
+        "get_user_data": "get_user_data",
+        "calc_fixed_deposit": "calc_fixed_deposit",
+        "calc_installment_deposit": "calc_installment_deposit",
+        "calc_jeonse_loan": "calc_jeonse_loan",
+    },
+)
+
+graph.add_edge("get_user_data", "user_feedback")
+graph.add_edge("calc_fixed_deposit", "after_calculate")
+graph.add_edge("calc_installment_deposit", "after_calculate")
+graph.add_edge("calc_jeonse_loan", "after_calculate")
+graph.add_edge("after_calculate", "add_to_history")
+
+
 graph.add_edge("fin_word_explain", "add_to_history")
 graph.add_edge("normal_chat", "add_to_history")
 graph.add_edge("add_to_history", END)
