@@ -9,120 +9,169 @@
 {% endblock styles %}
 
 {% block content %}
+{# 사이드바 (default: open) #}
+<div id="sidebar" class="sidebar open">
 
-{# 사이드바 #}
-<div id="sidebar" class="sidebar">
-    {# 토글 버튼 #}
-    <div class="toggle-btn" onclick="toggleSidebar()">
-        <span class="toggle-icon">&#x2630;</span> 
-    </div>
+  {# 토글 버튼 #}
+  <div class="toggle-btn" onclick="toggleSidebar()">
+    <span class="toggle-icon">&#x2630;</span> 
+  </div>
 
+  <div class="recent-list">
     <p class="recent-title">최근 대화 목록</p>
     <ul class="chat-list">
-      {% for room in rooms %}
-        <li>
+    {% for room in rooms %}
+      <li>
+        <div class="chat-list-left">
           <a href="{% url "chat:chat_page" room.pk %}">
             {# 사용자가 채팅방의 이름을 변경한 경우 #}
             {% if room.title %}
               {# 사용자가 머무르는 채팅방에 따라 분기 #}
-              {% if room.pk == chatroom_pk %}
-                {{ room.title }} 현재 채팅방
-              {% else %}
-                {{ room.title }}
-              {% endif %}
+                {% if room.pk == chatroom_pk %}
+                  <span style="font-weight: 600; color: #3F72AF">{{ room.title }}</span>
+                {% else %}
+                  <span>{{ room.title }}</span>
+                {% endif %}
+
             {# 사용자가 채팅방의 이름을 변경하지 않은 경우 #}
             {% else %}
               {# 사용자가 머무르는 채팅방에 따라 분기 #}
               {% if room.pk == chatroom_pk %}
-                채팅방 {{ room.display_id }} 현재 채팅방
+                <span style="font-weight: 600; color: #3F72AF">채팅방 {{ room.display_id }}</span>
               {% else %}
-                채팅방 {{ room.display_id }}
+                <span>채팅방 {{ room.display_id }}</span>
               {% endif %}
             {% endif %}
           </a>
+        </div>
+
+        <div class="chat-list-right">
+          <a href="{% url "chat:chatroom_update" room.pk %}" class="chat-list-btn">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path
+                d="
+                  M4.5 20.2
+                  L6.9 13.8
+                  Q7.1 13.3 7.5 12.9
+                  L15.3 5.1
+                  Q15.7 4.7 16.1 5.1
+                  L19.0 8.0
+                  Q19.4 8.4 19.0 8.8
+                  L11.2 16.6
+                  Q10.8 17.0 10.3 17.2
+                  L4.5 20.2
+                  Z"
+                fill="none"
+                stroke="#5A5A5A"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </a>
+
           <form action="{% url "chat:chatroom_delete" room.pk %}" method="POST">
             {% csrf_token %}
-            <input type="submit" value="채팅방 삭제">
+            <button type="submit" class="chat-list-btn">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path
+                  d="M7 7L17 17"
+                  stroke="#5A5A5A"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                
+                <path
+                  d="M17 7L7 17"
+                  stroke="#5A5A5A"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
           </form>
-          <a href="{% url "chat:chatroom_update" room.pk %}">이름 수정하기</a>
-        </li>
+        </div>
+      </li>
+
       {% endfor %}
-      <form action="{% url "chat:chatroom_create" %}" method="POST">
-      {% csrf_token %}
-      <input type="submit" value="채팅방 생성">
-    </form>
+      <form action="{% url "chat:chatroom_create" %}" method="POST" class="new-chat-btn">
+        {% csrf_token %}
+        <button type="submit" class="new-chat-btn">새로운 채팅</button>
+      </form>
     </ul>
-    <hr>
+  </div>
 </div>
 
 <div class="chat-container">
-
   {# 상단바 #}
-  <header class="header">
-    <div class="left-group">
+  <div class="chat-header">
+    <div class="chat-header-left">
       {# 로고 이미지 #}
       <a href="{% url 'products:index' %}" class="main-link">
         <img src="{% static 'images/logo-white.png' %}" alt="FINBOT Logo">
       </a>
     </div>
 
-    <div class="right-group">
-      <a href="{% url 'accounts:update' %}" class="info-btn">회원 정보</a>
-      <a href="{% url 'accounts:bookmark_list' %}" class="info-btn">관심 상품</a>
-      <a href="{% url 'accounts:logout' %}" class="logout-btn">로그아웃</a>
+    <div class="chat-header-right">
+      <a href="{% url 'accounts:update' %}" class="right-group">회원 정보</a>
+      <a href="{% url 'accounts:bookmark_list' %}" class="right-group">관심 상품</a>
+      <a href="{% url 'accounts:logout' %}" class="right-group">로그아웃</a>
     </div>
-  </header>
+  </div>
 
-  {# 채팅 화면 #}
-  <div class="chat-main">
-    <div class="messages-area">
-      {% for msg in messages %}
-        {% if msg.role == "user" %}
 
-          {# 사용자의 메시지 #}
-          <div class="message-container user-message">
+{# 채팅 화면 #}
+<div class="chat-main">
+  <div class="messages-area">
+    {% for msg in messages %}
+      {% if msg.role == "user" %}
+      {# 사용자의 메시지 #}
+        <div class="message-container user-message">
+          <div class="bubble">
+            {{ msg.message }}
+          </div>
+        </div>
+
+      {% else %}
+      {# 채팅 봇의 메시지 #}
+        {# 만약 추천 상품이 담겨있는 채팅이라면 #}
+        {% if msg.product %}
+          <div class="message-container bot-message">
             <div class="bubble">
               {{ msg.message }}
+              상품 이름: {{ msg.product.fin_prdt_nm}}
+              은행: {{ msg.product.kor_co_nm }}
+              설명: {{ msg.product.description }}
+
+              {# 북마크 버튼 #}
+              <form action="{% url "accounts:bookmark" msg.product.fin_prdt_cd %}" method="POST">
+                {% csrf_token %}
+                {# 북마크를 요청한 페이지로 리다이렉트 되도록 서버에 현재 url을 담아서 보냄 #}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                {# 사용자의 북마크 여부에 따라 출력되는 텍스트를 다르게 구현 #}
+                {% if request.user in msg.product.users.all %}
+                  <input type="submit" value="북마크 취소">
+                {% else %}
+                  <input type="submit" value="북마크">
+                {% endif %}
+              </form>
             </div>
           </div>
 
         {% else %}
-
-          {# 채팅 봇의 메시지 #}
-          {# 만약 추천 상품이 담겨있는 채팅이라면 #}
-          {% if msg.product %}
-            <div class="message-container bot-message">
-              <div class="bubble">
-                {{ msg.message }}
-                상품 이름: {{ msg.product.fin_prdt_nm}}
-                은행: {{ msg.product.kor_co_nm }}
-                설명: {{ msg.product.description }}
-                {# 북마크 버튼 구현 #}
-                <form action="{% url "accounts:bookmark" msg.product.fin_prdt_cd %}" method="POST">
-                  {% csrf_token %}
-                  {# 북마크를 요청한 페이지로 리다이렉트 되도록 서버에 현재 url을 담아서 보냄 #}
-                  <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                  {# 사용자의 북마크 여부에 따라 출력되는 텍스트를 다르게 구현 #}
-                  {% if request.user in msg.product.users.all %}
-                    <input type="submit" value="북마크 취소">
-                  {% else %}
-                    <input type="submit" value="북마크">
-                  {% endif %}
-                </form>
-              </div>
+          <div class="message-container bot-message">
+            <div class="bubble">
+              {{ msg.message }}
             </div>
-          {% else %}
-            <div class="message-container bot-message">
-              <div class="bubble">
-                {{ msg.message }}
-              </div>
-            </div>
-          {% endif %}
+          </div>
         {% endif %}
+      {% endif %}
 
-      {% empty %}
-        <p>아직 대화가 없습니다. 첫 메시지를 입력해보세요!</p>
-      {% endfor %}
+  {% empty %}
+    <p>아직 대화가 없습니다. 첫 메시지를 입력해보세요!</p>
+  {% endfor %}
   </div>
 </div>
 
@@ -133,7 +182,7 @@
 
   {# 대화 전송 버튼 #}
   <button id="send-btn" type="submit">
-    <span style="font-size: 15px; transform: translateX(2px);">▶</span> 
+    <span style="font-size: 17px;">&#x27A4;</span> 
   </button>
 </form>
 
