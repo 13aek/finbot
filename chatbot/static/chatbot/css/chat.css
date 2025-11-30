@@ -170,6 +170,7 @@ body {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    width: 100%;
 }
 
 .chat-header {
@@ -218,13 +219,13 @@ body {
     margin-left: 10px; 
     border-radius: 20px;
     overflow-x: hidden;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 /* 채팅 메시지 출력 영역 */
 .messages-area {
     flex-grow: 1;
-    /* 입력 영역의 padding과 동일하여야 함 */
-    padding: 20px 20px;
     display: flex;
     flex-direction: column;
     /* 아래부터 대화가 쌓이도록 하기 */
@@ -240,7 +241,7 @@ body {
 
 /* 말풍선 공통 스타일 */
 .bubble {
-    max-width: 60%; 
+    max-width: 50%; 
     padding: 20px; 
     border-radius: 20px; 
     line-height: 1.5;
@@ -281,6 +282,9 @@ body {
     padding: 20px 40px 5px 20px; 
     flex-shrink: 0;
     position: relative; 
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 /* 대화 입력 창 */
