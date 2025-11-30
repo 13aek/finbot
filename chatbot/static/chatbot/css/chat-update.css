@@ -1,0 +1,74 @@
+body {
+    min-height: 100vh;
+    margin: 0;
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    background-color: #F3F3F3;
+    font-family: 'Pretendard', sans-serif;
+}
+
+.container {
+    width: 600px;
+    height: 500px;
+    background-color: #FFFFFF;
+    border-radius: 35px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.info-message {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #000000;
+    margin: 35px;
+}
+
+/* 로고 */
+.main-link img {
+  height: 35px;
+  display: block;
+}
+
+/* 입력 폼 */
+form {
+    gap: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+form input,
+form button {
+    width: 50%;
+    height: 50px;
+    border: 1px solid #E5E5E5;
+    border-radius: 30px;
+    padding: 0 20px;
+    font-size: 15px;
+    box-sizing: border-box;
+    font-family: 'Pretendard', sans-serif;
+}
+
+form input:focus {
+    outline: none; 
+    border-color: #8B8B8B;
+}
+
+input::placeholder {
+    color: #8B8B8B;
+}
+
+/* 버튼 */
+form button {
+    background-color: #3F72AF;
+    color: #FFFFFF;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+}

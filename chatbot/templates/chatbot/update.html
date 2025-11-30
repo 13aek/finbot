@@ -1,16 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  <h1>채팅방 이름 변경 페이지</h1>
+{# update.html #}
+{# 채팅방 이름 수정 화면 템플릿 #}
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}
+  <link rel="stylesheet" href="{% static 'chatbot/css/chat-update.css' %}">
+{% endblock styles %}
+
+{% block content %}
+<div class="container">
+  {# 로고 이미지 #}
+  <a href="{% url 'products:index' %}" class="main-link">
+    <img src="{% static 'images/logo-white.png' %}" alt="FINBOT Logo">
+  </a>
+  
+  <p class="info-message">변경할 채팅방 이름을 입력해 주세요</p>
+
   <form action="{% url "chat:chatroom_update" room.pk %}" method="POST">
     {% csrf_token %}
-      {{ form }}
-    <input type="submit" value="변경하기">
+
+    {# 채팅방 이름 입력 필드 #}
+    <input
+      type="text"
+      name="{{ form.title.name }}"
+      id="{{ form.title.id_for_label }}"
+      value="{{ form.title.value|default:'' }}"
+      placeholder="새로운 채팅방 이름"
+      class="form-input"
+      required
+    >
+
+    {# 변경 버튼 #}
+    <button type="submit">변경하기</button>
   </form>
-</body>
-</html>
+</div>
+{% endblock content %}

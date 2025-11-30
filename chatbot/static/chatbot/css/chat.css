@@ -10,6 +10,7 @@ body {
     box-sizing: border-box;
 }
 
+
 /* ---------- */
 /* 1. 사이드바 */
 /* ---------- */
@@ -31,30 +32,23 @@ body {
 
 .sidebar.open {
     width: 300px; 
-    padding-left: 20px;
+    padding: 20px 30px 0 20px;
+    overflow-y: auto;
 }
 
 /* 토글 버튼 */
 .toggle-btn {
     position: absolute; 
-    top: 20px;
     left: 0;
-    
     width: 40px; 
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    
-    /* 닫혔을 때 중앙 정렬 위치로 고정 */
-    transform: translateX(17.5px); 
+    transform: translateX(17.5px);  /* 닫혔을 때 중앙 정렬 위치로 고정 */
     transition: color 0.2s, background-color 0.2s;
-    
     cursor: pointer;
     color: #8B8B8B; 
-    font-size: 24px; 
-    border-radius: 5px;
-    z-index: 10;
 }
 
 /* 토글이 열려도 버튼 위치 고정 */
@@ -62,39 +56,31 @@ body {
     transform: translateX(17.5px);
 }
 
-
-.toggle-btn:hover {
-    color: #3F72AF;
-    background-color: #E5E5E5;
-}
-
 /* 토글 아이콘 */
 .toggle-icon {
-    display: inline-block;
-    font-size: 24px;
-    line-height: 1;
+    font-size: 23px;
 }
-
 
 /* 대화 내역 저장 */
-.recent-title {
-    font-size: 16px;
-    font-weight: 700;
-    margin: 70px 0 15px 20px; 
-    color: #8B8B8B; 
-    padding: 0;
-    white-space: nowrap; 
-    opacity: 0; 
-    transition: opacity 0.3s ease;
+.recent-list {
+    padding: 50px 0 0 10px;
 }
 
-.sidebar.open .recent-title {
+.recent-title {
+    margin: 15px 0;
+}
+
+.recent-list .recent-title {
+    font-weight: 700;
+}
+
+.sidebar.open .recent-list {
     opacity: 1;
 }
 
-/* 저장된 채팅 목록 */
+/* 최근 대화 목록 */
 .chat-list {
-    padding: 0 20px 0 20px;
+    padding: 0;
     list-style: none;
     overflow-y: auto;
     opacity: 0;
@@ -105,19 +91,68 @@ body {
     opacity: 1;
 }
 
+/* 채팅방 제목이 아닌 빈 공간 선택 시에도 이동 가능 */
+.chat-list-left {
+  flex: 1;
+}
+
+.chat-list-left a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+
+.chat-list .chat-list-right {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
 .chat-list li {
-    padding: 10px 10px;
-    margin-bottom: 5px;
-    border-radius: 10px;
+    font-size: 16px;
+    padding: 10px 0;
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: background-color 0.2s;
+    display: flex; /* 일렬 */
+    justify-content: space-between;
+}
+
+.chat-list a {
+    font-size: 16px;
+    color: #5A5A5A;
+    text-decoration: none;
 }
 
 .chat-list li:hover {
     background-color: #E5E5E5;
+}
+
+/* 수정 버튼 */
+.chat-list-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+}
+
+/* 새로운 채팅 버튼 */
+.new-chat-btn {
+    padding: 15px 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #5A5A5A;
+    font-family: 'Pretendard', sans-serif;
 }
 
 /* 닫힌 상태에서 채팅 리스트 숨기기 */
@@ -135,48 +170,41 @@ body {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
 }
 
-.main-link img {
-  height: 23px;
-  padding-left: 10px;
-}
-
-.header {
-    box-sizing: border-box;
+.chat-header {
+    width: 100%;
+    height: 50px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: relative;
-    padding: 0px 15px 15px 15px;
+    padding: 15px 0;
+    box-sizing: border-box;
+    margin-bottom: 30px;
 }
 
-.left-group,
-.right-group {
+.chat-header-left,
+.chat-header-right {
     display: flex;
-    gap: 35px;
+    gap: 30px;
 }
 
-.header a {
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 40px;
+.chat-header .chat-header-left {
+    margin-left: 10px;
+}
+
+.chat-header .chat-header-left img {
+    height: 22px;
+}
+
+.chat-header .chat-header-right a {
     font-size: 15px;
     font-weight: 700;
-}
-
-/* 회원 정보, 관심 상품 버튼 */
-.info-btn {
-    border: none;
     color: #8B8B8B;
-}
-
-/* 로그인 or 로그아웃 버튼 */
-.logout-btn {
-    border: none;
-    color: #3F72AF;
+    text-decoration: none;
 }
 
 
@@ -187,23 +215,23 @@ body {
     flex-grow: 1;
     height: 100%; 
     display: flex;
-    flex-direction: column;
+    /* 스크롤 하단 고정 */
+    flex-direction: column-reverse;
+    margin-left: 10px;
     background-color: #FFFFFF;
-    margin-left: 10px; 
     border-radius: 20px;
-    /* 화면을 초과하는 대화 내용은 숨김 처리 (임의) */
-    overflow-x: hidden; 
+    overflow-x: hidden;
 }
 
 /* 채팅 메시지 출력 영역 */
 .messages-area {
     flex-grow: 1;
-    /* 입력 영역의 padding과 동일하여야 함 */
     padding: 20px 20px;
     display: flex;
     flex-direction: column;
     /* 아래부터 대화가 쌓이도록 하기 */
     justify-content: flex-end;
+    align-items: flex-start;
 }
 
 /* 개별 메시지 컨테이너 */
@@ -215,8 +243,8 @@ body {
 
 /* 말풍선 공통 스타일 */
 .bubble {
-    max-width: 60%; 
-    padding: 15px 15px; 
+    max-width: 50%; 
+    padding: 20px; 
     border-radius: 20px; 
     line-height: 1.5;
     display: flex;
@@ -265,7 +293,7 @@ body {
     border: 1px solid #E5E5E5; 
     background-color: #FFFFFF; 
     border-radius: 20px;
-    padding: 15px 70px 15px 20px; 
+    padding: 15px 70px 15px 30px; 
     font-size: 15px;
     resize: none; 
     box-sizing: border-box;
