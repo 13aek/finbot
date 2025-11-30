@@ -74,10 +74,16 @@
       </div>
     </div>
 
-    {# 7. 정보 수정 내역 저장 버튼 #}
-    <button type="submit" class="btn-bottom-right">정보 수정</button>
+    {# 7. 채팅/정보 수정 내역 저장 버튼 #}
+    <div class="btn-group">
+      <a href="{% url 'chat:current_chat' %}" class="chatbot-btn">
+        <img src="{% static 'images/finbot-btn-long.png' %}" alt="FINBOT Chat">
+      </a>
+      <button type="submit" class="btn-bottom-right">정보 수정</button>
+    </div>
   </form>
 </div>
+
 <script>
   {% if messages %}
     {% for msg in messages %}
