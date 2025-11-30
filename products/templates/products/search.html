@@ -21,9 +21,8 @@
 
     <div class="right-group">
       {% if request.user.is_authenticated %}
-        <a href="{% url 'chat:current_chat' %}" class="info-btn">AI CHAT</a>
         <a href="{% url 'accounts:update' %}" class="info-btn">회원 정보</a>
-        {# <a href="{% url 'accounts:bookmark' %}" class="info-btn">관심 상품</a> #}
+        <a href="{% url 'accounts:bookmark_list' %}" class="info-btn">관심 상품</a>
         <a href="{% url 'accounts:logout' %}" class="logout-btn">로그아웃</a>
       {% else %}
         <a href="{% url 'accounts:login' %}" class="logout-btn">로그인</a>
@@ -31,8 +30,8 @@
     </div>
   </header>
 
+  {# 검색 창 #}
   <div class="search-header">
-    {# 검색 창 #}
     <form class="search-bar" method="GET" action="{% url 'products:search' %}">
       <div class="search-input-wrapper">
         <input class="search-input" type="text" name="query" value="{{ query }}" placeholder="검색어를 입력하세요">
@@ -41,73 +40,89 @@
     </form>
   </div>
 
+  {# 검색 결과 #}
   <div class="result-container">
     {% if query %}
-        <div class="result-list">
-        {% if page_obj %}
-          {% for p in page_obj %}
-          <div class="result-item">
-              <h3>{{ p.fin_prdt_nm }}</h3>
+    <div class="result-list">
+      {% if page_obj %}
+      {% for p in page_obj %}
+      <div class="result-item">
+        <div class="result-bookmark">
+          <p class="product-name">{{ p.fin_prdt_nm }}</p>
 
-              <div class="info-grid">
+          <form method="POST" action="{% url 'accounts:bookmark' p.fin_prdt_cd %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
 
-
-                  <div class="label">회사명</div>
-                  <div class="value">{{ p.kor_co_nm }}</div>
-
-                  <div class="label">카테고리</div>
-                  <div class="value">{{ p.category }}</div>
-
-                  <div class="label">가입 방법</div>
-                  <div class="value">{{ p.join_way }}</div>
-
-                  <div class="label">상품 설명</div>
-                  <div class="value">{{ p.description }}</div>
-
-                  <form method="POST" action="{% url 'accounts:bookmark' p.fin_prdt_cd %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    
-                    {% if request.user in p.users.all %}
-                      <input type="submit" value="★ 북마크 해제">
-                    {% else %}
-                      <input type="submit" value="☆ 북마크">
-                    {% endif %}
-                  </form>
-              </div>
-          </div>
-          {% endfor %}
-      
-        <div class="pagination">
-          {# 이전 페이지 #}
-          {% if show_previous_10 %}
-            <a href="?query={{ query }}&page={{ previous_page }}">이전</a>
-          {% endif %}
-
-          {# 페이지 번호 그룹 표시 (1부터 10까지) #}
-          {% for num in page_obj.paginator.page_range %}
-            {% if num >= start_page and num <= end_page %}
-              {% if num == page_obj.number %}
-                <span>{{ num }}</span>
-              {% else %}
-                <a href="?query={{ query }}&page={{ num }}">{{ num }}</a>
-              {% endif %}
+            {% if request.user in p.users.all %}
+            <button type="submit" class="bookmark-btn bookmarked">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3.5l2.3 4.7 5.2.8-3.8 3.7.9 5.2L12 15.8l-4.6 2.4.9-5.2-3.8-3.7 5.2-.8L12 3.5z" fill="currentColor">
+              </svg>
+            </button>
+            {% else %}
+            <button type="submit" class="bookmark-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3.5l2.3 4.7 5.2.8-3.8 3.7.9 5.2L12 15.8l-4.6 2.4.9-5.2-3.8-3.7 5.2-.8L12 3.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+              </svg>
+            </button>
             {% endif %}
-          {% endfor %}
-
-          {# 다음 페이지 #}
-          {% if show_next_10 %}
-            <a href="?query={{ query }}&page={{ next_page }}">다음</a>
-          {% endif %}
+          </form>
         </div>
 
-        {% else %}
-        <div class="no-result">
-          <p>검색 결과가 없습니다.</p>
-        </div>
+        <div class="info-grid">
+
+        <div class="label">회사명</div>
+        <div class="value">{{ p.kor_co_nm }}</div>
+
+        <div class="label">카테고리</div>
+        <div class="value">{{ p.category }}</div>
+
+        <div class="label">가입 방법</div>
+        <div class="value">{{ p.join_way }}</div>
+
+        <div class="label">상품 설명</div>
+        <div class="value">{{ p.description }}</div>
+      </div>
+
+      </div>
+      {% endfor %}
+
+      <div class="pagination">
+        {# 이전 페이지 #}
+        {% if show_previous_10 %}
+          <a href="?query={{ query }}&page={{ previous_page }}">이전</a>
         {% endif %}
+
+        {# 페이지 번호 그룹 표시 (1부터 10까지) #}
+        {% for num in page_obj.paginator.page_range %}
+        {% if num >= start_page and num <= end_page %}
+        {% if num == page_obj.number %}
+        <span>{{ num }}</span>
+        {% else %}
+          <a href="?query={{ query }}&page={{ num }}">{{ num }}</a>
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+
+        {# 다음 페이지 #}
+        {% if show_next_10 %}
+          <a href="?query={{ query }}&page={{ next_page }}">다음</a>
+        {% endif %}
+      </div>
+
+      {% else %}
+      <div class="no-result">
+        <p>검색 결과가 없습니다.</p>
+      </div>
       {% endif %}
+    {% endif %}
     </div>
   </div>
+
+  {# 채팅 페이지 버튼 #}
+  <a href="{% url 'chat:current_chat' %}" class="chatbot-btn">
+    <img src="{% static 'images/finbot-btn-long.png' %}" alt="FINBOT Chat">
+  </a>
 </div>
 {% endblock content %}

@@ -1,0 +1,139 @@
+body {
+    background-color: #F3F3F3;
+    font-family: 'Pretendard', sans-serif;
+}
+
+.content-wrapper {
+    width: 80%;
+    margin: 0 auto;
+}
+
+
+/* -------- */
+/* 1. 상단바 */
+/* -------- */
+
+.main-link img {
+  height: 23px;
+  padding-left: 10px;
+}
+
+.header {
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    padding: 30px 0px 15px;
+}
+
+.left-group,
+.right-group {
+    display: flex;
+    gap: 35px;
+}
+
+.header a {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* 회원 정보 버튼 */
+.info-btn {
+    border: none;
+    color: #8B8B8B;
+}
+
+/* 로그아웃 버튼 */
+.logout-btn {
+    border: none;
+    color: #3F72AF;
+}
+
+
+/* --------------- */
+/* 2. 관심 상품 목록 */
+/* --------------- */
+.bookmark-container {
+    width: 100%;
+    margin: 20px auto 50px auto;
+}
+
+.bookmark-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 25px;
+    color: #5a5a5a;
+    padding-left: 10px;
+}
+
+.highlight-title {
+    color: #3F72AF;
+    font-weight: 800;
+}
+
+.product-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 40px;
+}
+
+.bookmark-item {
+    padding: 0 50px;
+    height: 180px;
+    background-color: #FFFFFF;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.bookmark-item .product-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000000;
+}
+
+.bookmark-item p {
+    font-size: 15px;
+    color: #5a5a5a;
+    margin: 7px 0;
+}
+
+.no-item {
+    font-size: 17px;
+    font-weight: 600;
+    color: #222222;
+    display: flex;
+    justify-content: center;
+    padding-top: 200px;
+}
+
+
+/* ------------------ */
+/* 3. 채팅 페이지 버튼  */
+/* ----------------- */
+
+.chatbot-btn {
+    position: fixed;
+    bottom: 40px;
+    right: 25px;
+    display: block;
+    z-index: 1000;
+}
+
+.chatbot-btn img {
+    width: 145px;
+}
+
+@media (max-width: 1024px) {
+    .chatbot-btn img {
+        content: url('/static/images/finbot-btn-short.png');
+        width: 55px;
+    }
+}
