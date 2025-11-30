@@ -170,6 +170,8 @@ body {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    max-width: 1200px;
+    margin: 0 auto;
     width: 100%;
 }
 
@@ -179,7 +181,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px 0 20px;
+    padding: 15px 0;
     box-sizing: border-box;
     margin-bottom: 30px;
 }
@@ -215,21 +217,21 @@ body {
     display: flex;
     /* 스크롤 하단 고정 */
     flex-direction: column-reverse;
+    margin-left: 10px;
     background-color: #FFFFFF;
     border-radius: 20px;
-    padding-left: 15px;
     overflow-x: hidden;
-    max-width: 1200px;
-    margin: 0 auto;
 }
 
 /* 채팅 메시지 출력 영역 */
 .messages-area {
     flex-grow: 1;
+    padding: 20px 20px;
     display: flex;
     flex-direction: column;
     /* 아래부터 대화가 쌓이도록 하기 */
     justify-content: flex-end;
+    align-items: flex-start;
 }
 
 /* 개별 메시지 컨테이너 */
@@ -282,9 +284,6 @@ body {
     padding: 20px 40px 5px 20px; 
     flex-shrink: 0;
     position: relative; 
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
 }
 
 /* 대화 입력 창 */
