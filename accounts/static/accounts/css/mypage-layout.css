@@ -7,6 +7,7 @@
 /* 배경 */
 html, body {
   height: 100%;
+  margin: 0;
   background-color: #FFFFFF;
   font-family: 'Pretendard', sans-serif;
 }
@@ -14,19 +15,22 @@ html, body {
 /* 컨테이너 */
 .container {
   height: 100%;
-  padding: 20px;
   display: flex;
   gap: 40px;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 /* ---------- */
 /* 1. 사이드바 */
 /* ---------- */
 .sidebar {
-  width: 250px;
+  width: 270px;
+  height: 100%;
   background-color: #F3F3F3;
   color: #8B8B8B; 
-  padding: 40px 0px 30px 30px;
+  padding: 50px 0px 30px 40px;
+  box-sizing: border-box;
   display: flex;
   gap: 25px;
   flex-shrink: 0;  /* 최소 너비 보장*/
@@ -40,7 +44,7 @@ html, body {
   height: 25px;
   width: auto;
   display: block;
-  padding-bottom: 10px;
+  padding-bottom: 20px;
 }
 
 /* 내부 글씨 */

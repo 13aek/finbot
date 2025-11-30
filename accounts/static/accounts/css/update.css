@@ -2,7 +2,7 @@
 /* 회원 정보 조회 및 수정 페이지 개별 템플릿 */
 
 form {
-  margin-top: 100px;  /* 비밀번호 변경 화면과 다른 위치에 두기 위해 개별 설정 */
+  margin-top: 50px;
   position: relative;
   gap: 30px;
 }
@@ -47,11 +47,23 @@ select {
   padding-right: 30px;
 }
 
-/* 버튼 위치: 오른쪽 하단 */
+/* 하단 버튼 그룹 */
+.btn-group {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 40px;
+  gap: 15px;
+  width: 1100px;
+  justify-content: flex-end;
+}
+
+/* 정보 수정 버튼 */
 .btn-bottom-right {
-  position: absolute;
-  bottom: 20px;
-  right: 50px;
-  width: 130px;
+  width: 135px;
   height: 50px;
+}
+
+/* 채팅 페이지 버튼 */
+.chatbot-btn img {
+    width: 145px;
 }
