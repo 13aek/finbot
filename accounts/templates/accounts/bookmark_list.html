@@ -31,19 +31,50 @@
     </h2>
 
     <div class="product-container">
-      {% if products %}
-      {% for product in products %}
-      <div class="bookmark-item">
-        <p class="product-name">{{ product.fin_prdt_nm }}</p>
-          <p style="font-weight: bold">{{ product.kor_co_nm }}</p>
-          <p>{{ product.description }}</p>
-      </div>
-    {% endfor %}
+      {% if page_obj %}
+        {% for product in page_obj %}
+          <div class="bookmark-item">
+            <p class="product-name">{{ product.fin_prdt_nm }}</p>
+            <p style="font-weight: bold">{{ product.kor_co_nm }}</p>
+            <p>{{ product.description }}</p>
+            <form method="POST" action="{% url 'accounts:bookmark' product.fin_prdt_cd %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            {% if request.user in product.users.all %}
+              <input type="submit" class="bookmark-btn bookmarked" value='북마크 해제'>
+            {% else %}
+              <input type="submit" class="bookmark-btn" value='북마크'>
+            {% endif %}
+          </form>
+          </div>
+        {% endfor %}
 
-    {% else %}
-      <p class="no-item">아직 등록한 관심 상품이 없습니다.
+        <div class="pagination">
+          {# 이전 페이지 #}
+          {% if show_previous_5 %}
+            <a href="?query={{ query }}&page={{ previous_page }}">이전</a>
+          {% endif %}
+
+          {# 페이지 번호 그룹 표시 (1부터 5까지) #}
+          {% for num in page_obj.paginator.page_range %}
+          {% if num >= start_page and num <= end_page %}
+          {% if num == page_obj.number %}
+          <span>{{ num }}</span>
+          {% else %}
+            <a href="?query={{ query }}&page={{ num }}">{{ num }}</a>
+          {% endif %}
+          {% endif %}
+          {% endfor %}
+
+          {# 다음 페이지 #}
+          {% if show_next_5 %}
+            <a href="?query={{ query }}&page={{ next_page }}">다음</a>
+          {% endif %}
+        </div>
+      {% else %}
+        <p class="no-item">아직 등록한 관심 상품이 없습니다.
         마음에 드는 상품을 추가해 보세요.</p>
-    {% endif %}
+      {% endif %}
     </div>
   </div>
 

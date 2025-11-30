@@ -7,6 +7,7 @@ from django.contrib.auth import (
 )
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
+from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -336,4 +337,28 @@ def bookmark_list(request):
     """
     # 해당 사용자가 북마크한 모든 상품을 조회합니다.
     products = FinProduct.objects.filter(users=request.user)
-    return render(request, "accounts/bookmark_list.html", {"products": products})
+    # 페이지당 상품 수: 6
+    # 페이지네이션 그룹 단위: 5
+    paginator = Paginator(products, 6)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    current_page = page_obj.number
+    start_page = ((current_page - 1) // 5) * 5 + 1
+    end_page = min(start_page + 4, paginator.num_pages)
+
+    previous_page = max(current_page - 1, 1)
+    next_page = min(current_page + 1, paginator.num_pages)
+
+    show_previous_5 = current_page > 1
+    show_next_5 = current_page < paginator.num_pages
+    context = {
+        "page_obj": page_obj,
+        "start_page": start_page,
+        "end_page": end_page,
+        "previous_page": previous_page,
+        "next_page": next_page,
+        "show_previous_5": show_previous_5,
+        "show_next_5": show_next_5,
+    }
+    return render(request, "accounts/bookmark_list.html", context)
