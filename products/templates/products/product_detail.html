@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>상품명: {{ product.fin_prdt_nm }}</h1>
+  {% comment %} <p>{{ product.fin_prdt_cd }}</p> 기본 식별자(PK) {% endcomment %}
+  <p>금융회사명: {{ product.kor_co_nm }}</p>
+  {% comment %} <p>{{ product.fin_co_no }}  # 금융회사 정보</p> {% endcomment %}
+  
+
+  <p>가입방법: {{ product.join_way }}</p>
+
+  <p>회사유형: {{ product.company_type }}</p>
+  {% comment %} <p>카테고리: {{ product.category }}</p> {% endcomment %}
+
+  <p>공시 시작일: {{ product.dcls_strt_day }}</p>
+  <p>공시 종료일: {{ product.dcls_end_day }}</p>
+  <p>공시 월: {{ product.dcls_month }}</p>
+
+  <p>상품 설명: {{ product.description }}</p>
+
+  {% if product.category == "installment_deposit" %}
+  {% comment %} 적금 {% endcomment %}
+    <h3>적금 옵션</h3>
+    {% for p in product.installment_options.all %}
+      <p>가입 대상: {{ p.join_member }}</p>
+      <p>만기 후 이자율: {{ p.mtrt_int }}</p>
+      <p>우대조건: {{ p.spcl_cnd }}</p>
+      <p>가입제한: {{ p.join_deny }}</p>
+      <p>최고한도: {{ p.max_limit }}</p>
+      <p>적립 유형명: {{ p.rsrv_type_nm }}</p>
+      <p>저축 금리 유형명: {{ p.intr_rate_type_nm }}</p>
+      <p>저축 기간(단위: 개월){{ p.save_trm }}</p>
+      <p>저축 금리: {{ p.intr_rate }}</p>
+      <p>최고 우대 금리: {{ p.intr_rate2 }}</p>
+      <p>공시 제출월: {{ p.dcls_month }}</p>
+      <hr>
+    {% endfor %}
+
+
+  {% elif product.category == "fixed_deposit" %}
+  {% comment %} 정기 예금 {% endcomment %}
+    <h3>정기 예금 옵션</h3>
+    {% for p in product.fixed_options.all %}
+      <p>가입 대상: {{ p.join_member }}</p>
+      <p>만기 후 이자율: {{ p.mtrt_int }}</p>
+      <p>우대조건: {{ p.spcl_cnd }}</p>
+      <p>가입제한: {{ p.join_deny }}</p>
+      <p>최고한도: {{ p.max_limit }}</p>
+      <p>저축 금리 유형명: {{ p.intr_rate_type_nm }}</p>
+      <p>저축 기간(단위: 개월){{ p.save_trm }}</p>
+      <p>저축 금리: {{ p.intr_rate }}</p>
+      <p>최고 우대 금리: {{ p.intr_rate2 }}</p>
+      <p>공시 제출월: {{ p.dcls_month }}</p>
+      <hr>
+    {% endfor %}
+
+  {% elif product.category == "jeonse_loan" %}
+  {% comment %} 전세 대출 {% endcomment %}
+    <h3>전세 대출 옵션</h3>
+    {% for p in product.jeonse_options.all %}
+      <p>대출 부대비용: {{ p.loan_inci_expn }}</p>
+      <p>중도상환 수수료: {{ p.erly_rpay_fee }}</p>
+      <p>연체 이자율: {{ p.dly_rate }}</p>
+      <p>대출한도: {{ p.loan_lmt }}</p>
+      <p>대출상환유형코드: {{ p.rpay_type_nm }}</p>
+      <p>대출금리유형: {{ p.lend_rate_type_nm }}</p>
+      <p>대출최저금리: {{ p.lend_rate_min }}</p>
+      <p>대출최고금리: {{ p.lend_rate_max }}</p>
+      <p>전월 취급 평균 금리: {{ p.lend_rate_avg }}</p>
+      <p>공시 제출월: {{ p.dcls_month }}</p>
+      <hr>
+    {% endfor %}
+  {% endif %}
+
+{% endblock content %}
