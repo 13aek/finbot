@@ -62,8 +62,10 @@ class ChatState(TypedDict, total=False):
     calculator_method: Literal["fill_calculator_data", "conditional_about_fin_type"]  # 기존데이터 vs only 사용자입력
     category: Literal["fixed_deposit", "installment_deposit", "jeonse_loan"]
     loop_or_not_method: str  # 사용자 입력 루프
+    feedback_or_not_method: str # 사용자 입력이 필요한지 구분
     data_columns: list  # product_data의 컬럼들 모음
     calculator_columns: list  # calculator에 필요한 컬럼들 (카테고리별로 상이)
+    calculator_config: dict  # calculator config
 
     calculator_data: dict  # calculator에 쓸 데이터
     calculated_data: dict  # 계산된 데이터
@@ -102,6 +104,8 @@ def conditional_about_history(state: ChatState) -> dict:
 
     return {
         "mode": mode,
+        "product_data":None,
+        "category": None,
     }
 
 
@@ -386,36 +390,36 @@ def rag_search(state: ChatState) -> ChatState:
 
     vector_db_answer = hits.points[0].payload
 
-    messages = [
-        {
-            "role": "system",
-            "content": (
-                "너는 금융 도메인 전문가이자 고객 상담 AI야. vector_db에서 제공된 정보를 근거로만 답변해야 해."
-                "마크다운 형식은 사용하지말고 단락을 잘 나눠서 출력해."
-            ),
-        },
-        {
-            "role": "user",
-            "content": f"다음은 vector_db 정보야:\n{vector_db_answer}",
-        },
-        {
-            "role": "user",
-            "content": f"질문: {user_query}\n이 'vector_db 정보'만 참고해서 사용자의 질문에 정확히 답변해줘.",
-        },
-    ]
+    # messages = [
+    #     {
+    #         "role": "system",
+    #         "content": (
+    #             "너는 금융 도메인 전문가이자 고객 상담 AI야. vector_db에서 제공된 정보를 근거로만 답변해야 해."
+    #             "마크다운 형식은 사용하지말고 단락을 잘 나눠서 출력해."
+    #         ),
+    #     },
+    #     {
+    #         "role": "user",
+    #         "content": f"다음은 vector_db 정보야:\n{vector_db_answer}",
+    #     },
+    #     {
+    #         "role": "user",
+    #         "content": f"질문: {user_query}\n이 'vector_db 정보'만 참고해서 사용자의 질문에 정확히 답변해줘.",
+    #     },
+    # ]
 
-    completion = ai_client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=messages,
-        max_tokens=600,
-        # tools=
-    )
-    answer = completion.choices[0].message.content
+    # completion = ai_client.chat.completions.create(
+    #     model="gpt-4o-mini",
+    #     messages=messages,
+    #     max_tokens=600,
+    #     # tools=
+    # )
+    # answer = completion.choices[0].message.content
     recommend_mode = True
     # 추천받은 상품을 view로 연결
     product_code = vector_db_answer["금융상품코드"]
     return {
-        "answer": answer,
+        # "answer": answer,
         "recommend_mode": recommend_mode,
         "need_user_feedback": True,
         "product_code": product_code,
@@ -457,9 +461,11 @@ def classify_feedback(state: ChatState) -> ChatState:
         {
             "role": "system",
             "content": (
-                "너는 한국 '입력'을 보고 yes, no을 판단해야해."
-                "긍정적인 맥락 혹은 뉘앙스면 yes, 부정적인 맥락 혹은 뉘앙스면 no."
-                "다른 말 하지말고 yes, no 중에 한 단어만 출력해"
+                "지금은, user가 우리에게 '추천 상품에 대한 수익/이자 계산이 필요하신가요?' 라는 질문을 받고 우리에게 '답'을 해주는 상황이야."
+                "너는 '답'을 보고 user가 우리에게 '계산을 원하는지' 유추해야해."
+                "너는 한국어 '답'을 보고 '긍정', '부정'을 판단해야해."
+                "긍정적인 맥락 혹은 뉘앙스면 '긍정', 부정적인 맥락이거나 유추를 못하겠다면 '부정'."
+                "다른 말 하지말고 '긍정', '부정' 중에 한 단어만 출력해."
             ),
         },
         {
@@ -475,8 +481,8 @@ def classify_feedback(state: ChatState) -> ChatState:
     )
     pos_or_neg = completion.choices[0].message.content
 
-    pos_word = ["yes", "긍정", "예", "맞", "그래", "응", "그렇", "sure"]
-    neg_word = ["no", "부정", "아니", "안", "no", "싫어", "왜"]
+    pos_word = ["yes", "sure", "긍정", "예", "맞", "그래", "응", "그렇", "긍정.", "'긍정'", "'긍정.'"]
+    neg_word = ["no", "부정", "아니", "안", "no", "싫어", "왜", "부정.", "'부정'", "'부정.'"]
     if any([word in pos_or_neg for word in pos_word]):
         pos_or_neg = "yes"
     elif any([word in pos_or_neg for word in neg_word]):
@@ -642,6 +648,8 @@ def check_findata(state: ChatState) -> ChatState:
         calculator_method = "using_only_user_input_data"
         return {
             "calculator_method": calculator_method,
+            "calculator_config": calculator_config,
+
         }
 
 
@@ -654,13 +662,13 @@ def calculator_method_router(
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Literal: ["recommend_mode", "calculate_mode", "explain_mode", "normal_mode"] 중 하나의 값으로 제한
+        Literal: ["using_recommended_data", "using_only_user_input_data"] 중 하나의 값으로 제한
     """
     return state["calculator_method"]
 
 
 @timing_decorator
-def conditional_about_fin_type(state: ChatState) -> ChatState:
+def using_only_user_input_data(state: ChatState) -> ChatState:
     """
     query에 따라 분기 발생. user의 의도에 따라 4가지로 분기.
     1. fixed_deposit
@@ -690,7 +698,7 @@ def conditional_about_fin_type(state: ChatState) -> ChatState:
         {
             "role": "user",
             "content": f"질문: {user_query}\n을 보고 4가지 경우 중 하나를 출력해줘. \
-                다른 설명은 필요없고 recommend_mode, calculate_mode, explain_mode, normal_mode\
+                다른 설명은 필요없고 fixed_deposit, installment_deposit, jeonse_loan, else\
                     이 4가지 중에 무조건 하나를 반환해야해. 부연설명 붙이지 말고 마침표도 붙이지 마.",
         },
     ]
@@ -702,24 +710,65 @@ def conditional_about_fin_type(state: ChatState) -> ChatState:
     )
 
     answer = completion.choices[0].message.content
-
-    if answer in ["fixed_deposit", "installment_deposit", "jeonse_loan", "else"]:
-        method = answer
-    elif ("recommend" in answer) or ("rec" in answer) or ("추천" in answer):
-        method = "recommend_mode"
-    elif ("calculate" in answer) or ("calculator" in answer) or ("cal" in answer) or ("계산" in answer):
-        method = "calculate_mode"
-    elif (
-        ("finword" in answer) or ("explain" in answer) or ("fin" in answer) or ("word" in answer) or ("설명" in answer)
-    ):
-        method = "explain_mode"
+    if answer != "else":
+        if answer in ["fixed_deposit", "installment_deposit", "jeonse_loan", "else"]:
+            method = answer
+        elif ("fixed" in answer) or ("예금" in answer):
+            method = "fixed_deposit"
+        elif ("calculate" in answer) or ("calculator" in answer) or ("cal" in answer) or ("계산" in answer):
+            method = "installment_deposit"
+        elif (
+            ("finword" in answer) or ("explain" in answer) or ("fin" in answer) or ("word" in answer) or ("설명" in answer)
+        ):
+            method = "jeonse_loan"
+        
+        calculator_columns = calculator_config[method]
+        calculator_data = {key: None for key in calculator_columns}
+        print('*'*10,f'{method} 계산')
+        return {
+            "category": method,
+            "calculator_columns": calculator_columns,
+            "calculator_data": calculator_data,
+        } 
+        
     else:
-        method = "normal_mode"
+        return state
 
-    return {
-        "agent_method": method,
-    }
+def feedback_or_not_method_router(
+    state: ChatState,
+) -> Literal["pass", "fill_fin_type"]:
+    """
+    Loop Method에 따라 라우팅
 
+    Args:
+        state (TypedDict): Graph의 state
+    Returns:
+        Literal: ["pass", "fill_fin_type"]
+        중 하나의 값으로 제한
+    """
+    if not state["category"]:
+        return {
+            "feedback_or_not_method": "fill_fin_type"
+        }
+    else: 
+        return {
+            "feedback_or_not_method": "pass"
+        }
+
+@timing_decorator
+# @error_handling_decorator
+def fill_fin_type(state: ChatState) -> ChatState:
+    """
+    사용자에게 graph flow 중간에 피드백을 입력 받음
+
+    :param state: Description
+    :type state: ChatState
+    :return: Description
+    :rtype: ChatState
+    """
+
+    human_text = interrupt("예금, 적금, 전세대출 중에 어느 상품에 관심이 있으신가요?")
+    return {"query": human_text, "need_user_feedback": False}
 
 @timing_decorator
 def fill_calculator_data(state: ChatState) -> ChatState:
