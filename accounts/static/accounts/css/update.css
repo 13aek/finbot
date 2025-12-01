@@ -60,10 +60,5 @@ select {
 /* 정보 수정 버튼 */
 .btn-bottom-right {
   width: 135px;
-  height: 50px;
-}
-
-/* 채팅 페이지 버튼 */
-.chatbot-btn img {
-    width: 145px;
+  height: 55px;
 }

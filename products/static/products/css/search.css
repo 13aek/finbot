@@ -235,10 +235,6 @@ body {
     z-index: 1000;
 }
 
-.chatbot-btn img {
-    width: 145px;
-}
-
 @media (max-width: 1024px) {
     .chatbot-btn img {
         content: url('/static/images/finbot-btn-short.png');
