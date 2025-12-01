@@ -12,9 +12,8 @@ body {
 /* -------- */
 /* 1. 상단바 */
 /* -------- */
-
 .main-link img {
-  height: 23px;
+  height: 25px;
   padding-left: 10px;
 }
 
@@ -24,7 +23,7 @@ body {
     justify-content: space-between;
     align-items: center;
     position: relative;
-    padding: 30px 0px 15px;
+    padding-top: 30px;
 }
 
 .left-group,
@@ -65,9 +64,9 @@ body {
 }
 
 .bookmark-title {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 800;
-    margin-bottom: 25px;
+    margin: 40px 0;
     color: #5a5a5a;
     padding-left: 10px;
 }
@@ -79,12 +78,13 @@ body {
 
 .product-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-    gap: 40px;
+    justify-content: space-around;
+    grid-template-columns: repeat(auto-fill, minmax(450px, 450px));
+    gap: 30px;
 }
 
 .bookmark-item {
-    padding: 0 50px;
+    padding: 0 10%;
     height: 180px;
     background-color: #FFFFFF;
     border-radius: 30px;
@@ -100,13 +100,13 @@ body {
 }
 
 .bookmark-item p {
-    font-size: 15px;
+    font-size: 16px;
     color: #5a5a5a;
     margin: 7px 0;
 }
 
 .no-item {
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 600;
     color: #222222;
     display: flex;
@@ -115,20 +115,73 @@ body {
 }
 
 
-/* ------------------ */
-/* 3. 채팅 페이지 버튼  */
-/* ----------------- */
-
-.chatbot-btn {
-    position: fixed;
-    bottom: 40px;
-    right: 25px;
-    display: block;
-    z-index: 1000;
+/* --------------- */
+/* 3. 관심 상품 버튼 */
+/* --------------- */
+.bookmark-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
-.chatbot-btn img {
-    width: 145px;
+.bookmark-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #A9A9A9;
+  padding-top: 5.5px;
+}
+
+.bookmark-btn svg {
+  width: 30px;
+  height: 30px;
+}
+
+.bookmark-btn.bookmarked {
+  color: #FFBF30;
+}
+
+.bookmark-btn:not(.bookmarked) svg {
+  transform: scale(0.92);
+  transform-origin: center;
+}
+
+
+/* ------------- */
+/* 4. 페이지네이션 */
+/* ------------- */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding-top: 10%;
+    font-size: 15px;
+}
+
+.pagination a {
+    color: #8B8B8B;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
+.pagination span {
+    color: #3F72AF;
+    font-weight: 700;
+    padding: 5px 10px;
+}
+
+
+/* ------------------ */
+/* 5. 채팅 페이지 버튼  */
+/* ----------------- */
+.chatbot-btn {
+    position: fixed;
+    bottom: 3%;
+    right: 2%;
+    display: block;
+    z-index: 1000;
 }
 
 @media (max-width: 1024px) {
