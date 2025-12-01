@@ -413,7 +413,6 @@ def rag_search(state: ChatState) -> ChatState:
     answer = completion.choices[0].message.content
     recommend_mode = True
     # 추천받은 상품을 view로 연결
-    print(vector_db_answer)
     product_code = vector_db_answer["금융상품코드"]
     return {
         "answer": answer,
