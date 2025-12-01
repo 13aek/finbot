@@ -229,8 +229,8 @@ body {
 
 .chatbot-btn {
     position: fixed;
-    bottom: 40px;
-    right: 25px;
+    bottom: 3%;
+    right: 2%;
     display: block;
     z-index: 1000;
 }
