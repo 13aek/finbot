@@ -109,3 +109,8 @@ def search(request):
         "show_next_10": show_next_10,
     }
     return render(request, "products/search.html", context)
+
+
+def product_detail(request, fin_prdt_cd):
+    product = FinProduct.objects.get(fin_prdt_cd=fin_prdt_cd)
+    return render(request, "products/product_detail.html", {"product": product})
