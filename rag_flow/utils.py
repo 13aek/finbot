@@ -64,8 +64,6 @@ def parse_money_to_int(value):
     return int(total)
 
 
-
-
 def number_to_korean_large(num: int) -> str:
     if num is None:
         return ""

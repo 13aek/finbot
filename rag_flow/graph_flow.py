@@ -17,8 +17,10 @@ from rag_flow.graph_nodes import (
     conditional_about_history,
     conditional_about_query,
     conditional_about_recommend,
+    feedback_or_not_method_router,
     feedback_router,
     fill_calculator_data,
+    fill_fin_type,
     fin_word_explain,
     first_conversation,
     get_user_data,
@@ -31,9 +33,6 @@ from rag_flow.graph_nodes import (
     recommend_method_router,
     user_feedback,
     using_only_user_input_data,
-    feedback_or_not_method_router,
-    fill_fin_type,
-
 )
 
 
@@ -196,10 +195,6 @@ graph.add_conditional_edges(
         "calc_jeonse_loan": "calc_jeonse_loan",
     },
 )
-
-
-
-
 
 
 graph.add_edge("get_user_data", "user_feedback")

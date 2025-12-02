@@ -63,7 +63,7 @@ class ChatState(TypedDict, total=False):
     calculator_method: Literal["fill_calculator_data", "conditional_about_fin_type"]  # 기존데이터 vs only 사용자입력
     category: Literal["fixed_deposit", "installment_deposit", "jeonse_loan"]
     loop_or_not_method: str  # 사용자 입력 루프
-    feedback_or_not_method: str # 사용자 입력이 필요한지 구분
+    feedback_or_not_method: str  # 사용자 입력이 필요한지 구분
     data_columns: list  # product_data의 컬럼들 모음
     calculator_columns: list  # calculator에 필요한 컬럼들 (카테고리별로 상이)
     calculator_config: dict  # calculator config
@@ -105,14 +105,14 @@ def conditional_about_history(state: ChatState) -> dict:
 
     return {
         "mode": mode,
-        "product_data":None,
+        "product_data": None,
         "category": None,
     }
 
 
 def mode_router(state: ChatState) -> Literal["first_hello", "Nth_hello", "agent_mode"]:
     """
-    Mode에 따라 라우팅
+    Greeting Mode에 따라 라우팅
 
     Args:
         state (TypedDict): Graph의 state
@@ -139,7 +139,7 @@ def first_conversation(state: ChatState) -> ChatState:
         "FinBot에 오신 걸 환영해요.\n"
         "예금·적금·전세대출 추천부터 수익·이자 계산까지\n"
         "금융 정보가 필요하시면 언제든 말씀해주세요!"
-    ) 
+    )
 
     return {"answer": answer}
 
@@ -245,7 +245,7 @@ def agent_method_router(
     state: ChatState,
 ) -> Literal["recommend_mode", "calculate_mode", "explain_mode", "normal_mode"]:
     """
-    Search Method에 따라 라우팅
+    Agent의 mode에 따라 라우팅
 
     Args:
         state (TypedDict): Graph의 state
@@ -354,7 +354,7 @@ def recommend_method_router(
     state: ChatState,
 ) -> Literal["fixed_deposit", "installment_deposit", "jeonse_loan", "all"]:
     """
-    Search Method에 따라 라우팅
+    recommend Method에 따라 라우팅
 
     Args:
         state (TypedDict): Graph의 state
@@ -439,17 +439,13 @@ def human_feedback(state: ChatState) -> ChatState:
     """
     사용자에게 graph flow 중간에 피드백을 입력 받음
 
-    :param state: Description
-    :type state: ChatState
-    :return: Description
-    :rtype: ChatState
+    Args:
+        state (TypedDict): Graph의 state
+    Returns:
+        Dict: Graph의 state update
     """
 
-    human_text = interrupt(
-        (
-            "몇 가지 정보만 입력하면 추천 상품에 대한 수익·이자 계산을 해드릴 수 있어요. 필요하신가요?"
-        )
-        )
+    human_text = interrupt("몇 가지 정보만 입력하면 추천 상품에 대한 수익·이자 계산을 해드릴 수 있어요. 필요하신가요?")
     return {"query": human_text, "need_user_feedback": False}
 
 
@@ -462,7 +458,7 @@ def classify_feedback(state: ChatState) -> ChatState:
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Dict: LLM의 답변과 새로운 answer를 반환
+        Dict: Graph의 state update
     """
     product_data = state["product_data"]
     user_feedback = state["query"]
@@ -471,7 +467,8 @@ def classify_feedback(state: ChatState) -> ChatState:
         {
             "role": "system",
             "content": (
-                "user가 우리에게 '추천 상품'에 대한 수익/이자 계산이 필요하신가요? 라는 질문을 받고 우리에게 '답'을 해주는 상황이야."
+                "user가 우리에게 '추천 상품'에 대한 수익/이자 계산이 필요하신가요?"
+                "라는 질문을 받고 우리에게 '답'을 해주는 상황이야.\n"
                 f"'추천 상품' 데이터 : \n{product_data}"
                 "너는 '답'을 보고 user가 우리에게 '추천 상품에 대한' 계산을 원하는지 유추해야해."
                 "'답'을 보고 '추천 상품에 대한' 계산을 원하는 것 같으면 '계산', 그 외에는 '기타'을 판단해야해."
@@ -496,8 +493,8 @@ def classify_feedback(state: ChatState) -> ChatState:
     )
     # pos_or_neg = completion.choices[0].message.content
     pos_or_neg = completion.output_text
-    pos_word = ["yes", "sure", "긍정", "예", "계산", "계산.", "'계산'", "'계산.'", "긍정.", "'긍정'", "'긍정.'"]
-    neg_word = ["no", "부정", "아니", "안", "no", "기타", "기타.", "'기타'", "'기타.'", "왜", "부정.", "'부정'", "'부정.'"]
+    pos_word = ["yes", "sure", "긍정", "긍정.", "'긍정'", "'긍정.'", "계산", "계산.", "'계산'", "'계산.'"]
+    neg_word = ["no", "부정", "부정.", "'부정'", "'부정.'", "아니", "안", "기타", "기타.", "'기타'", "'기타.'"]
     if any([word in pos_or_neg for word in pos_word]):
         pos_or_neg = "yes"
     elif any([word in pos_or_neg for word in neg_word]):
@@ -524,30 +521,27 @@ def feedback_router(
 # @error_handling_decorator
 def before_calculate(state: ChatState) -> ChatState:
     """
+    user feedback을 받기 위한 node
 
     Args:
         state (TypedDict): Graph의 state
     Returns:
         Dict:
     """
-    
-    return {
-        "need_user_feedback": True
-    }
 
-
-# calculator = build_calculator_subgraph()
+    return {"need_user_feedback": True}
 
 
 @timing_decorator
 # @error_handling_decorator
 def fin_word_explain(state: ChatState) -> ChatState:
     """
+    금융 관련 용어에 대한 설명과 상담을 담당하는 Agent
 
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Dict:
+        Dict: Graph의 state update
     """
 
     user_query = state["query"]
@@ -580,11 +574,12 @@ def fin_word_explain(state: ChatState) -> ChatState:
 # @error_handling_decorator
 def normal_chat(state: ChatState) -> ChatState:
     """
+    일반적인 채팅을 담당하는 Normal chat Agent
 
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Dict:
+        Dict: Graph의 state
     """
 
     user_query = state["query"]
@@ -629,8 +624,10 @@ def add_to_history(state: ChatState) -> ChatState:
     if state.get("query", False):
         new_history.append({"role": "user", "content": state["query"], "state": "new"})
         new_history.append({"role": "assistant", "content": state["answer"], "state": "new"})
+
     else:
         new_history.append({"role": "assistant", "content": state["answer"], "state": "new"})
+
     return {"history": new_history, "visited": True, "need_user_feedback": False}
 
 
@@ -638,11 +635,13 @@ def add_to_history(state: ChatState) -> ChatState:
 def check_findata(state: ChatState) -> ChatState:
     """
     데이터 확인 후 다음 단계 결정
-    process_findata : findata를 받았으면 data 기반으로 계산
-    process_endtoend : data가 없으면 필요한 데이터를 받아서 계산
+    - findata를 받았으면 data 기반으로 계산하는 로직으로 패스
+    - data가 없으면 필요한 데이터를 받아서 계산하는 로직으로 패스
 
-    parameter (State) : graph state (부모 State 상속)
-    return (Command) : Literal["process_findata", "process_endtoend"]
+    Args:
+        state (TypedDict): Graph의 state
+    Returns:
+        Dict: Graph의 state update
     """
 
     if state["product_data"]:
@@ -655,18 +654,20 @@ def check_findata(state: ChatState) -> ChatState:
         data_columns = list(config[category].values())
         calculator_columns = calculator_config[category]
         calculator_method = "using_recommended_data"
+
         return {
             "calculator_method": calculator_method,
             "category": category,
             "data_columns": data_columns,
             "calculator_columns": calculator_columns,
         }
+
     else:
         calculator_method = "using_only_user_input_data"
+
         return {
             "calculator_method": calculator_method,
             "calculator_config": calculator_config,
-
         }
 
 
@@ -674,7 +675,7 @@ def calculator_method_router(
     state: ChatState,
 ) -> Literal["using_recommended_data", "using_only_user_input_data"]:
     """
-    calculator Method에 따라 라우팅
+    Calculator Method에 따라 라우팅
 
     Args:
         state (TypedDict): Graph의 state
@@ -687,7 +688,7 @@ def calculator_method_router(
 @timing_decorator
 def using_only_user_input_data(state: ChatState) -> ChatState:
     """
-    query에 따라 분기 발생. user의 의도에 따라 4가지로 분기.
+    카테고리를 분류. else면 카테고리를 새로 받는 노드로 패스
     1. fixed_deposit
     2. installment_deposit
     3. jeonse_loan
@@ -696,8 +697,7 @@ def using_only_user_input_data(state: ChatState) -> ChatState:
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Dict: state에 업데이트 할 method dict,
-                agent_method = ("fixed_deposit", "installment_deposit", "jeonse_loan", "else")
+        Dict: ("fixed_deposit", "installment_deposit", "jeonse_loan", "else") 결정
     """
     four_branch = (
         "fixed_deposit : 질문의 의도가 예금에 대한 작업을 원할 때 'fixed_deposit'를 반환"
@@ -732,27 +732,26 @@ def using_only_user_input_data(state: ChatState) -> ChatState:
             method = answer
         elif ("fixed" in answer) or ("예금" in answer):
             method = "fixed_deposit"
-        elif ("calculate" in answer) or ("calculator" in answer) or ("cal" in answer) or ("계산" in answer):
+        elif ("install" in answer) or ("ment" in answer) or ("적금" in answer):
             method = "installment_deposit"
-        elif (
-            ("finword" in answer) or ("explain" in answer) or ("fin" in answer) or ("word" in answer) or ("설명" in answer)
-        ):
+        elif ("jeonse" in answer) or ("전세" in answer) or ("대출" in answer) or ("loan" in answer):
             method = "jeonse_loan"
-        
+
         calculator_columns = calculator_config[method]
         calculator_data = {key: None for key in calculator_columns}
-        print('*'*10,f'{method} 계산')
+        print("*" * 10, f"{method} 계산")
         return {
             "category": method,
             "calculator_columns": calculator_columns,
             "calculator_data": calculator_data,
             "feedback_or_not_method": "pass",
-        } 
-        
+        }
+
     else:
         return {
             "feedback_or_not_method": "fill_fin_type",
         }
+
 
 def feedback_or_not_method_router(
     state: ChatState,
@@ -768,30 +767,32 @@ def feedback_or_not_method_router(
     """
     return state["feedback_or_not_method"]
 
+
 @timing_decorator
 # @error_handling_decorator
 def fill_fin_type(state: ChatState) -> ChatState:
     """
-    사용자에게 graph flow 중간에 피드백을 입력 받음
+    사용자에게 graph flow 중간에 카테고리에 대한 피드백을 입력 받음
 
-    :param state: Description
-    :type state: ChatState
-    :return: Description
-    :rtype: ChatState
+    Args:
+        state (TypedDict): Graph의 state
+    Returns:
+        Dict : Graph의 state
     """
 
     human_text = interrupt("예금, 적금, 전세대출 중에 어느 상품에 관심이 있으신가요?")
     return {"query": human_text, "need_user_feedback": False}
+
 
 @timing_decorator
 def fill_calculator_data(state: ChatState) -> ChatState:
     """
     calculator에 필요한 데이터 입력
 
-    :param state: Description
-    :type state: ChatState
-    :return: Description
-    :rtype: ChatState
+    Args:
+        state (TypedDict): Graph의 state
+    Returns:
+        Dict : Graph의 state
     """
 
     data = state["product_data"]
@@ -799,28 +800,36 @@ def fill_calculator_data(state: ChatState) -> ChatState:
     category = state["category"]
     if data.get("옵션"):
         calculator_data = {key: None for key in state["calculator_columns"]}
+
         for key in data.keys():
             if key in calculator_columns:
                 calculator_data[key] = data[key]
+
             else:
                 continue
+
         for option in data["옵션"]:
             for key in option.keys():
                 if key in calculator_columns:
                     if calculator_data[key] is None:
                         calculator_data[key] = []
+
                     if isinstance(calculator_data[key], list):
                         calculator_data[key].append(option[key])
+
                     else:
                         # 이미 단일 값이 있으면 리스트로 승격
                         calculator_data[key] = [calculator_data[key], option[key]]
+
                 else:
                     continue
+
     else:
         print(f"계산 가능한 {category}옵션이 없습니다")
         calculator_data = {key: None for key in state["calculator_columns"]}
 
     return {"calculator_data": calculator_data, "need_user_feedback": True}
+
 
 @timing_decorator
 def user_feedback(state: ChatState) -> ChatState:
@@ -838,44 +847,56 @@ def user_feedback(state: ChatState) -> ChatState:
     for key in calculator_data.keys():
         if calculator_data[key]:
             if "한도" in key:
-                max_limit = calculator_data[key] 
+                max_limit = calculator_data[key]
                 if isinstance(max_limit, int):
                     max_limit = number_to_korean_large(max_limit)
+
                 elif isinstance(max_limit, str):
                     if max_limit.isdigit():
                         max_limit = number_to_korean_large(int(max_limit))
+
                     else:
                         pass
+
             continue
+
         else:
             if key == "저축금리유형명":
                 need_columns.append("단리/복리")
+
             elif key in ["최고한도", "대출한도", "대출금리유형"]:
                 max_limit = None
                 continue
+
             else:
                 need_columns.append(key)
+
     feedback = ", ".join(need_columns)
     if need_columns:
         if category != "jeonse_loan":
             human_text = interrupt(
                 (  # noqa: UP034
-                f"요청해주신 상품 계산을 위해 {feedback}에 대한 입력이 필요합니다.\n"
-                "정보를 알려주시면 계산해드릴게요! "
-                f"납입한도는 {max_limit}입니다." if max_limit else ""
+                    f"요청해주신 상품 계산을 위해 {feedback}에 대한 입력이 필요합니다.\n"
+                    "정보를 알려주시면 계산해드릴게요! "
+                    f"납입한도는 {max_limit}입니다."
+                    if max_limit
+                    else ""
                 )
             )
-        elif category == "jeonse_loan": 
-            
+
+        elif category == "jeonse_loan":
             human_text = interrupt(
                 (  # noqa: UP034
-                f"요청해주신 상품 계산을 위해 {feedback}에 대한 입력이 필요합니다.\n"
-                "정보를 알려주시면 계산해드릴게요! "
-                f"대출한도는 {max_limit}입니다." if max_limit else ""
+                    f"요청해주신 상품 계산을 위해 {feedback}에 대한 입력이 필요합니다.\n"
+                    "정보를 알려주시면 계산해드릴게요! "
+                    f"대출한도는 {max_limit}입니다."
+                    if max_limit
+                    else ""
                 )
             )
 
         loop_or_not_method = "get_user_data"
+
         return {
             "query": human_text,
             "need_user_feedback": False,
@@ -885,16 +906,21 @@ def user_feedback(state: ChatState) -> ChatState:
     else:
         if category == "fixed_deposit":
             loop_or_not_method = "calc_fixed_deposit"
+
             return {
                 "loop_or_not_method": loop_or_not_method,
             }
+
         elif category == "installment_deposit":
             loop_or_not_method = "calc_installment_deposit"
+
             return {
                 "loop_or_not_method": loop_or_not_method,
             }
+
         elif category == "jeonse_loan":
             loop_or_not_method = "calc_jeonse_loan"
+
             return {
                 "loop_or_not_method": loop_or_not_method,
             }
@@ -912,6 +938,7 @@ def loop_or_not_method_router(
         Literal: ["get_user_data", "calc_fixed_deposit", "calc_installment_deposit", "calc_jeonse_loan"]
         중 하나의 값으로 제한
     """
+
     return state["loop_or_not_method"]
 
 
@@ -951,7 +978,7 @@ def get_user_data(state: ChatState) -> ChatState:
     Args:
         state (TypedDict): Graph의 state
     Returns:
-        Command
+        state (TypedDict): Graph의 state
     """
 
     user_query = state["query"]
@@ -981,14 +1008,15 @@ def get_user_data(state: ChatState) -> ChatState:
     category = state["category"]
 
     completion = ai_client.responses.parse(
-        model="gpt-5.1", #"gpt-4o-mini"
+        model="gpt-5.1",  # "gpt-4o-mini"
         input=messages,
         # JSON 스키마 지정
         text_format=text_format[category],
     )
 
     answer = json.loads(completion.output_text)
-    print(f'get_user_data answer : {answer}')
+    print(f"get_user_data answer : {answer}")
+
     # 논리 오류. json output을 강제 했기 때문에 사용자가 입력을 하지 않아도
     # 강제된 입력 형식을 맞춰서 채워넣었을 가능성이 있음.
     # 추후 확인 해봐야함.
@@ -997,8 +1025,10 @@ def get_user_data(state: ChatState) -> ChatState:
     for key in calculator_data.keys():
         if calculator_data[key]:
             continue
+
         else:
             need_user_feedback = True
+
     return {
         "calculator_data": answer,
         "need_user_feedback": need_user_feedback,
@@ -1008,7 +1038,8 @@ def get_user_data(state: ChatState) -> ChatState:
 @timing_decorator
 def calc_fixed_deposit(state: ChatState) -> ChatState:
     """
-
+    Args:
+        state (TypedDict): Graph의 state
     return : dict,
     {
         "상품카테고리": "fixed_deposit",
@@ -1023,6 +1054,7 @@ def calc_fixed_deposit(state: ChatState) -> ChatState:
         "우대조건": data["우대조건"]
     }
     """
+
     calculated_data = calculator_fixed_deposit(state["calculator_data"])
 
     return {
@@ -1033,10 +1065,11 @@ def calc_fixed_deposit(state: ChatState) -> ChatState:
 @timing_decorator
 def calc_installment_deposit(state: ChatState) -> ChatState:
     """
-
+    Args:
+        state (TypedDict): Graph의 state
     return : dict,
     {
-        "상품카테고리": "fixed_deposit",
+        "상품카테고리": "installment_deposit",
         "원금": int(principal),
         "세전이자": int(interest),
         "세전만기금액": int(maturity),
@@ -1048,6 +1081,7 @@ def calc_installment_deposit(state: ChatState) -> ChatState:
         "우대조건": data["우대조건"]
     }
     """
+
     calculated_data = calculator_installment_deposit(state["calculator_data"])
 
     return {
@@ -1058,7 +1092,8 @@ def calc_installment_deposit(state: ChatState) -> ChatState:
 @timing_decorator
 def calc_jeonse_loan(state: ChatState) -> ChatState:
     """
-
+    Args:
+        state (TypedDict): Graph의 state
     return : dict,
     {
         "상품카테고리": "fixed_deposit",
@@ -1073,6 +1108,7 @@ def calc_jeonse_loan(state: ChatState) -> ChatState:
         "우대조건": data["우대조건"]
     }
     """
+
     calculated_data = calculator_jeonse_loan(state["calculator_data"])
 
     return {
@@ -1083,8 +1119,10 @@ def calc_jeonse_loan(state: ChatState) -> ChatState:
 @timing_decorator
 def after_calculate(state: ChatState) -> ChatState:
     """
-
-    return : dict,
+    Args:
+        state (TypedDict): Graph의 state
+    return :
+        dict: Graph의 state,
     """
 
     return {
