@@ -16,6 +16,7 @@ from rag_flow.calculators import (
     calculator_jeonse_loan,
 )
 from rag_flow.decorators import error_handling_decorator, timing_decorator
+from rag_flow.utils import number_to_korean_large
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -824,15 +825,45 @@ def user_feedback(state: ChatState) -> ChatState:
     calculator_data = state["calculator_data"]
     category = state["category"]
     for key in calculator_data.keys():
-        if key in ["최고한도", "적립유형명", "저축금리유형명"]:
-            continue
         if calculator_data[key]:
+            if "한도" in key:
+                max_limit = calculator_data[key] 
+                if isinstance(max_limit, int):
+                    max_limit = number_to_korean_large(max_limit)
+                elif isinstance(max_limit, str):
+                    if max_limit.isdigit():
+                        max_limit = number_to_korean_large(int(max_limit))
+                    else:
+                        pass
             continue
         else:
-            need_columns.append(key)
+            if key == "저축금리유형명":
+                need_columns.append("단리/복리")
+            elif key in ["최고한도", "대출한도", "대출금리유형"]:
+                max_limit = None
+                continue
+            else:
+                need_columns.append(key)
     feedback = ", ".join(need_columns)
     if need_columns:
-        human_text = interrupt(f"{feedback}에 대한 입력이 필요합니다. 정보를 알려주시면 계산해드릴게요.")
+        if category != "jeonse_loan":
+            human_text = interrupt(
+                (  # noqa: UP034
+                f"요청해주신 상품 계산을 위해 {feedback}에 대한 입력이 필요합니다.\n"
+                f"대출한도는 {max_limit}입니다." if max_limit else ""
+                "정보를 알려주시면 계산해드릴게요!"
+                )
+            )
+        elif category == "jeonse_loan": 
+            
+            human_text = interrupt(
+                (  # noqa: UP034
+                f"요청해주신 상품 계산을 위해 {feedback}에 대한 입력이 필요합니다.\n"
+                f"납입한도는 {number_to_korean_large(max_limit)}입니다." if max_limit else ""
+                "정보를 알려주시면 계산해드릴게요!"
+                )
+            )
+
         loop_or_not_method = "get_user_data"
         return {
             "query": human_text,

@@ -62,3 +62,32 @@ def parse_money_to_int(value):
         total += int(leftover[0])
 
     return int(total)
+
+
+
+
+def number_to_korean_large(num: int) -> str:
+    if num is None:
+        return ""
+
+    num = int(num)
+
+    units = [
+        (10**12, "조"),
+        (10**8, "억"),
+        (10**4, "만"),
+        (1, "원"),
+    ]
+
+    result = []
+
+    for unit_value, unit_name in units:
+        if num >= unit_value:
+            amount = num // unit_value
+            num = num % unit_value
+            if unit_name == "원":
+                result.append(f"{format(amount, ',')}{unit_name}")
+            else:
+                result.append(f"{amount}{unit_name}")
+
+    return " ".join(result)
