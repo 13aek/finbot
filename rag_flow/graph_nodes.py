@@ -133,7 +133,12 @@ def first_conversation(state: ChatState) -> ChatState:
         Dict: state에 업데이트 할 history dict.
     """
 
-    answer = "안녕하세요. 첫 방문이시군요! 무엇을 도와드릴까요?"
+    answer = (
+        "안녕하세요 🙂\n"
+        "FinBot에 오신 걸 환영해요.\n"
+        "예금·적금·전세대출 추천부터 수익·이자 계산까지\n"
+        "금융 정보가 필요하시면 언제든 말씀해주세요!"
+    ) 
 
     return {"answer": answer}
 
