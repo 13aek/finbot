@@ -729,10 +729,13 @@ def using_only_user_input_data(state: ChatState) -> ChatState:
             "category": method,
             "calculator_columns": calculator_columns,
             "calculator_data": calculator_data,
+            "feedback_or_not_method": "pass",
         } 
         
     else:
-        return state
+        return {
+            "feedback_or_not_method": "fill_fin_type",
+        }
 
 def feedback_or_not_method_router(
     state: ChatState,
@@ -746,14 +749,7 @@ def feedback_or_not_method_router(
         Literal: ["pass", "fill_fin_type"]
         중 하나의 값으로 제한
     """
-    if not state["category"]:
-        return {
-            "feedback_or_not_method": "fill_fin_type"
-        }
-    else: 
-        return {
-            "feedback_or_not_method": "pass"
-        }
+    return state["feedback_or_not_method"]
 
 @timing_decorator
 # @error_handling_decorator
@@ -781,34 +777,33 @@ def fill_calculator_data(state: ChatState) -> ChatState:
     :rtype: ChatState
     """
 
-    if state["product_data"]:
-        data = state["product_data"]
-        calculator_columns = state["calculator_columns"]
-        category = state["category"]
-        if data.get("옵션"):
-            calculator_data = {key: None for key in state["calculator_columns"]}
-            for key in data.keys():
+    data = state["product_data"]
+    calculator_columns = state["calculator_columns"]
+    category = state["category"]
+    if data.get("옵션"):
+        calculator_data = {key: None for key in state["calculator_columns"]}
+        for key in data.keys():
+            if key in calculator_columns:
+                calculator_data[key] = data[key]
+            else:
+                continue
+        for option in data["옵션"]:
+            for key in option.keys():
                 if key in calculator_columns:
-                    calculator_data[key] = data[key]
+                    if calculator_data[key] is None:
+                        calculator_data[key] = []
+                    if isinstance(calculator_data[key], list):
+                        calculator_data[key].append(option[key])
+                    else:
+                        # 이미 단일 값이 있으면 리스트로 승격
+                        calculator_data[key] = [calculator_data[key], option[key]]
                 else:
                     continue
-            for option in data["옵션"]:
-                for key in option.keys():
-                    if key in calculator_columns:
-                        if calculator_data[key] is None:
-                            calculator_data[key] = []
-                        if isinstance(calculator_data[key], list):
-                            calculator_data[key].append(option[key])
-                        else:
-                            # 이미 단일 값이 있으면 리스트로 승격
-                            calculator_data[key] = [calculator_data[key], option[key]]
-                    else:
-                        continue
-        else:
-            print(f"계산 가능한 {category}옵션이 없습니다")
+    else:
+        print(f"계산 가능한 {category}옵션이 없습니다")
+        calculator_data = {key: None for key in state["calculator_columns"]}
 
-        return {"calculator_data": calculator_data, "need_user_feedback": True}
-
+    return {"calculator_data": calculator_data, "need_user_feedback": True}
 
 @timing_decorator
 def user_feedback(state: ChatState) -> ChatState:
@@ -824,7 +819,7 @@ def user_feedback(state: ChatState) -> ChatState:
     calculator_data = state["calculator_data"]
     category = state["category"]
     for key in calculator_data.keys():
-        if key in ["최고한도", "적립유형명", "저축금리유형명", "적립유형명저축금리유형명"]:
+        if key in ["최고한도", "적립유형명", "저축금리유형명"]:
             continue
         if calculator_data[key]:
             continue
