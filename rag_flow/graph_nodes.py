@@ -445,7 +445,11 @@ def human_feedback(state: ChatState) -> ChatState:
     :rtype: ChatState
     """
 
-    human_text = interrupt("추천 상품에 대한 수익/이자 계산이 필요하신가요?")
+    human_text = interrupt(
+        (
+            "몇 가지 정보만 입력하면 추천 상품에 대한 수익·이자 계산을 해드릴 수 있어요. 필요하신가요?"
+        )
+        )
     return {"query": human_text, "need_user_feedback": False}
 
 
@@ -476,17 +480,21 @@ def classify_feedback(state: ChatState) -> ChatState:
         },
         {
             "role": "user",
-            "content": f"입력: {user_feedback}\n을 보고 yes, no 중에 한 단어만 출력해. 마침표도 필요없어.",
+            "content": f"입력: {user_feedback}\n을 보고 긍정, 부정 중에 한 단어만 출력해. 마침표도 필요없어.",
         },
     ]
 
-    completion = ai_client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=messages,
-        max_tokens=100,
+    # completion = ai_client.chat.completions.create(
+    #     model="gpt-4o-mini",
+    #     messages=messages,
+    #     max_tokens=100,
+    # )
+    completion = ai_client.responses.create(
+        model="gpt-5.1",
+        input=messages,
     )
-    pos_or_neg = completion.choices[0].message.content
-
+    # pos_or_neg = completion.choices[0].message.content
+    pos_or_neg = completion.output_text
     pos_word = ["yes", "sure", "긍정", "예", "맞", "그래", "응", "그렇", "긍정.", "'긍정'", "'긍정.'"]
     neg_word = ["no", "부정", "아니", "안", "no", "싫어", "왜", "부정.", "'부정'", "'부정.'"]
     if any([word in pos_or_neg for word in pos_word]):
@@ -850,8 +858,8 @@ def user_feedback(state: ChatState) -> ChatState:
             human_text = interrupt(
                 (  # noqa: UP034
                 f"요청해주신 상품 계산을 위해 {feedback}에 대한 입력이 필요합니다.\n"
-                f"대출한도는 {max_limit}입니다." if max_limit else ""
-                "정보를 알려주시면 계산해드릴게요!"
+                "정보를 알려주시면 계산해드릴게요! "
+                f"납입한도는 {max_limit}입니다." if max_limit else ""
                 )
             )
         elif category == "jeonse_loan": 
@@ -859,8 +867,8 @@ def user_feedback(state: ChatState) -> ChatState:
             human_text = interrupt(
                 (  # noqa: UP034
                 f"요청해주신 상품 계산을 위해 {feedback}에 대한 입력이 필요합니다.\n"
-                f"납입한도는 {number_to_korean_large(max_limit)}입니다." if max_limit else ""
-                "정보를 알려주시면 계산해드릴게요!"
+                "정보를 알려주시면 계산해드릴게요! "
+                f"대출한도는 {max_limit}입니다." if max_limit else ""
                 )
             )
 
@@ -970,19 +978,27 @@ def get_user_data(state: ChatState) -> ChatState:
     category = state["category"]
 
     completion = ai_client.responses.parse(
-        model="gpt-4o-mini",
+        model="gpt-5.1", #"gpt-4o-mini"
         input=messages,
         # JSON 스키마 지정
         text_format=text_format[category],
     )
 
     answer = json.loads(completion.output_text)
-
+    print(f'get_user_data answer : {answer}')
     # 논리 오류. json output을 강제 했기 때문에 사용자가 입력을 하지 않아도
     # 강제된 입력 형식을 맞춰서 채워넣었을 가능성이 있음.
     # 추후 확인 해봐야함.
+    # 또, 입력을 하지 않고 다른 채팅을 하는 논리 전개가 없음.........
+    need_user_feedback = False
+    for key in calculator_data.keys():
+        if calculator_data[key]:
+            continue
+        else:
+            need_user_feedback = True
     return {
         "calculator_data": answer,
+        "need_user_feedback": need_user_feedback,
     }
 
 
