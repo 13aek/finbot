@@ -464,23 +464,24 @@ def classify_feedback(state: ChatState) -> ChatState:
     Returns:
         Dict: LLM의 답변과 새로운 answer를 반환
     """
-
+    product_data = state["product_data"]
     user_feedback = state["query"]
     print("classify_feedback input: ", user_feedback)
     messages = [
         {
             "role": "system",
             "content": (
-                "지금은, user가 우리에게 '추천 상품에 대한 수익/이자 계산이 필요하신가요?' 라는 질문을 받고 우리에게 '답'을 해주는 상황이야."
-                "너는 '답'을 보고 user가 우리에게 '계산을 원하는지' 유추해야해."
-                "너는 한국어 '답'을 보고 '긍정', '부정'을 판단해야해."
-                "긍정적인 맥락 혹은 뉘앙스면 '긍정', 부정적인 맥락이거나 유추를 못하겠다면 '부정'."
-                "다른 말 하지말고 '긍정', '부정' 중에 한 단어만 출력해."
+                "user가 우리에게 '추천 상품'에 대한 수익/이자 계산이 필요하신가요? 라는 질문을 받고 우리에게 '답'을 해주는 상황이야."
+                f"'추천 상품' 데이터 : \n{product_data}"
+                "너는 '답'을 보고 user가 우리에게 '추천 상품에 대한' 계산을 원하는지 유추해야해."
+                "'답'을 보고 '추천 상품에 대한' 계산을 원하는 것 같으면 '계산', 그 외에는 '기타'을 판단해야해."
+                "긍정적인 맥락 혹은 뉘앙스면 '계산', 다른 상품에 대한 맥락이거나 유추를 못하겠다면 '기타'."
+                "다른 말 하지말고 '계산', '기타' 중에 한 단어만 출력해."
             ),
         },
         {
             "role": "user",
-            "content": f"입력: {user_feedback}\n을 보고 긍정, 부정 중에 한 단어만 출력해. 마침표도 필요없어.",
+            "content": f"'답': {user_feedback}\n을 보고 계산, 기타 중에 한 단어만 출력해. 마침표도 필요없어.",
         },
     ]
 
@@ -495,8 +496,8 @@ def classify_feedback(state: ChatState) -> ChatState:
     )
     # pos_or_neg = completion.choices[0].message.content
     pos_or_neg = completion.output_text
-    pos_word = ["yes", "sure", "긍정", "예", "맞", "그래", "응", "그렇", "긍정.", "'긍정'", "'긍정.'"]
-    neg_word = ["no", "부정", "아니", "안", "no", "싫어", "왜", "부정.", "'부정'", "'부정.'"]
+    pos_word = ["yes", "sure", "긍정", "예", "계산", "계산.", "'계산'", "'계산.'", "긍정.", "'긍정'", "'긍정.'"]
+    neg_word = ["no", "부정", "아니", "안", "no", "기타", "기타.", "'기타'", "'기타.'", "왜", "부정.", "'부정'", "'부정.'"]
     if any([word in pos_or_neg for word in pos_word]):
         pos_or_neg = "yes"
     elif any([word in pos_or_neg for word in neg_word]):
@@ -529,8 +530,10 @@ def before_calculate(state: ChatState) -> ChatState:
     Returns:
         Dict:
     """
-    state["need_user_feedback"] = True
-    return state
+    
+    return {
+        "need_user_feedback": True
+    }
 
 
 # calculator = build_calculator_subgraph()
@@ -671,7 +674,7 @@ def calculator_method_router(
     state: ChatState,
 ) -> Literal["using_recommended_data", "using_only_user_input_data"]:
     """
-    Search Method에 따라 라우팅
+    calculator Method에 따라 라우팅
 
     Args:
         state (TypedDict): Graph의 state
