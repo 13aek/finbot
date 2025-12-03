@@ -24,12 +24,18 @@ body {
     align-items: center;
     position: relative;
     padding-top: 30px;
+    row-gap: 15px;
 }
 
-.left-group,
+.left-group {
+    display: flex;
+}
+
 .right-group {
     display: flex;
+    flex-wrap: wrap;
     gap: 35px;
+    padding-left: 10px;
 }
 
 .header a {
