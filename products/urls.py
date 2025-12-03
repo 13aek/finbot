@@ -8,4 +8,5 @@ app_name = "products"
 urlpatterns = [
     path("", views.index, name="index"),
     path("search/", views.search, name="search"),
+    path("<str:fin_prdt_cd>/", views.product_detail, name="product_detail"),
 ]
