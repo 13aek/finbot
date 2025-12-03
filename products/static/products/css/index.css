@@ -239,3 +239,9 @@ body {
     display: block;
     z-index: 1000;
 }
+
+@media (max-height: 500px) {
+    .chatbot-btn {
+        display: none;
+    }
+}
