@@ -77,9 +77,11 @@ body {
 }
 
 .product-container {
+    width: 100%;
+    min-width: 360px;
     display: grid;
     justify-content: space-around;
-    grid-template-columns: repeat(auto-fill, minmax(450px, 450px));
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
     gap: 30px;
 }
 
@@ -188,5 +190,11 @@ body {
     .chatbot-btn img {
         content: url('/static/images/finbot-btn-short.png');
         width: 55px;
+    }
+}
+
+@media (max-height: 500px) {
+    .chatbot-btn {
+        display: none;
     }
 }
