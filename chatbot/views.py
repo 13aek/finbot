@@ -120,7 +120,11 @@ def chat_page(request, chatroom_pk=None):
                 # 추천받은 상품
                 product = FinProduct.objects.get(fin_prdt_cd=reply["product_code"])
                 ChatMessage.objects.create(
-                    user=request.user, room=chat_room, role="bot", message="추천상품", product=product
+                    user=request.user,
+                    room=chat_room,
+                    role="bot",
+                    message="추천상품",
+                    product=product,
                 )
 
         # POST 후 새로고침 시 중복 전송 방지를 위해 리다이렉트

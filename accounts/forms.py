@@ -7,6 +7,16 @@ class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = get_user_model()
 
+    def save(self, commit=True):
+        user = super().save(commit=False)
+
+        # name 입력칸 없으므로 username으로 자동 설정
+        user.name = user.username
+
+        if commit:
+            user.save()
+        return user
+
 
 class CustomUserChangeForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):

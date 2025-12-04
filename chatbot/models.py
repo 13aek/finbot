@@ -43,7 +43,11 @@ class ChatMessage(models.Model):
 
     # 상품 추천 메시지라면 FK로 저장
     product = models.ForeignKey(
-        FinProduct, on_delete=models.SET_NULL, null=True, blank=True, related_name="recommended_messages"
+        FinProduct,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="recommended_messages",
     )
 
     class Meta:
