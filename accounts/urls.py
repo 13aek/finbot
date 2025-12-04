@@ -2,7 +2,6 @@ from django.urls import path
 
 from . import views
 
-
 app_name = "accounts"
 
 urlpatterns = [
@@ -14,5 +13,7 @@ urlpatterns = [
     path("delete/", views.delete, name="delete"),  # 계정 삭제 추가
     path("verify/", views.verify, name="verify"),  # 비밀번호 추가 인증 url 추가
     path("bookmark/<str:product_code>/", views.bookmark, name="bookmark"),  # 북마크 url
-    path("bookmark/", views.bookmark_list, name="bookmark_list"),  # 사용자의 모든 북마크 상품을 조회하는 url
+    path(
+        "bookmark/", views.bookmark_list, name="bookmark_list"
+    ),  # 사용자의 모든 북마크 상품을 조회하는 url
 ]

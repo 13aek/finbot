@@ -22,7 +22,6 @@ from pathlib import Path
 
 from findata.save_to_db_findata import save_to_db_final
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 data_path = BASE_DIR / "findata" / "data"
 

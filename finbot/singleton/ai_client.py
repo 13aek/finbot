@@ -5,8 +5,11 @@ from functools import lru_cache
 from dotenv import load_dotenv
 from openai import OpenAI
 
-
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
+sys.path.append(
+    os.path.dirname(
+        os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+    )
+)
 
 load_dotenv(".env")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")

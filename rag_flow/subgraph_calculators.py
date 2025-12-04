@@ -9,13 +9,10 @@ from pydantic import BaseModel
 
 from finbot.singleton.ai_client import ai_client
 from findata.config_manager import JsonConfigManager
-from rag_flow.calculators import (
-    calculator_fixed_deposit,
-    calculator_installment_deposit,
-    calculator_jeonse_loan,
-)
+from rag_flow.calculators import (calculator_fixed_deposit,
+                                  calculator_installment_deposit,
+                                  calculator_jeonse_loan)
 from rag_flow.decorators import timing_decorator
-
 
 # from rag_flow.graph_flow import ChatState
 
@@ -147,10 +144,19 @@ def conditional_about_fin_type(state: CalcState) -> CalcState:
         method = answer
     elif ("recommend" in answer) or ("rec" in answer) or ("추천" in answer):
         method = "recommend_mode"
-    elif ("calculate" in answer) or ("calculator" in answer) or ("cal" in answer) or ("계산" in answer):
+    elif (
+        ("calculate" in answer)
+        or ("calculator" in answer)
+        or ("cal" in answer)
+        or ("계산" in answer)
+    ):
         method = "calculate_mode"
     elif (
-        ("finword" in answer) or ("explain" in answer) or ("fin" in answer) or ("word" in answer) or ("설명" in answer)
+        ("finword" in answer)
+        or ("explain" in answer)
+        or ("fin" in answer)
+        or ("word" in answer)
+        or ("설명" in answer)
     ):
         method = "explain_mode"
     else:
@@ -251,7 +257,9 @@ def user_feedback(state: CalcState) -> CalcState:
             need_columns.append(key)
     feedback = ", ".join(need_columns)
     if need_columns:
-        human_text = interrupt(f"{feedback}에 대한 입력이 필요합니다. 정보를 알려주시면 계산해드릴게요.")
+        human_text = interrupt(
+            f"{feedback}에 대한 입력이 필요합니다. 정보를 알려주시면 계산해드릴게요."
+        )
         loop_or_not_method = "get_user_data"
         return {
             "query": human_text,
@@ -295,7 +303,12 @@ def user_feedback(state: CalcState) -> CalcState:
 
 def loop_or_not_method_router(
     state: CalcState,
-) -> Literal["get_user_data", "calc_fixed_deposit", "calc_installment_deposit", "calc_jeonse_loan"]:
+) -> Literal[
+    "get_user_data",
+    "calc_fixed_deposit",
+    "calc_installment_deposit",
+    "calc_jeonse_loan",
+]:
     """
     Loop Method에 따라 라우팅
 

@@ -5,7 +5,6 @@ import MySQLdb
 
 from findata.config_manager import JsonConfigManager
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 conf_path = BASE_DIR / "findata/config.json"
 conf = JsonConfigManager(path=conf_path).values
@@ -130,7 +129,9 @@ def save_fin_product(cur, p: dict, category_en: str, eng_to_han: dict):
 
 
 # 옵션 저장 (카테고리별)
-def upsert_option(cur, category_en: str, fin_prdt_cd: str, p: dict, opt: dict, eng_to_han: dict):
+def upsert_option(
+    cur, category_en: str, fin_prdt_cd: str, p: dict, opt: dict, eng_to_han: dict
+):
     """
     옵션 테이블 3종
     - table: fixed_deposit_option / installment_deposit_option / jeonse_loan_option

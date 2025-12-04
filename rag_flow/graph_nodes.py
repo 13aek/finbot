@@ -10,13 +10,10 @@ from finbot.singleton.ai_client import ai_client
 from finbot.singleton.embedding_model import embed_model
 from finbot.singleton.vectordb import qdrant_client
 from findata.config_manager import JsonConfigManager
-from rag_flow.calculators import (
-    calculator_fixed_deposit,
-    calculator_installment_deposit,
-    calculator_jeonse_loan,
-)
+from rag_flow.calculators import (calculator_fixed_deposit,
+                                  calculator_installment_deposit,
+                                  calculator_jeonse_loan)
 from rag_flow.decorators import error_handling_decorator, timing_decorator
-
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 config_path = BASE_DIR / "findata" / "config.json"
@@ -46,11 +43,17 @@ class ChatState(TypedDict, total=False):
 
     visited: bool
     mode: Literal["first_hello", "Nth_hello", "agent_mode"]
-    agent_method: Literal["rag_search", "calculator", "finword_explain", "normal_chat"]  # query의도에 따라 나뉘는 분기
-    recommend_method: Literal["fixed_deposit", "installment_deposit", "jeonse_loan", "all"]
+    agent_method: Literal[
+        "rag_search", "calculator", "finword_explain", "normal_chat"
+    ]  # query의도에 따라 나뉘는 분기
+    recommend_method: Literal[
+        "fixed_deposit", "installment_deposit", "jeonse_loan", "all"
+    ]
     recommend_mode: bool  # recommend 로직에 들어오게 되면 True
     query: str  # user query
-    history: Annotated[list[dict[str, str]], partial(keep_last_n, n=10)]  # user, assistant message 쌍
+    history: Annotated[
+        list[dict[str, str]], partial(keep_last_n, n=10)
+    ]  # user, assistant message 쌍
     answer: str  # LLM answer
     user_feedback: str  # 사용자 중간 입력
     need_user_feedback: bool  # 사용자 입력 요청
@@ -59,7 +62,9 @@ class ChatState(TypedDict, total=False):
     product_data: dict  # calculator에 넘겨줄 상품 데이터
 
     # calculate datas
-    calculator_method: Literal["fill_calculator_data", "conditional_about_fin_type"]  # 기존데이터 vs only 사용자입력
+    calculator_method: Literal[
+        "fill_calculator_data", "conditional_about_fin_type"
+    ]  # 기존데이터 vs only 사용자입력
     category: Literal["fixed_deposit", "installment_deposit", "jeonse_loan"]
     loop_or_not_method: str  # 사용자 입력 루프
     data_columns: list  # product_data의 컬럼들 모음
@@ -148,7 +153,9 @@ def nth_conversation(state: ChatState) -> ChatState:
     """
 
     histories = state["history"]
-    questions = [history["content"] for history in histories if history["role"] == "user"]
+    questions = [
+        history["content"] for history in histories if history["role"] == "user"
+    ]
 
     messages = [
         {
@@ -156,10 +163,14 @@ def nth_conversation(state: ChatState) -> ChatState:
             "content": "너는 주어지는 몇 개의 문장을 '3단어'로 요약해야해.",
         }
     ]
-    messages.append({"role": "user", "content": f"다음은 주어진 문장들이야 :\n{questions}"})  # 이전 질문들 모두
+    messages.append(
+        {"role": "user", "content": f"다음은 주어진 문장들이야 :\n{questions}"}
+    )  # 이전 질문들 모두
     messages.append({"role": "user", "content": "주어진 문장들을 3단어로 요약해줘."})
 
-    completion = ai_client.chat.completions.create(model="gpt-4o-mini", messages=messages)
+    completion = ai_client.chat.completions.create(
+        model="gpt-4o-mini", messages=messages
+    )
 
     summary = completion.choices[0].message.content
 
@@ -217,10 +228,19 @@ def conditional_about_query(state: ChatState) -> dict:
         method = answer
     elif ("recommend" in answer) or ("rec" in answer) or ("추천" in answer):
         method = "recommend_mode"
-    elif ("calculate" in answer) or ("calculator" in answer) or ("cal" in answer) or ("계산" in answer):
+    elif (
+        ("calculate" in answer)
+        or ("calculator" in answer)
+        or ("cal" in answer)
+        or ("계산" in answer)
+    ):
         method = "calculate_mode"
     elif (
-        ("finword" in answer) or ("explain" in answer) or ("fin" in answer) or ("word" in answer) or ("설명" in answer)
+        ("finword" in answer)
+        or ("explain" in answer)
+        or ("fin" in answer)
+        or ("word" in answer)
+        or ("설명" in answer)
     ):
         method = "explain_mode"
     else:
@@ -371,18 +391,26 @@ def rag_search(state: ChatState) -> ChatState:
     q_vec = embed_model.encode([user_query], convert_to_numpy=True)[0]
     if state["recommend_method"] == "fixed_deposit":
         print("*" * 10, "예금 추천", "*" * 10)
-        hits = qdrant_client.query_points(collection_name="finance_products_fixed_deposit", query=q_vec, limit=topk)
+        hits = qdrant_client.query_points(
+            collection_name="finance_products_fixed_deposit", query=q_vec, limit=topk
+        )
     elif state["recommend_method"] == "installment_deposit":
         print("*" * 10, "적금 추천", "*" * 10)
         hits = qdrant_client.query_points(
-            collection_name="finance_products_installment_deposit", query=q_vec, limit=topk
+            collection_name="finance_products_installment_deposit",
+            query=q_vec,
+            limit=topk,
         )
     elif state["recommend_method"] == "jeonse_loan":
         print("*" * 10, "대출 추천", "*" * 10)
-        hits = qdrant_client.query_points(collection_name="finance_products_jeonse_loan", query=q_vec, limit=topk)
+        hits = qdrant_client.query_points(
+            collection_name="finance_products_jeonse_loan", query=q_vec, limit=topk
+        )
     else:
         print("*" * 10, "any 추천", "*" * 10)
-        hits = qdrant_client.query_points(collection_name="finance_products_all", query=q_vec, limit=topk)
+        hits = qdrant_client.query_points(
+            collection_name="finance_products_all", query=q_vec, limit=topk
+        )
 
     vector_db_answer = hits.points[0].payload
 
@@ -605,9 +633,13 @@ def add_to_history(state: ChatState) -> ChatState:
     new_history = []
     if state.get("query", False):
         new_history.append({"role": "user", "content": state["query"], "state": "new"})
-        new_history.append({"role": "assistant", "content": state["answer"], "state": "new"})
+        new_history.append(
+            {"role": "assistant", "content": state["answer"], "state": "new"}
+        )
     else:
-        new_history.append({"role": "assistant", "content": state["answer"], "state": "new"})
+        new_history.append(
+            {"role": "assistant", "content": state["answer"], "state": "new"}
+        )
     return {"history": new_history, "visited": True, "need_user_feedback": False}
 
 
@@ -707,10 +739,19 @@ def conditional_about_fin_type(state: ChatState) -> ChatState:
         method = answer
     elif ("recommend" in answer) or ("rec" in answer) or ("추천" in answer):
         method = "recommend_mode"
-    elif ("calculate" in answer) or ("calculator" in answer) or ("cal" in answer) or ("계산" in answer):
+    elif (
+        ("calculate" in answer)
+        or ("calculator" in answer)
+        or ("cal" in answer)
+        or ("계산" in answer)
+    ):
         method = "calculate_mode"
     elif (
-        ("finword" in answer) or ("explain" in answer) or ("fin" in answer) or ("word" in answer) or ("설명" in answer)
+        ("finword" in answer)
+        or ("explain" in answer)
+        or ("fin" in answer)
+        or ("word" in answer)
+        or ("설명" in answer)
     ):
         method = "explain_mode"
     else:
@@ -775,7 +816,12 @@ def user_feedback(state: ChatState) -> ChatState:
     calculator_data = state["calculator_data"]
     category = state["category"]
     for key in calculator_data.keys():
-        if key in ["최고한도", "적립유형명", "저축금리유형명", "적립유형명저축금리유형명"]:
+        if key in [
+            "최고한도",
+            "적립유형명",
+            "저축금리유형명",
+            "적립유형명저축금리유형명",
+        ]:
             continue
         if calculator_data[key]:
             continue
@@ -783,7 +829,9 @@ def user_feedback(state: ChatState) -> ChatState:
             need_columns.append(key)
     feedback = ", ".join(need_columns)
     if need_columns:
-        human_text = interrupt(f"{feedback}에 대한 입력이 필요합니다. 정보를 알려주시면 계산해드릴게요.")
+        human_text = interrupt(
+            f"{feedback}에 대한 입력이 필요합니다. 정보를 알려주시면 계산해드릴게요."
+        )
         loop_or_not_method = "get_user_data"
         return {
             "query": human_text,
@@ -811,7 +859,12 @@ def user_feedback(state: ChatState) -> ChatState:
 
 def loop_or_not_method_router(
     state: ChatState,
-) -> Literal["get_user_data", "calc_fixed_deposit", "calc_installment_deposit", "calc_jeonse_loan"]:
+) -> Literal[
+    "get_user_data",
+    "calc_fixed_deposit",
+    "calc_installment_deposit",
+    "calc_jeonse_loan",
+]:
     """
     Loop Method에 따라 라우팅
 

@@ -3,7 +3,6 @@ from pathlib import Path
 
 from findata.call_findata_api import create_description, fetch_findata
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 data_path = BASE_DIR / "findata" / "data"
 
