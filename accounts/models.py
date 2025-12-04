@@ -67,3 +67,7 @@ class User(AbstractUser):
     life_area = models.CharField(max_length=20, null=True, choices=LIFE_AREA_CHOICES, verbose_name="거주지역")
     # 북마크 기능을 위해 상품 정보 테이블과 연결합니다.
     products = models.ManyToManyField(FinProduct, related_name="users")
+
+    @property
+    def display_name(self):
+        return self.name if self.name else self.username
