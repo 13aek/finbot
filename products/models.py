@@ -259,9 +259,7 @@ class InstallmentDepositOption(models.Model):
         ]
 
     def __str__(self):
-        return (
-            f"[적금 옵션] {self.fin_prdt_cd_id} / {self.rsrv_type_nm} / {self.save_trm}"
-        )
+        return f"[적금 옵션] {self.fin_prdt_cd_id} / {self.rsrv_type_nm} / {self.save_trm}"
 
 
 # 4. JeonseLoanOption (전세자금대출 옵션)

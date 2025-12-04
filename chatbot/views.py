@@ -20,9 +20,7 @@ def chatroom_create(request):
     POST 요청: 사용자의 요청을 받아 새로운 채팅방을 생성합니다.
     """
 
-    last_room = (
-        ChatRoom.objects.filter(user=request.user).order_by("-display_id").first()
-    )
+    last_room = ChatRoom.objects.filter(user=request.user).order_by("-display_id").first()
     if last_room:
         next_id = last_room.display_id + 1
     else:
@@ -61,18 +59,10 @@ def chat_page(request, chatroom_pk=None):
     # 유저가 메인페이지에서 채팅방 페이지를 요청한 경우
     if not chatroom_pk:
         # 가장 최근의 대화를 나눴던 대화를 조회합니다.
-        current_chat = (
-            ChatMessage.objects.filter(user=request.user)
-            .order_by("-created_at")
-            .first()
-        )
+        current_chat = ChatMessage.objects.filter(user=request.user).order_by("-created_at").first()
         # 만약 나눴던 대화가 없다면 가장 최근에 생성된 채팅방을 조회합니다.
         if not current_chat:
-            chat_room = (
-                ChatRoom.objects.filter(user=request.user)
-                .order_by("-created_at")
-                .first()
-            )
+            chat_room = ChatRoom.objects.filter(user=request.user).order_by("-created_at").first()
         else:
             # 가장 최근에 나눴던 대화를 통해 가장 최근에 대화를 나눴던 채팅방을 조회합니다.
             chat_room = current_chat.room
@@ -93,9 +83,7 @@ def chat_page(request, chatroom_pk=None):
     # langgraph_flow를 따르기 위해 ChatSession의 인스턴스를 생성합니다.
     # 현재 사용자의 이전 로그인 시점의 대화 히스토리를 인스턴스 변수로 생성합니다.
     chat = ChatSession(chat_history)
-    user_thread = {
-        "configurable": {"thread_id": chatroom_pk, "user_id": request.user.pk}
-    }
+    user_thread = {"configurable": {"thread_id": chatroom_pk, "user_id": request.user.pk}}
 
     # POST 요청일 경우 (사용자가 메시지 입력)
     if request.method == "POST":
@@ -103,28 +91,20 @@ def chat_page(request, chatroom_pk=None):
 
         if user_message:  # 빈 메시지가 아닐 때만 저장
             # 사용자 메시지 저장
-            ChatMessage.objects.create(
-                user=request.user, room=chat_room, role="user", message=user_message
-            )
+            ChatMessage.objects.create(user=request.user, room=chat_room, role="user", message=user_message)
             # 세션에 임시로 현재 로그인 상태에서 사용자가 보냈던 메시지를 저장합니다.
             # 이미 세션에 저장된 메시지가 있다면 추가합니다.
             if request.session.get(f"chat{chatroom_pk}"):
-                request.session[f"chat{chatroom_pk}"] = (
-                    request.session.get(f"chat{chatroom_pk}") + ", " + user_message
-                )
+                request.session[f"chat{chatroom_pk}"] = request.session.get(f"chat{chatroom_pk}") + ", " + user_message
             else:
                 request.session[f"chat{chatroom_pk}"] = user_message
 
             # langgraph의 flow에 따라 chat 인스턴스에 히스토리를 "new"로 추가합니다.
-            chat.state["history"].append(
-                {"role": "user", "content": user_message, "state": "new"}
-            )
+            chat.state["history"].append({"role": "user", "content": user_message, "state": "new"})
 
             # 챗봇 응답 저장
             if request.session.get("need_user_feedback"):
-                reply = chat.ask(
-                    user_message, user_thread, request.session["need_user_feedback"]
-                )
+                reply = chat.ask(user_message, user_thread, request.session["need_user_feedback"])
                 request.session["need_user_feedback"] = False
             else:
                 reply = chat.ask(user_message, user_thread)
@@ -133,9 +113,7 @@ def chat_page(request, chatroom_pk=None):
             else:
                 answer = reply["answer"]
             request.session["need_user_feedback"] = reply["need_user_feedback"]
-            ChatMessage.objects.create(
-                user=request.user, room=chat_room, role="bot", message=answer
-            )
+            ChatMessage.objects.create(user=request.user, room=chat_room, role="bot", message=answer)
 
             # 사용자의 채팅을 바탕으로 현재 챗봇이 recommend mode라면 추천 상품 정보를 채팅에 추가합니다.
             if reply["recommend_mode"]:
@@ -162,9 +140,7 @@ def chat_page(request, chatroom_pk=None):
         answer = reply["answer"]
         # 중복 인사를 방지하기 위해 세션에 로그인 상태를 기록합니다.
         request.session[f"login_visited{chatroom_pk}"] = True
-        ChatMessage.objects.create(
-            user=request.user, room=chat_room, role="bot", message=answer
-        )
+        ChatMessage.objects.create(user=request.user, room=chat_room, role="bot", message=answer)
 
     # 2번째 방문 이상이고 그 로그인의 첫 방문인 경우 인삿말을 출력합니다.
     if not request.session.get(f"login_visited{chatroom_pk}") and chat_history:
@@ -172,15 +148,11 @@ def chat_page(request, chatroom_pk=None):
         answer = reply["answer"]
         # 중복 인사를 방지하기 위해 세션에 로그인 상태를 기록합니다.
         request.session[f"login_visited{chatroom_pk}"] = True
-        ChatMessage.objects.create(
-            user=request.user, room=chat_room, role="bot", message=answer
-        )
+        ChatMessage.objects.create(user=request.user, room=chat_room, role="bot", message=answer)
     # 사용자의 모든 채팅방을 조회
     rooms = ChatRoom.objects.filter(user=request.user)
     # 현재 채팅방의 메시지만 조회
-    messages = ChatMessage.objects.filter(room=chat_room).order_by(
-        "created_at"
-    )  # 오래된 순
+    messages = ChatMessage.objects.filter(room=chat_room).order_by("created_at")  # 오래된 순
     context = {
         "messages": messages,
         "rooms": rooms,

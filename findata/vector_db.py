@@ -8,6 +8,7 @@ from qdrant_client.models import Distance, PointStruct, VectorParams
 from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
 
+
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 load_dotenv("../.env")
@@ -109,9 +110,7 @@ def save_vector_db(
         points.append(PointStruct(id=point_id, vector=vec, payload=payload))
     batch_size = 200
     for i in range(0, len(points), batch_size):
-        client.upsert(
-            collection_name=db_collection_name, points=points[i : i + batch_size]
-        )
+        client.upsert(collection_name=db_collection_name, points=points[i : i + batch_size])
     # client.upsert(collection_name=db_collection_name, points=points)
 
     print(f"\n 업로드 완료: 총 {len(points)}개 chunk (Document 기반)")

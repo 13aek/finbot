@@ -2,21 +2,36 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command
 
 from finbot.singleton.chat_checkpoint import memory, memory_store
-from rag_flow.graph_nodes import (ChatState, add_to_history, after_calculate,
-                                  agent_method_router, before_calculate,
-                                  calc_fixed_deposit, calc_installment_deposit,
-                                  calc_jeonse_loan, calculator_method_router,
-                                  check_findata, classify_feedback,
-                                  conditional_about_fin_type,
-                                  conditional_about_history,
-                                  conditional_about_query,
-                                  conditional_about_recommend, feedback_router,
-                                  fill_calculator_data, fin_word_explain,
-                                  first_conversation, get_user_data,
-                                  human_feedback, loop_or_not_method_router,
-                                  mode_router, normal_chat, nth_conversation,
-                                  rag_search, recommend_method_router,
-                                  user_feedback)
+from rag_flow.graph_nodes import (
+    ChatState,
+    add_to_history,
+    after_calculate,
+    agent_method_router,
+    before_calculate,
+    calc_fixed_deposit,
+    calc_installment_deposit,
+    calc_jeonse_loan,
+    calculator_method_router,
+    check_findata,
+    classify_feedback,
+    conditional_about_fin_type,
+    conditional_about_history,
+    conditional_about_query,
+    conditional_about_recommend,
+    feedback_router,
+    fill_calculator_data,
+    fin_word_explain,
+    first_conversation,
+    get_user_data,
+    human_feedback,
+    loop_or_not_method_router,
+    mode_router,
+    normal_chat,
+    nth_conversation,
+    rag_search,
+    recommend_method_router,
+    user_feedback,
+)
 
 
 class ChatSession:
@@ -35,9 +50,7 @@ class ChatSession:
         """
         # 히스토리가 DB에 있다면 old history로 추가
         if user_history:
-            self.state["history"].append(
-                {"role": "user", "content": user_history, "state": "old"}
-            )
+            self.state["history"].append({"role": "user", "content": user_history, "state": "old"})
             self.state["visited"] = True
 
     def ask(self, query: str, thread: dict, need_user_feedback: bool = False):
@@ -70,9 +83,7 @@ class ChatSession:
                 self.state = app_graph.invoke(self.state, thread)
             else:
                 self.state["query"] = query
-                self.state = app_graph.invoke(
-                    Command(resume=query, update=self.state), thread
-                )
+                self.state = app_graph.invoke(Command(resume=query, update=self.state), thread)
         return self.state
 
 

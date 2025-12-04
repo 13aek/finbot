@@ -1,6 +1,7 @@
 from findata.call_findata_api import create_description, fetch_findata
 from findata.save_to_db_final import save_to_db_final
 
+
 if __name__ == "__main__":
     print("=== RAW 금융상품 + 설명 생성 후 저장 시작 ===")
     data = fetch_findata("fixed_deposit")

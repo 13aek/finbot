@@ -5,6 +5,7 @@ from django.shortcuts import render
 
 from .models import FinProduct
 
+
 # Create your views here.
 
 
@@ -79,9 +80,7 @@ def search(request):
                 product=Replace("fin_prdt_nm", Value(" "), Value("")),
                 company=Replace("kor_co_nm", Value(" "), Value("")),
             )
-            .filter(
-                Q(product__icontains=clean_query) | Q(company__icontains=clean_query)
-            )
+            .filter(Q(product__icontains=clean_query) | Q(company__icontains=clean_query))
             .order_by("fin_prdt_cd")
         )
     # 페이지당 상품 수: 5
