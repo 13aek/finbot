@@ -14,12 +14,13 @@ from rag_flow.graph_nodes import (
     calculator_method_router,
     check_findata,
     classify_feedback,
-    conditional_about_fin_type,
     conditional_about_history,
     conditional_about_query,
     conditional_about_recommend,
+    feedback_or_not_method_router,
     feedback_router,
     fill_calculator_data,
+    fill_fin_type,
     fin_word_explain,
     first_conversation,
     get_user_data,
@@ -31,6 +32,7 @@ from rag_flow.graph_nodes import (
     rag_search,
     recommend_method_router,
     user_feedback,
+    using_only_user_input_data,
 )
 
 
@@ -103,7 +105,9 @@ graph.add_node("before_calculate", before_calculate)
 
 graph.add_node("check_findata", check_findata)
 graph.add_node("fill_calculator_data", fill_calculator_data)
-graph.add_node("conditional_about_fin_type", conditional_about_fin_type)
+graph.add_node("using_only_user_input_data", using_only_user_input_data)
+graph.add_node("fill_fin_type", fill_fin_type)
+
 graph.add_node("user_feedback", user_feedback)
 graph.add_node("get_user_data", get_user_data)
 graph.add_node("calc_fixed_deposit", calc_fixed_deposit)
@@ -166,9 +170,19 @@ graph.add_conditional_edges(
     calculator_method_router,
     {
         "using_recommended_data": "fill_calculator_data",
-        "using_only_user_input_data": "conditional_about_fin_type",
+        "using_only_user_input_data": "using_only_user_input_data",
     },
 )
+
+graph.add_conditional_edges(
+    "using_only_user_input_data",
+    feedback_or_not_method_router,
+    {
+        "pass": "user_feedback",
+        "fill_fin_type": "fill_fin_type",
+    },
+)
+graph.add_edge("fill_fin_type", "using_only_user_input_data")
 
 graph.add_edge("fill_calculator_data", "user_feedback")
 graph.add_conditional_edges(
@@ -181,6 +195,7 @@ graph.add_conditional_edges(
         "calc_jeonse_loan": "calc_jeonse_loan",
     },
 )
+
 
 graph.add_edge("get_user_data", "user_feedback")
 graph.add_edge("calc_fixed_deposit", "after_calculate")
