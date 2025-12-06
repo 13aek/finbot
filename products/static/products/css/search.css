@@ -13,23 +13,31 @@ body {
 /* -------- */
 
 .main-link img {
-  height: 23px;
+  height: 25px;
   padding-left: 10px;
 }
 
 .header {
     box-sizing: border-box;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     position: relative;
-    padding: 30px 0px 15px;
+    padding-top: 30px;
+    /* flex-wrap 상태에 간격 부여 */
+    row-gap: 15px;
 }
 
-.left-group,
+.left-group {
+    display: flex;
+}
+
 .right-group {
     display: flex;
+    flex-wrap: wrap;
     gap: 35px;
+    padding-left: 10px;
 }
 
 .header a {
@@ -60,6 +68,7 @@ body {
 
 .search-header {
   width: 100%;
+  margin-top: 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -133,17 +142,23 @@ body {
 }
 
 .product-name {
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 700;
     color: #000000;
 }
+
+/* 링크 밑줄 제거 */
+.product-name-link {
+    text-decoration: none;
+}
+
 
 .info-grid {
     display: grid;
     grid-template-columns: 150px 1fr;
     row-gap: 15px;
     margin-top: 10px;
-    font-size: 15px;
+    font-size: 16px;
 }
 
 .label {
@@ -157,7 +172,7 @@ body {
 }
 
 .no-result {
-    font-size: 15px;
+    font-size: 16px;
     color: #000000;
     padding: 50px;
 }
@@ -239,5 +254,11 @@ body {
     .chatbot-btn img {
         content: url('/static/images/finbot-btn-short.png');
         width: 55px;
+    }
+}
+
+@media (max-height: 500px) {
+    .chatbot-btn {
+        display: none;
     }
 }
