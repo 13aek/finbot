@@ -11,23 +11,20 @@
 
 {% block content %}
 <div class="container">
-  
-  {# 사이드바 #}
-  <div id="sidebar" class="sidebar">
 
-    {# 로고 이미지 #}
-    <a href="{% url 'products:index' %}" class="main-link">
-      <img src="{% static 'images/logo-gray.png' %}" alt="FINBOT Logo">
-    </a>
+  <header class="header">
+    <div class="left-group">
+      <a href="{% url 'products:index' %}" class="main-link">
+        <img src="{% static 'images/logo-white.png' %}" alt="FINBOT Logo">
+      </a>
+    </div>
 
-    {# 페이지 항목 #}
-    <a href="{% url 'accounts:update' %}" class="active">회원정보 수정</a>
-    <a href="{% url 'accounts:password' %}">비밀번호 변경</a>
-    <a href="{% url 'accounts:delete' %}">회원 탈퇴</a>
-
-    {# 로그아웃 버튼 #}
-    <a href="{% url 'accounts:logout' %}" class="logout-link">로그아웃</a>
-  </div>
+    <div class="right-group">
+        <a href="{% url 'accounts:update' %}" class="active">회원정보 수정</a>
+        <a href="{% url 'accounts:password' %}">비밀번호 변경</a>
+        <a href="{% url 'accounts:delete' %}">회원 탈퇴</a>
+    </div>
+  </header>
 
   <form action="{% url 'accounts:update' %}" method="POST">
     {% csrf_token %}
@@ -73,15 +70,15 @@
         {{ form.life_area }}
       </div>
     </div>
-
-    {# 7. 채팅/정보 수정 내역 저장 버튼 #}
-    <div class="btn-group">
-      <a href="{% url 'chat:current_chat' %}" class="chatbot-btn">
-        <img src="{% static 'images/finbot-btn-long.png' %}" alt="FINBOT Chat">
-      </a>
-      <button type="submit" class="btn-bottom-right">정보 수정</button>
-    </div>
   </form>
+
+  {# 7. 채팅/정보 수정 내역 저장 버튼 #}
+  <div class="btn-group">
+    <a href="{% url 'chat:current_chat' %}" class="chatbot-btn">
+      <img src="{% static 'images/finbot-btn-long.png' %}" alt="FINBOT Chat">
+    </a>
+    <button type="submit" class="btn-bottom-right">정보 수정</button>
+  </div>
 </div>
 
 <script>
