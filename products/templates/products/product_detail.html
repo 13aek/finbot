@@ -1,5 +1,12 @@
-{% extends "base.html" %}
+{# product_detail.html #}
+{# 상품 상세 정보 화면 템플릿 #}
 
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'products/css/product-detail.css' %}">
+{% endblock styles %}
 
 {% block content %}
   <div class="container">
