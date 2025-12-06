@@ -132,8 +132,12 @@ body {
     border-top: 1px solid #F3F3F3;
 }
 
+.product-link {
+    text-decoration: none;   
+}
+
 .product-name {
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 700;
     color: #000000;
 }
@@ -148,11 +152,11 @@ body {
 
 .label {
     font-weight: 600;
-    color: #5A5A5A;
+    color: #424242;
 }
 
 .value {
-    color: #5A5A5A;
+    color: #424242;
     line-height: 1.5;
 }
 
