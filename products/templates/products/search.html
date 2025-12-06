@@ -75,8 +75,16 @@
         <div class="label">회사명</div>
         <div class="value">{{ p.kor_co_nm }}</div>
 
-        <div class="label">카테고리</div>
-        <div class="value">{{ p.category }}</div>
+        {% if p.category == "jeonse_loan" %}
+          <div class="label">전월 취급 평균 금리</div>
+          <div class="value">연 {{ p.jeonse_options.first.lend_rate_avg }} %</div>
+        {% elif p.category == "installment_deposit" %}
+          <div class="label">적금 저축 금리</div>
+          <div class="value">연 {{ p.installment_options.first.intr_rate2 }} %</div>
+        {% elif p.category == "fixed_deposit" %}
+          <div class="label">정기 예금 저축 금리</div>
+          <div class="value">연 {{ p.fixed_options.first.intr_rate }} %</div>
+        {% endif %}
 
         <div class="label">가입 방법</div>
         <div class="value">{{ p.join_way }}</div>
