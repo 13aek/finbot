@@ -12,6 +12,7 @@
 {% block content %}
 <div class="container">
 
+  {# 상단바 #}
   <header class="header">
     <div class="left-group">
       <a href="{% url 'products:index' %}" class="main-link">
@@ -70,15 +71,15 @@
         {{ form.life_area }}
       </div>
     </div>
-  </form>
 
-  {# 7. 채팅/정보 수정 내역 저장 버튼 #}
-  <div class="btn-group">
-    <a href="{% url 'chat:current_chat' %}" class="chatbot-btn">
-      <img src="{% static 'images/finbot-btn-long.png' %}" alt="FINBOT Chat">
-    </a>
-    <button type="submit" class="btn-bottom-right">정보 수정</button>
-  </div>
+    {# 7. 채팅/정보 수정 내역 저장 버튼 #}
+    <div class="btn-group">
+      <a href="{% url 'chat:current_chat' %}" class="chatbot-btn">
+        <img src="{% static 'images/finbot-btn-long.png' %}" alt="FINBOT Chat">
+      </a>
+      <button type="submit" class="btn-bottom-right">정보 수정</button>
+    </div>
+  </form>
 </div>
 
 <script>

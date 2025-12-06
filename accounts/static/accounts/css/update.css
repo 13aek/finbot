@@ -53,7 +53,6 @@ select {
     display: flex;
     justify-content: flex-end;
     gap: 15px;
-    padding-right: 60px;
 }
 
 /* 정보 수정 버튼 */
