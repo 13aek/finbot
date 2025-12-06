@@ -1,0 +1,116 @@
+body {
+    background-color: #F3F3F3;
+    font-family: 'Pretendard', sans-serif;
+}
+
+.content-wrapper {
+    width: 80%;
+    margin: 0 auto;
+}
+
+/* -------- */
+/* 1. 상단바 */
+/* -------- */
+.main-link img {
+  height: 23px;
+  padding-left: 10px;
+}
+
+.header {
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    padding: 30px 0px 15px;
+}
+
+.left-group,
+.right-group {
+    display: flex;
+    gap: 35px;
+}
+
+.header a {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* 회원 정보, 관심 상품 버튼 */
+.info-btn {
+    border: none;
+    color: #8B8B8B;
+}
+
+/* 로그인 or 로그아웃 버튼 */
+.logout-btn {
+    border: none;
+    color: #3F72AF;
+}
+
+
+/* ----------- */
+/* 2. 상세 내용 */
+/* ----------- */
+.result-container {
+    width: 100%;
+    margin: 20px auto 50px auto;
+    background-color: #FFFFFF;
+    border-radius: 30px;
+}
+
+.result-item {
+    padding: 50px;
+}
+
+/* 상품 이름 및 상품 옵션 */
+.product-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000000;
+    margin: 0 0 30px 0;
+}
+
+.info-grid {
+    display: grid;
+    align-items: center;
+    grid-template-columns: 150px 1fr;
+    row-gap: 20px;
+    margin-top: 10px;
+    font-size: 15px;
+}
+
+.label {
+    font-weight: 600;
+    color: #424242;
+}
+
+.value {
+    line-height: 1.5;
+    color: #424242;
+}
+
+/* ----------- */
+/* 3. 상품 옵션 */
+/* ----------- */
+.option-name {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 50px 0 30px 0;
+}
+
+.option-card {
+    display: flex;
+    flex-direction: column;
+    background-color: #FFFFFF;
+    color: #000000;
+    border: 1px solid #F3F3F3;
+    border-radius: 30px;
+    padding: 50px;
+    margin: 30px 0;
+}
