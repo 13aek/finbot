@@ -1,79 +1,84 @@
 /* mypage-layout.css */
 /* 회원 정보 관련 페이지에서 사용되는 공통 템플릿 */
-
 /* 1. update.html (회원 정보 조회 및 수정 페이지) */
 /* 2. password.html (비밀번호 변경 페이지) */
 
 /* 배경 */
 html, body {
-  height: 100%;
-  margin: 0;
-  background-color: #FFFFFF;
-  font-family: 'Pretendard', sans-serif;
+    height: 100%;
 }
 
-/* 컨테이너 */
+body {
+    margin: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #F3F3F3;
+    font-family: 'Pretendard', sans-serif;
+}
+
+/* 입력 폼 컨테이너 */
 .container {
-  height: 100%;
-  display: flex;
-  gap: 40px;
-  padding: 20px;
-  box-sizing: border-box;
+    width: 80%;
+    min-width: 450px;
+    max-width: 1000px;
+    height: 80vh;
+    max-height: 650px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    background-color: #FFFFFF;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
 }
 
-/* ---------- */
-/* 1. 사이드바 */
-/* ---------- */
-.sidebar {
-  width: 270px;
-  height: 100%;
-  background-color: #F3F3F3;
-  color: #8B8B8B; 
-  padding: 50px 0px 30px 40px;
-  box-sizing: border-box;
-  display: flex;
-  gap: 25px;
-  flex-shrink: 0;  /* 최소 너비 보장*/
-  flex-direction: column;
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-/* 로고 */
+/* -------- */
+/* 1. 상단바 */
+/* -------- */
 .main-link img {
   height: 25px;
-  width: auto;
-  display: block;
-  padding-bottom: 20px;
+  padding-left: 10px;
 }
 
-/* 내부 글씨 */
-.sidebar a {
-  text-decoration: none;
-  font-size: 16px;
-  color: #8B8B8B;
+.header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 50px 60px 40px 50px;
 }
 
-.sidebar a.active {
+.left-group {
+    display: flex;
+}
+
+.right-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 35px;
+    padding-left: 10px;
+}
+
+.right-group .active {
   color: #3F72AF;
-  font-weight: 700;
 }
 
-/* 로그아웃 */
-.logout-link {
-  margin-top: auto;
+.header a {
+    text-decoration: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #8B8B8B;
 }
 
 /* --------------- */
 /* 2. 폼 공통 스타일 */
 /* --------------- */
-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-grow: 1;
-}
-
 form input:focus {
   outline: none; 
   border-color: #8B8B8B;
