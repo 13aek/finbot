@@ -16,6 +16,7 @@ from chatbot.models import ChatRoom
 from products.models import FinProduct
 
 from .forms import CustomUserChangeForm, CustomUserCreationForm
+from .models import Bookmark
 
 
 # Create your views here.
@@ -311,11 +312,13 @@ def bookmark(request, product_code):
     """
     # 북마크할 상품을 조회합니다.
     product = FinProduct.objects.get(fin_prdt_cd=product_code)
+    user = request.user
     # 사용자가 해당 상품을 북마크 했는지 여부에 따라 분기합니다.
-    if request.user in product.users.all():
-        product.users.remove(request.user)
+    bookmark = Bookmark.objects.filter(user=user, product=product)
+    if bookmark.exists():
+        bookmark.delete()
     else:
-        product.users.add(request.user)
+        Bookmark.objects.create(user=user, product=product)
     # 상품 검색 페이지나 채팅 페이지에서 북마크 요청을 보낸 경우 요청을 보낸 페이지로 리다이렉트합니다.
     next_url = request.POST.get("next")
     # 만약 url을 브라우저에 직접 입력해서 보냈다면 메인 페이지로 리다이렉트합니다.
@@ -336,7 +339,7 @@ def bookmark_list(request):
         - GET 요청일 경우, 사용자의 모든 북마크된 상품을 반환합니다.
     """
     # 해당 사용자가 북마크한 모든 상품을 조회합니다.
-    products = FinProduct.objects.filter(users=request.user)
+    products = FinProduct.objects.filter(bookmark_lists__user=request.user).order_by("-bookmark_lists__created_at")
     # 페이지당 상품 수: 6
     # 페이지네이션 그룹 단위: 5
     paginator = Paginator(products, 6)

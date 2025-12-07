@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -66,4 +67,20 @@ class User(AbstractUser):
     earnings = models.CharField(max_length=20, null=True, choices=EARNINGS_CHOICES, verbose_name="소득")
     life_area = models.CharField(max_length=20, null=True, choices=LIFE_AREA_CHOICES, verbose_name="거주지역")
     # 북마크 기능을 위해 상품 정보 테이블과 연결합니다.
-    products = models.ManyToManyField(FinProduct, related_name="users")
+    products = models.ManyToManyField(FinProduct, through="Bookmark", related_name="users")
+
+
+class Bookmark(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="bookmark_lists")
+    product = models.ForeignKey(
+        FinProduct,
+        to_field="fin_prdt_cd",
+        db_column="fin_prdt_cd",
+        on_delete=models.CASCADE,
+        related_name="bookmark_lists",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "bookmark"
+        ordering = ["-created_at"]
