@@ -3,7 +3,6 @@ body {
     padding: 0;
     background-color: #FFFFFF;
     font-family: 'Pretendard', sans-serif;
-    height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -63,16 +62,22 @@ body {
 }
 
 .main-content {
-    margin-top: 20vh; 
+    width: 100%;
+    max-width: 1200px;
+    margin: 200px auto 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 0 20px; 
+    box-sizing: border-box;
 }
 
 .search-form {
     display: flex;
     justify-content: center;
-    width: 1000px;
+    width: 100%;
+    max-width: 1000px;
+    min-width: 400px;
 }
 
 .search-input-wrapper {
@@ -136,7 +141,6 @@ body {
     margin-top: 70px;
     width: 100%;
     max-width: 1200px;
-    text-align: left;
 }
 
 .recommend-title {
@@ -144,7 +148,6 @@ body {
     font-weight: 800;
     margin-bottom: 25px;
     color: #5a5a5a;
-    padding-left: 5px;
 }
 
 .highlight-title {
@@ -153,22 +156,25 @@ body {
 }
 
 .card-container {
-    display: flex;
-    gap: 50px;
-    justify-content: center;
+    width: 100%;
+    min-width: 300px;
+    display: grid;
+    justify-items: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+    grid-gap: 70px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
 .rec-card {
-    width: 300px;
-    height: 200px;
+    width: 100%;
+    min-height: 200px;
     padding: 25px;
     background-color: #F3F3F3;
     border-radius: 20px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
 }
 
 .rec-card h3 {
@@ -203,17 +209,16 @@ body {
 /* ------------- */
 
 .pagination {
-    display: flex;
-    justify-content: right;
-    padding-top: 20px;
     font-size: 13px;
+    padding: 30px 0;
+    display: flex;
+    justify-content: center;
 }
 
 .pagination a {
     color: #8B8B8B;
     text-decoration: none;
     padding: 5px 10px;
-    border-radius: 8px;
 }
 
 .pagination span {
@@ -233,4 +238,10 @@ body {
     right: 2%;
     display: block;
     z-index: 1000;
+}
+
+@media (max-height: 500px) {
+    .chatbot-btn {
+        display: none;
+    }
 }
