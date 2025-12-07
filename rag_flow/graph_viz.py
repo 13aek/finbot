@@ -7,7 +7,7 @@ from rag_flow.graph_flow import app_graph
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-viz_path = BASE_DIR / "rag_flow" / "graph_images" / "graph_viz_semi_final.png"
+viz_path = BASE_DIR / "rag_flow" / "graph_images" / "graph_viz_semi_final2.png"
 
 display(
     Image(

@@ -136,12 +136,12 @@
 
       {% else %}
       {# 채팅 봇의 메시지 #}
-        {# 만약 추천 상품이 담겨있는 채팅이라면 #}
+        {# 추천 상품 #}
         {% if msg.product %}
           <div class="message-container recommend-message">
             <div class="bubble">
               <div class="recommend-header">
-                <p class="recommend-title">{{ msg.message }}</p>
+                <p class="recommend-title">{{ msg.product.fin_prdt_nm}}</p>
                 {# 북마크 버튼 #}
                 <form action="{% url "accounts:bookmark" msg.product.fin_prdt_cd %}" method="POST">
                   {% csrf_token %}
@@ -165,9 +165,6 @@
               </div>
 
               <div class="recommend-grid">
-                <span class="recommend-label">상품 이름</span>
-                <span class="recommend-value">{{ msg.product.fin_prdt_nm}}</span>
-
                 <span class="recommend-label">은행</span>
                 <span class="recommend-value">{{ msg.product.kor_co_nm }}</span>
 

@@ -48,7 +48,7 @@
       {% for p in page_obj %}
       <div class="result-item">
         <div class="result-bookmark">
-          <a href="{% url "products:product_detail" p.fin_prdt_cd %}"><p class="product-name">{{ p.fin_prdt_nm }}</p></a>
+          <a href="{% url "products:product_detail" p.fin_prdt_cd %}" class="product-name-link"><p class="product-name">{{ p.fin_prdt_nm }}</p></a>
 
           <form method="POST" action="{% url 'accounts:bookmark' p.fin_prdt_cd %}">
             {% csrf_token %}
