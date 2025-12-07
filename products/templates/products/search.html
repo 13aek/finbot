@@ -76,14 +76,23 @@
         <div class="value">{{ p.kor_co_nm }}</div>
 
         {% if p.category == "jeonse_loan" %}
-          <div class="label">전월 취급 평균 금리</div>
-          <div class="value">연 {{ p.jeonse_options.first.lend_rate_avg }} %</div>
+          {% if p.jeonse_options.first.lend_rate_avg %}
+            <div class="label">전월 취급 평균 금리</div>
+            <div class="value">연 {{ p.jeonse_options.first.lend_rate_avg }} %</div>
+          {% endif %}
+
         {% elif p.category == "installment_deposit" %}
-          <div class="label">적금 저축 금리</div>
-          <div class="value">연 {{ p.installment_options.first.intr_rate2 }} %</div>
+          {% if p.installment_options.first.intr_rate2 %}
+            <div class="label">적금 저축 금리</div>
+            <div class="value">연 {{ p.installment_options.first.intr_rate2 }} %</div>
+          {% endif %}
+
         {% elif p.category == "fixed_deposit" %}
-          <div class="label">정기 예금 저축 금리</div>
-          <div class="value">연 {{ p.fixed_options.first.intr_rate }} %</div>
+          {% if p.fixed_options.first.intr_rate %}
+            <div class="label">정기 예금 저축 금리</div>
+            <div class="value">연 {{ p.fixed_options.first.intr_rate }} %</div>
+          {% endif %}
+
         {% endif %}
 
         <div class="label">가입 방법</div>
