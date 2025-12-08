@@ -40,7 +40,12 @@ if __name__ == "__main__":
         save_vector_db(chunk(data1), category="fixed_deposit", path=save_path, save_to=args.save_to)
 
         data2 = fetch_findata(category="installment_deposit")
-        save_vector_db(chunk(data2), category="installment_deposit", path=save_path, save_to=args.save_to)
+        save_vector_db(
+            chunk(data2),
+            category="installment_deposit",
+            path=save_path,
+            save_to=args.save_to,
+        )
 
         data3 = fetch_findata(category="jeonse_loan")
         save_vector_db(chunk(data3), category="jeonse_loan", path=save_path, save_to=args.save_to)

@@ -10,11 +10,7 @@ from finbot.singleton.ai_client import ai_client
 from finbot.singleton.embedding_model import embed_model
 from finbot.singleton.vectordb import qdrant_client
 from findata.config_manager import JsonConfigManager
-from rag_flow.calculators import (
-    calculator_fixed_deposit,
-    calculator_installment_deposit,
-    calculator_jeonse_loan,
-)
+from rag_flow.calculators import calculator_fixed_deposit, calculator_installment_deposit, calculator_jeonse_loan
 from rag_flow.decorators import error_handling_decorator, timing_decorator
 from rag_flow.utils import number_to_korean_large
 
@@ -385,7 +381,9 @@ def rag_search(state: ChatState) -> ChatState:
     elif state["recommend_method"] == "installment_deposit":
         print("*" * 10, "적금 추천", "*" * 10)
         hits = qdrant_client.query_points(
-            collection_name="finance_products_installment_deposit", query=q_vec, limit=topk
+            collection_name="finance_products_installment_deposit",
+            query=q_vec,
+            limit=topk,
         )
     elif state["recommend_method"] == "jeonse_loan":
         print("*" * 10, "대출 추천", "*" * 10)
@@ -928,7 +926,12 @@ def user_feedback(state: ChatState) -> ChatState:
 
 def loop_or_not_method_router(
     state: ChatState,
-) -> Literal["get_user_data", "calc_fixed_deposit", "calc_installment_deposit", "calc_jeonse_loan"]:
+) -> Literal[
+    "get_user_data",
+    "calc_fixed_deposit",
+    "calc_installment_deposit",
+    "calc_jeonse_loan",
+]:
     """
     Loop Method에 따라 라우팅
 
