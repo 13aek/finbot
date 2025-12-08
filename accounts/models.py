@@ -69,6 +69,14 @@ class User(AbstractUser):
     # 북마크 기능을 위해 상품 정보 테이블과 연결합니다.
     products = models.ManyToManyField(FinProduct, through="Bookmark", related_name="users")
 
+    @property
+    def display_name(self):
+        # null, 빈 문자열, "None", "none", "NONE", 공백 모두 처리
+        if not self.name or str(self.name).strip().lower() in ["none", "", None]:
+            return self.username
+        return self.name
+
+
 
 class Bookmark(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="bookmark_lists")
@@ -84,3 +92,4 @@ class Bookmark(models.Model):
     class Meta:
         db_table = "bookmark"
         ordering = ["-created_at"]
+

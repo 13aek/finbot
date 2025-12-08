@@ -2,56 +2,68 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Value
 from django.db.models.functions import Replace
 from django.shortcuts import render
-
+from django.db import models
 from .models import FinProduct
+import random
 
+from django.db.models import Count
+from accounts.models import Bookmark
 
-# Create your views here.
+from products.services import (
+    get_main_recommendations_for_guest,
+    get_main_recommendations_for_user,
+)
+from products.models import FinProduct
+
 
 
 def index(request):
-    """
-    메인 검색 페이지를 렌더링
-
-    사용자가 금융상품명을 입력할 수 있는 검색창을 표시
-    검색 실행은 GET 요청으로 'search' 뷰에 전달되며,
-    이 함수 자체는 별도의 데이터 조회 로직 없이 템플릿만 반환
-
-    Args:
-        request(HttpRequest): 클라이언트의 요청 객체
-
-    Returns:
-        HttpResponse: 검색창이 포함된 'products/search.html' 템플릿 렌더링 결과
-    """
-    bookmarked = []
     if request.user.is_authenticated:
-        bookmarked = request.user.products.all()
-    # return render(request, "products/index.html", {"bookmarked": bookmarked})
-    # 페이지당 상품 수: 3
-    # 페이지네이션 그룹 단위: 10
-    paginator = Paginator(bookmarked, 3)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
+        _, bookmark_count = get_main_recommendations_for_user(request.user)
+        no_bookmarks = (bookmark_count == 0)
 
-    current_page = page_obj.number
-    start_page = ((current_page - 1) // 10) * 10 + 1
-    end_page = min(start_page + 9, paginator.num_pages)
+        my_bookmarks = FinProduct.objects.filter(
+            fin_prdt_cd__in=Bookmark.objects.filter(user=request.user)
+                .values_list("product_id", flat=True)
+        )
+    else:
+        my_bookmarks = []
+        no_bookmarks = False
 
-    previous_page = max(current_page - 1, 1)
-    next_page = min(current_page + 1, paginator.num_pages)
+    deposits = list(FinProduct.objects.filter(category__icontains="예금"))
+    savings  = list(FinProduct.objects.filter(category__icontains="적금"))
+    loans    = list(FinProduct.objects.filter(category__icontains="대출"))
 
-    show_previous_10 = current_page > 1  # 이전 10개 버튼을 표시할지 여부
-    show_next_10 = current_page < paginator.num_pages
-    context = {
-        "page_obj": page_obj,
-        "start_page": start_page,
-        "end_page": end_page,
-        "previous_page": previous_page,
-        "next_page": next_page,
-        "show_previous_10": show_previous_10,
-        "show_next_10": show_next_10,
-    }
-    return render(request, "products/index.html", context)
+    random_pool = deposits + savings + loans
+
+    # 북마크 3개 이상 → 인기순 TOP3
+    if len(my_bookmarks) >= 3:
+        products = (
+            my_bookmarks
+            .annotate(total_bookmarks_count=models.Count("bookmark_lists"))
+            .order_by("-total_bookmarks_count")[:3]
+        )
+        return render(request, "products/index.html", {
+            "products": products,
+            "no_bookmarks": False,
+        })
+
+    # 북마크 1~2개 → 그대로 + 랜덤 추천 보완
+    pick = list(my_bookmarks)
+    need = 3 - len(pick)
+
+    if need > 0:
+        pool = [p for p in random_pool if p not in pick]
+        if pool:
+            pick.extend(random.sample(pool, min(need, len(pool))))
+
+    products = pick[:3]
+
+    return render(request, "products/index.html", {
+        "products": products,
+        "no_bookmarks": len(my_bookmarks) == 0,
+    })
+
 
 
 def search(request):
