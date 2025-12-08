@@ -16,9 +16,7 @@ def pick_one(queryset):
 
 
 def index(request):
-    # -----------------------------------------------------
-    # 0. 내 북마크 조회
-    # -----------------------------------------------------
+    # 내 북마크 조회
     if request.user.is_authenticated:
         bookmark_ids = Bookmark.objects.filter(
             user=request.user
@@ -32,9 +30,7 @@ def index(request):
 
     bm_count = len(my_bookmarks)
 
-    # -----------------------------------------------------
-    # 1. 북마크 3개 이상 → 인기순 TOP3
-    # -----------------------------------------------------
+    # 북마크 3개 이상 → 인기순 TOP3
     if bm_count >= 3:
         products = (
             my_bookmarks_qs
@@ -50,9 +46,7 @@ def index(request):
             },
         )
 
-    # -----------------------------------------------------
-    # 2. 북마크 0~2개 → 카테고리 / 전체 랜덤 조합
-    # -----------------------------------------------------
+    # 북마크 0~2개 → 카테고리 / 전체 랜덤 조합
     selected: list[FinProduct] = list(my_bookmarks)
     picked_ids = {p.fin_prdt_cd for p in selected}
 
@@ -69,7 +63,7 @@ def index(request):
                 selected.append(p)
                 picked_ids.add(p.fin_prdt_cd)
 
-    # --- 2-1. 북마크 0개일 때: 카테고리 우선 ---
+    # 북마크 0개일 때: 카테고리 우선
     if bm_count == 0:
         deposits = FinProduct.objects.filter(category__icontains="예금")
         savings = FinProduct.objects.filter(category__icontains="적금")
@@ -85,7 +79,7 @@ def index(request):
             all_products = FinProduct.objects.all()
             pick_from_qs(all_products, 3 - len(selected))
 
-    # --- 2-2. 북마크 1~2개일 때: 전체에서 랜덤 보충 ---
+    # 북마크 1~2개일 때: 전체에서 랜덤 보충
     else:
         all_products = FinProduct.objects.all()
         pick_from_qs(all_products, 3 - len(selected))
