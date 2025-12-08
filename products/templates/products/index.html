@@ -36,11 +36,30 @@
     <button type="submit" style="display: none;">검색</button>
   </form>
 
+  {% if recommended_products %}
+  <section class="recommend-section">
+    <h2 class="recommend-title">
+      {% if request.user.is_authenticated %}
+        {{ request.user.display_name }}님께 추천하는
+        <span class="highlight-title">금융상품</span>
+      {% else %}
+        고객님께 추천드리는
+        <span class="highlight-title">금융상품</span>
+      {% endif %}
+    </h2>
 
-
-
-
-
+    <div class="card-container">
+      {% for p in recommended_products %}
+        <div class="rec-card">
+          <div class="rec-card-inner">
+            <h3>{{ p.fin_prdt_nm }}</h3>
+            <p>{{ p.kor_co_nm }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
 
 
 
@@ -50,26 +69,23 @@
       <h2 class="recommend-title">
         {{ request.user.display_name }}님의 <span class="highlight-title">관심 상품</span>
       </h2>
-      
+          
       {% if no_bookmarks %}
         <p class="no-item">아직 등록한 관심 상품이 없습니다.
           마음에 드는 상품을 추가해 보세요.</p>
       {% endif %}
-    {% else %}
-      <h2 class="recommend-title">
-        고객님께 추천해 드리는 <span class="highlight-title">금주의 상품</span>
-      </h2>
-    {% endif %}
-    <div class="card-container">
-      {% for product in products %}
-        <div class="rec-card">
-          <div class="rec-card-inner">
-            <h3>{{ product.fin_prdt_nm }}</h3>
-            <p>{{ product.description }}</p>
+
+      <div class="card-container">
+        {% for product in page_obj %}
+          <div class="rec-card">
+            <div class="rec-card-inner">
+              <h3>{{ product.fin_prdt_nm }}</h3>
+              <p>{{ product.kor_co_nm }}</p>
+            </div>
           </div>
-        </div>
-      {% endfor %}
-    </div>
+        {% endfor %}
+      </div>
+    {% endif %}
   </section>
 
   {# 채팅 페이지 버튼 #}
