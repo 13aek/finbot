@@ -8,32 +8,39 @@ from django.shortcuts import render
 
 from accounts.models import Bookmark
 from products.models import FinProduct
-from products.services import (
-    get_main_recommendations_for_user,
-)
+
+def pick_one(queryset):
+    """QuerySet에서 랜덤 1개 선택 (빈 경우 None)"""
+    items = list(queryset)
+    return random.choice(items) if items else None
 
 
 def index(request):
+    # -----------------------------------------------------
+    # 0. 내 북마크 조회
+    # -----------------------------------------------------
     if request.user.is_authenticated:
-        _, bookmark_count = get_main_recommendations_for_user(request.user)
+        bookmark_ids = Bookmark.objects.filter(
+            user=request.user
+        ).values_list("product_id", flat=True)
 
-        my_bookmarks = FinProduct.objects.filter(
-            fin_prdt_cd__in=Bookmark.objects.filter(user=request.user).values_list("product_id", flat=True)
-        )
+        my_bookmarks_qs = FinProduct.objects.filter(fin_prdt_cd__in=bookmark_ids)
+        my_bookmarks = list(my_bookmarks_qs)
     else:
+        my_bookmarks_qs = FinProduct.objects.none()
         my_bookmarks = []
 
-    deposits = list(FinProduct.objects.filter(category__icontains="예금"))
-    savings = list(FinProduct.objects.filter(category__icontains="적금"))
-    loans = list(FinProduct.objects.filter(category__icontains="대출"))
+    bm_count = len(my_bookmarks)
 
-    random_pool = deposits + savings + loans
-
-    # 북마크 3개 이상 → 인기순 TOP3
-    if len(my_bookmarks) >= 3:
-        products = my_bookmarks.annotate(total_bookmarks_count=models.Count("bookmark_lists")).order_by(
-            "-total_bookmarks_count"
-        )[:3]
+    # -----------------------------------------------------
+    # 1. 북마크 3개 이상 → 인기순 TOP3
+    # -----------------------------------------------------
+    if bm_count >= 3:
+        products = (
+            my_bookmarks_qs
+            .annotate(total_bm=models.Count("bookmark_lists"))
+            .order_by("-total_bm")[:3]
+        )
         return render(
             request,
             "products/index.html",
@@ -43,25 +50,57 @@ def index(request):
             },
         )
 
-    # 북마크 1~2개 → 그대로 + 랜덤 추천 보완
-    pick = list(my_bookmarks)
-    need = 3 - len(pick)
+    # -----------------------------------------------------
+    # 2. 북마크 0~2개 → 카테고리 / 전체 랜덤 조합
+    # -----------------------------------------------------
+    selected: list[FinProduct] = list(my_bookmarks)
+    picked_ids = {p.fin_prdt_cd for p in selected}
 
-    if need > 0:
-        pool = [p for p in random_pool if p not in pick]
-        if pool:
-            pick.extend(random.sample(pool, min(need, len(pool))))
+    def pick_from_qs(qs, limit):
+        """주어진 QuerySet에서 아직 안 뽑힌 상품을 최대 limit개 랜덤 선택"""
+        pool = qs.exclude(fin_prdt_cd__in=picked_ids)
+        ids = list(pool.values_list("fin_prdt_cd", flat=True))
+        random.shuffle(ids)
+        chosen_ids = ids[:limit]
 
-    products = pick[:3]
+        picked = list(FinProduct.objects.filter(fin_prdt_cd__in=chosen_ids))
+        for p in picked:
+            if p.fin_prdt_cd not in picked_ids:
+                selected.append(p)
+                picked_ids.add(p.fin_prdt_cd)
+
+    # --- 2-1. 북마크 0개일 때: 카테고리 우선 ---
+    if bm_count == 0:
+        deposits = FinProduct.objects.filter(category__icontains="예금")
+        savings = FinProduct.objects.filter(category__icontains="적금")
+        loans = FinProduct.objects.filter(category__icontains="대출")
+
+        # 카테고리별로 최대 1개씩 시도
+        pick_from_qs(deposits, 1)
+        pick_from_qs(savings, 1)
+        pick_from_qs(loans, 1)
+
+        # 그래도 3개가 안 되면 전체에서 랜덤 보충
+        if len(selected) < 3:
+            all_products = FinProduct.objects.all()
+            pick_from_qs(all_products, 3 - len(selected))
+
+    # --- 2-2. 북마크 1~2개일 때: 전체에서 랜덤 보충 ---
+    else:
+        all_products = FinProduct.objects.all()
+        pick_from_qs(all_products, 3 - len(selected))
+
+    products = selected[:3]
 
     return render(
         request,
         "products/index.html",
         {
             "products": products,
-            "no_bookmarks": len(my_bookmarks) == 0,
+            "no_bookmarks": bm_count == 0,
         },
     )
+
 
 
 def search(request):
