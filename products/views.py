@@ -16,9 +16,9 @@ def recommend_products(request):
 
     # --- 내 북마크 조회 ---
     if request.user.is_authenticated:
-        bookmark_ids = Bookmark.objects.filter(
-            user=request.user
-        ).values_list("product_id", flat=True)
+        bookmark_ids = Bookmark.objects.filter(user=request.user).values_list(
+            "product_id", flat=True
+        )
         my_bookmarks_qs = FinProduct.objects.filter(fin_prdt_cd__in=bookmark_ids)
         my_bookmarks = list(my_bookmarks_qs)
     else:
@@ -29,11 +29,9 @@ def recommend_products(request):
 
     # --- 북마크 3개 이상: 인기순 ---
     if bm_count >= 3:
-        return (
-            my_bookmarks_qs
-            .annotate(total_bm=models.Count("bookmark_lists"))
-            .order_by("-total_bm")[:3]
-        )
+        return my_bookmarks_qs.annotate(
+            total_bm=models.Count("bookmark_lists")
+        ).order_by("-total_bm")[:3]
 
     # --- 북마크 0~2개: 랜덤 기반 추천 ---
     selected = list(my_bookmarks)
@@ -115,7 +113,7 @@ def index(request):
         "next_page": next_page,
         "show_previous_10": show_previous_10,
         "show_next_10": show_next_10,
-        "recommended_products": recommended_products, 
+        "recommended_products": recommended_products,
     }
     return render(request, "products/index.html", context)
 
@@ -146,7 +144,9 @@ def search(request):
                 product=Replace("fin_prdt_nm", Value(" "), Value("")),
                 company=Replace("kor_co_nm", Value(" "), Value("")),
             )
-            .filter(Q(product__icontains=clean_query) | Q(company__icontains=clean_query))
+            .filter(
+                Q(product__icontains=clean_query) | Q(company__icontains=clean_query)
+            )
             .order_by("fin_prdt_cd")
         )
     # 페이지당 상품 수: 5

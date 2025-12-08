@@ -63,11 +63,19 @@ class User(AbstractUser):
     name = models.CharField(max_length=20, null=True, verbose_name="이름")
     gender = models.BooleanField(null=True, choices=GENDER_CHOICES, verbose_name="성별")
     age = models.IntegerField(null=True, verbose_name="나이")
-    job = models.CharField(max_length=30, null=True, choices=JOB_CHOICES, verbose_name="직업")
-    earnings = models.CharField(max_length=20, null=True, choices=EARNINGS_CHOICES, verbose_name="소득")
-    life_area = models.CharField(max_length=20, null=True, choices=LIFE_AREA_CHOICES, verbose_name="거주지역")
+    job = models.CharField(
+        max_length=30, null=True, choices=JOB_CHOICES, verbose_name="직업"
+    )
+    earnings = models.CharField(
+        max_length=20, null=True, choices=EARNINGS_CHOICES, verbose_name="소득"
+    )
+    life_area = models.CharField(
+        max_length=20, null=True, choices=LIFE_AREA_CHOICES, verbose_name="거주지역"
+    )
     # 북마크 기능을 위해 상품 정보 테이블과 연결합니다.
-    products = models.ManyToManyField(FinProduct, through="Bookmark", related_name="users")
+    products = models.ManyToManyField(
+        FinProduct, through="Bookmark", related_name="users"
+    )
 
     @property
     def display_name(self):
@@ -78,7 +86,11 @@ class User(AbstractUser):
 
 
 class Bookmark(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="bookmark_lists")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="bookmark_lists",
+    )
     product = models.ForeignKey(
         FinProduct,
         to_field="fin_prdt_cd",

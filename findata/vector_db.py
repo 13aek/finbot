@@ -51,7 +51,8 @@ def get_qdrant_server(collection_name: str, vector_size: int = 768) -> QdrantCli
 
     if not client.collection_exists(collection_name):
         client.create_collection(
-            collection_name=collection_name, vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE)
+            collection_name=collection_name,
+            vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE),
         )
 
     return client
@@ -109,7 +110,9 @@ def save_vector_db(
         points.append(PointStruct(id=point_id, vector=vec, payload=payload))
     batch_size = 200
     for i in range(0, len(points), batch_size):
-        client.upsert(collection_name=db_collection_name, points=points[i : i + batch_size])
+        client.upsert(
+            collection_name=db_collection_name, points=points[i : i + batch_size]
+        )
     # client.upsert(collection_name=db_collection_name, points=points)
 
     print(f"\n 업로드 완료: 총 {len(points)}개 chunk (Document 기반)")

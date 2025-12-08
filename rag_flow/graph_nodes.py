@@ -47,11 +47,17 @@ class ChatState(TypedDict, total=False):
 
     visited: bool
     mode: Literal["first_hello", "Nth_hello", "agent_mode"]
-    agent_method: Literal["rag_search", "calculator", "finword_explain", "normal_chat"]  # query의도에 따라 나뉘는 분기
-    recommend_method: Literal["fixed_deposit", "installment_deposit", "jeonse_loan", "all"]
+    agent_method: Literal[
+        "rag_search", "calculator", "finword_explain", "normal_chat"
+    ]  # query의도에 따라 나뉘는 분기
+    recommend_method: Literal[
+        "fixed_deposit", "installment_deposit", "jeonse_loan", "all"
+    ]
     recommend_mode: bool  # recommend 로직에 들어오게 되면 True
     query: str  # user query
-    history: Annotated[list[dict[str, str]], partial(keep_last_n, n=10)]  # user, assistant message 쌍
+    history: Annotated[
+        list[dict[str, str]], partial(keep_last_n, n=10)
+    ]  # user, assistant message 쌍
     answer: str  # LLM answer
     user_feedback: str  # 사용자 중간 입력
     need_user_feedback: bool  # 사용자 입력 요청
@@ -60,7 +66,9 @@ class ChatState(TypedDict, total=False):
     product_data: dict  # calculator에 넘겨줄 상품 데이터
 
     # calculate datas
-    calculator_method: Literal["fill_calculator_data", "conditional_about_fin_type"]  # 기존데이터 vs only 사용자입력
+    calculator_method: Literal[
+        "fill_calculator_data", "conditional_about_fin_type"
+    ]  # 기존데이터 vs only 사용자입력
     category: Literal["fixed_deposit", "installment_deposit", "jeonse_loan"]
     loop_or_not_method: str  # 사용자 입력 루프
     feedback_or_not_method: str  # 사용자 입력이 필요한지 구분
@@ -158,7 +166,9 @@ def nth_conversation(state: ChatState) -> ChatState:
     """
 
     histories = state["history"]
-    questions = [history["content"] for history in histories if history["role"] == "user"]
+    questions = [
+        history["content"] for history in histories if history["role"] == "user"
+    ]
 
     messages = [
         {
@@ -166,10 +176,14 @@ def nth_conversation(state: ChatState) -> ChatState:
             "content": "너는 주어지는 몇 개의 문장을 '3단어'로 요약해야해.",
         }
     ]
-    messages.append({"role": "user", "content": f"다음은 주어진 문장들이야 :\n{questions}"})  # 이전 질문들 모두
+    messages.append(
+        {"role": "user", "content": f"다음은 주어진 문장들이야 :\n{questions}"}
+    )  # 이전 질문들 모두
     messages.append({"role": "user", "content": "주어진 문장들을 3단어로 요약해줘."})
 
-    completion = ai_client.chat.completions.create(model="gpt-4o-mini", messages=messages)
+    completion = ai_client.chat.completions.create(
+        model="gpt-4o-mini", messages=messages
+    )
 
     summary = completion.choices[0].message.content
 
@@ -227,10 +241,19 @@ def conditional_about_query(state: ChatState) -> dict:
         method = answer
     elif ("recommend" in answer) or ("rec" in answer) or ("추천" in answer):
         method = "recommend_mode"
-    elif ("calculate" in answer) or ("calculator" in answer) or ("cal" in answer) or ("계산" in answer):
+    elif (
+        ("calculate" in answer)
+        or ("calculator" in answer)
+        or ("cal" in answer)
+        or ("계산" in answer)
+    ):
         method = "calculate_mode"
     elif (
-        ("finword" in answer) or ("explain" in answer) or ("fin" in answer) or ("word" in answer) or ("설명" in answer)
+        ("finword" in answer)
+        or ("explain" in answer)
+        or ("fin" in answer)
+        or ("word" in answer)
+        or ("설명" in answer)
     ):
         method = "explain_mode"
     else:
@@ -381,18 +404,26 @@ def rag_search(state: ChatState) -> ChatState:
     q_vec = embed_model.encode([user_query], convert_to_numpy=True)[0]
     if state["recommend_method"] == "fixed_deposit":
         print("*" * 10, "예금 추천", "*" * 10)
-        hits = qdrant_client.query_points(collection_name="finance_products_fixed_deposit", query=q_vec, limit=topk)
+        hits = qdrant_client.query_points(
+            collection_name="finance_products_fixed_deposit", query=q_vec, limit=topk
+        )
     elif state["recommend_method"] == "installment_deposit":
         print("*" * 10, "적금 추천", "*" * 10)
         hits = qdrant_client.query_points(
-            collection_name="finance_products_installment_deposit", query=q_vec, limit=topk
+            collection_name="finance_products_installment_deposit",
+            query=q_vec,
+            limit=topk,
         )
     elif state["recommend_method"] == "jeonse_loan":
         print("*" * 10, "대출 추천", "*" * 10)
-        hits = qdrant_client.query_points(collection_name="finance_products_jeonse_loan", query=q_vec, limit=topk)
+        hits = qdrant_client.query_points(
+            collection_name="finance_products_jeonse_loan", query=q_vec, limit=topk
+        )
     else:
         print("*" * 10, "any 추천", "*" * 10)
-        hits = qdrant_client.query_points(collection_name="finance_products_all", query=q_vec, limit=topk)
+        hits = qdrant_client.query_points(
+            collection_name="finance_products_all", query=q_vec, limit=topk
+        )
 
     vector_db_answer = hits.points[0].payload
 
@@ -445,7 +476,9 @@ def human_feedback(state: ChatState) -> ChatState:
         Dict: Graph의 state update
     """
 
-    human_text = interrupt("몇 가지 정보만 입력하면 추천 상품에 대한 수익·이자 계산을 해드릴 수 있어요. 필요하신가요?")
+    human_text = interrupt(
+        "몇 가지 정보만 입력하면 추천 상품에 대한 수익·이자 계산을 해드릴 수 있어요. 필요하신가요?"
+    )
     return {"query": human_text, "need_user_feedback": False}
 
 
@@ -493,8 +526,31 @@ def classify_feedback(state: ChatState) -> ChatState:
     )
     # pos_or_neg = completion.choices[0].message.content
     pos_or_neg = completion.output_text
-    pos_word = ["yes", "sure", "긍정", "긍정.", "'긍정'", "'긍정.'", "계산", "계산.", "'계산'", "'계산.'"]
-    neg_word = ["no", "부정", "부정.", "'부정'", "'부정.'", "아니", "안", "기타", "기타.", "'기타'", "'기타.'"]
+    pos_word = [
+        "yes",
+        "sure",
+        "긍정",
+        "긍정.",
+        "'긍정'",
+        "'긍정.'",
+        "계산",
+        "계산.",
+        "'계산'",
+        "'계산.'",
+    ]
+    neg_word = [
+        "no",
+        "부정",
+        "부정.",
+        "'부정'",
+        "'부정.'",
+        "아니",
+        "안",
+        "기타",
+        "기타.",
+        "'기타'",
+        "'기타.'",
+    ]
     if any([word in pos_or_neg for word in pos_word]):
         pos_or_neg = "yes"
     elif any([word in pos_or_neg for word in neg_word]):
@@ -623,10 +679,14 @@ def add_to_history(state: ChatState) -> ChatState:
     new_history = []
     if state.get("query", False):
         new_history.append({"role": "user", "content": state["query"], "state": "new"})
-        new_history.append({"role": "assistant", "content": state["answer"], "state": "new"})
+        new_history.append(
+            {"role": "assistant", "content": state["answer"], "state": "new"}
+        )
 
     else:
-        new_history.append({"role": "assistant", "content": state["answer"], "state": "new"})
+        new_history.append(
+            {"role": "assistant", "content": state["answer"], "state": "new"}
+        )
 
     return {"history": new_history, "visited": True, "need_user_feedback": False}
 
@@ -734,7 +794,12 @@ def using_only_user_input_data(state: ChatState) -> ChatState:
             method = "fixed_deposit"
         elif ("install" in answer) or ("ment" in answer) or ("적금" in answer):
             method = "installment_deposit"
-        elif ("jeonse" in answer) or ("전세" in answer) or ("대출" in answer) or ("loan" in answer):
+        elif (
+            ("jeonse" in answer)
+            or ("전세" in answer)
+            or ("대출" in answer)
+            or ("loan" in answer)
+        ):
             method = "jeonse_loan"
 
         calculator_columns = calculator_config[method]
@@ -928,7 +993,12 @@ def user_feedback(state: ChatState) -> ChatState:
 
 def loop_or_not_method_router(
     state: ChatState,
-) -> Literal["get_user_data", "calc_fixed_deposit", "calc_installment_deposit", "calc_jeonse_loan"]:
+) -> Literal[
+    "get_user_data",
+    "calc_fixed_deposit",
+    "calc_installment_deposit",
+    "calc_jeonse_loan",
+]:
     """
     Loop Method에 따라 라우팅
 

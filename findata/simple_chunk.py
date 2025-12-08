@@ -147,7 +147,9 @@ def chunk(json_data_list: list[dict]) -> list[str]:
     return : (List[str]) 모든 금융 데이터의 chunk data List
     """
 
-    splitter = RecursiveCharacterTextSplitter(chunk_size=250, chunk_overlap=30)  # , separators=["\n\n", ",", ".", " "])
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=250, chunk_overlap=30
+    )  # , separators=["\n\n", ",", ".", " "])
     docs = []
     for json_product in json_data_list:
         if json_product["상품카테고리"] == "정기예금":

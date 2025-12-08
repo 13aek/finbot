@@ -39,13 +39,17 @@ def signup(request):
             user = form.save()
             # 회원가입이 완료 된 시점에 해당 사용자의 채팅방을 생성
             ChatRoom.objects.create(display_id=1, user=user, ever_visited=False)
-            messages.success(request, "회원가입이 완료되었습니다.", extra_tags="signup_success")
+            messages.success(
+                request, "회원가입이 완료되었습니다.", extra_tags="signup_success"
+            )
             return redirect("accounts:login")
         errors = form.errors
 
         if "username" in errors:
             if any("이미 존재합니다" in e for e in errors["username"]):
-                messages.error(request, "이미 존재하는 아이디입니다.", extra_tags="id_error")
+                messages.error(
+                    request, "이미 존재하는 아이디입니다.", extra_tags="id_error"
+                )
             else:
                 messages.error(request, errors["username"], extra_tags="id_error")
         elif "password2" in errors:
@@ -58,7 +62,9 @@ def signup(request):
             else:
                 messages.error(request, errors["username"], extra_tags="id_error")
         else:
-            messages.error(request, "입력한 정보가 올바르지 않습니다.", extra_tags="default_error")
+            messages.error(
+                request, "입력한 정보가 올바르지 않습니다.", extra_tags="default_error"
+            )
 
     # 사용자가 회원가입 페이지를 요청했을 때
     else:
@@ -116,7 +122,9 @@ def update(request):
     if not verified_time or (timezone.now().timestamp() - verified_time > 300):
         # 세션이 없거나 만료되었다면 비밀번호를 재확인합니다.
         # 쿼리스트링을 통해 비밀번호 인증 후 다음에 이동할 페이지를 결정합니다.
-        return redirect(f"{reverse('accounts:verify')}?next={reverse('accounts:update')}")
+        return redirect(
+            f"{reverse('accounts:verify')}?next={reverse('accounts:update')}"
+        )
 
     # 인증이 완료되었다면 바로 인증이 필요한 서비스 이용 시 한번 더 인증하도록 세션을 삭제합니다.
     # request.session.pop("password_verified", None)
@@ -125,7 +133,9 @@ def update(request):
         form = CustomUserChangeForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            messages.success(request, "회원 정보 등록이 완료되었습니다.", extra_tags="update_success")
+            messages.success(
+                request, "회원 정보 등록이 완료되었습니다.", extra_tags="update_success"
+            )
             return redirect("accounts:update")
     else:
         form = CustomUserChangeForm(instance=request.user)
@@ -152,7 +162,9 @@ def password(request):
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)  # 비밀번호 변경시 세션 유지
-            messages.success(request, "비밀번호가 변경되었습니다.", extra_tags="password_success")
+            messages.success(
+                request, "비밀번호가 변경되었습니다.", extra_tags="password_success"
+            )
             return redirect("products:index")
         errors = form.errors
 
@@ -164,7 +176,9 @@ def password(request):
                     extra_tags="old_password_error",
                 )
             else:
-                messages.error(request, errors["old_password"], extra_tags="old_password_error")
+                messages.error(
+                    request, errors["old_password"], extra_tags="old_password_error"
+                )
         elif "new_password2" in errors:
             if any("최소 8자 이상" in e for e in errors["new_password2"]):
                 messages.error(
@@ -179,9 +193,13 @@ def password(request):
                     extra_tags="new_password2_error",
                 )
             else:
-                messages.error(request, errors["new_password2"], extra_tags="new_password2_error")
+                messages.error(
+                    request, errors["new_password2"], extra_tags="new_password2_error"
+                )
         else:
-            messages.error(request, "입력한 정보가 올바르지 않습니다.", extra_tags="default_error")
+            messages.error(
+                request, "입력한 정보가 올바르지 않습니다.", extra_tags="default_error"
+            )
     else:
         form = PasswordChangeForm(request.user)
     context = {
@@ -240,9 +258,13 @@ def delete(request):
     verified_time = request.session.get("delete")
     if not verified_time or (timezone.now().timestamp() - verified_time > 300):
         # 세션이 없거나 만료된경우 비밀번호 인증 페이지로 이동합니다.
-        return redirect(f"{reverse('accounts:verify')}?next={reverse('accounts:delete')}")
+        return redirect(
+            f"{reverse('accounts:verify')}?next={reverse('accounts:delete')}"
+        )
     request.user.delete()
-    messages.success(request, "회원 탈퇴가 완료되었습니다.", extra_tags="delete_success")
+    messages.success(
+        request, "회원 탈퇴가 완료되었습니다.", extra_tags="delete_success"
+    )
     return redirect("products:index")
 
 
@@ -264,7 +286,11 @@ def verify(request):
 
     # 다음 목적지를 기본적으로 update 페이지로 설정합니다.
     # 만약 next 값이 들어오지 않았다면 next를 accounts:update로 두겠다는 설정입니다.
-    next_url = request.GET.get("next") or request.POST.get("next") or reverse("accounts:update")
+    next_url = (
+        request.GET.get("next")
+        or request.POST.get("next")
+        or reverse("accounts:update")
+    )
     # 다음 목적지에 따라 세션에 담아놓을 session_key를 설정합니다.
     # session_key의 기본값은 update 입니다.
     session_key = "update"
@@ -293,7 +319,9 @@ def verify(request):
         # 인증되지 않았다면 error를 context에 담아 반환
         else:
             context = {"error": "비밀번호가 올바르지 않습니다."}
-            messages.error(request, "비밀번호가 올바르지 않습니다.", extra_tags="verify_error")
+            messages.error(
+                request, "비밀번호가 올바르지 않습니다.", extra_tags="verify_error"
+            )
             return render(request, "accounts/verify.html", context)
 
     return render(request, "accounts/verify.html", {"session_key": session_key})
@@ -339,7 +367,9 @@ def bookmark_list(request):
         - GET 요청일 경우, 사용자의 모든 북마크된 상품을 반환합니다.
     """
     # 해당 사용자가 북마크한 모든 상품을 조회합니다.
-    products = FinProduct.objects.filter(bookmark_lists__user=request.user).order_by("-bookmark_lists__created_at")
+    products = FinProduct.objects.filter(bookmark_lists__user=request.user).order_by(
+        "-bookmark_lists__created_at"
+    )
     # 페이지당 상품 수: 6
     # 페이지네이션 그룹 단위: 5
     paginator = Paginator(products, 6)

@@ -57,15 +57,17 @@ def get_main_recommendations_for_user(user) -> tuple[list[FinProduct], int]:
             bookmark_lists__user=user
         ).order_by(  # 내가 이미 북마크한건 제외
             "?"
-        )[:needed]
+        )[
+            :needed
+        ]
         products = list(bookmarked_qs) + list(random_qs)
         return products, bookmark_count
 
     # 10개 이상 →
     #  내가 북마크한 상품들 중에서,
     #  전체 북마크 수(bookmark_lists 개수)가 많은 순으로 TOP 10
-    popular_qs = bookmarked_qs.annotate(bookmark_total=Count("bookmark_lists")).order_by(
-        "-bookmark_total", "fin_prdt_nm"
-    )[:10]
+    popular_qs = bookmarked_qs.annotate(
+        bookmark_total=Count("bookmark_lists")
+    ).order_by("-bookmark_total", "fin_prdt_nm")[:10]
 
     return list(popular_qs), bookmark_count
