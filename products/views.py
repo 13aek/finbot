@@ -1,52 +1,47 @@
+import random
+
 from django.core.paginator import Paginator
+from django.db import models
 from django.db.models import Q, Value
 from django.db.models.functions import Replace
 from django.shortcuts import render
-from django.db import models
-from .models import FinProduct
-import random
 
-from django.db.models import Count
 from accounts.models import Bookmark
-
+from products.models import FinProduct
 from products.services import (
-    get_main_recommendations_for_guest,
     get_main_recommendations_for_user,
 )
-from products.models import FinProduct
-
 
 
 def index(request):
     if request.user.is_authenticated:
         _, bookmark_count = get_main_recommendations_for_user(request.user)
-        no_bookmarks = (bookmark_count == 0)
 
         my_bookmarks = FinProduct.objects.filter(
-            fin_prdt_cd__in=Bookmark.objects.filter(user=request.user)
-                .values_list("product_id", flat=True)
+            fin_prdt_cd__in=Bookmark.objects.filter(user=request.user).values_list("product_id", flat=True)
         )
     else:
         my_bookmarks = []
-        no_bookmarks = False
 
     deposits = list(FinProduct.objects.filter(category__icontains="예금"))
-    savings  = list(FinProduct.objects.filter(category__icontains="적금"))
-    loans    = list(FinProduct.objects.filter(category__icontains="대출"))
+    savings = list(FinProduct.objects.filter(category__icontains="적금"))
+    loans = list(FinProduct.objects.filter(category__icontains="대출"))
 
     random_pool = deposits + savings + loans
 
     # 북마크 3개 이상 → 인기순 TOP3
     if len(my_bookmarks) >= 3:
-        products = (
-            my_bookmarks
-            .annotate(total_bookmarks_count=models.Count("bookmark_lists"))
-            .order_by("-total_bookmarks_count")[:3]
+        products = my_bookmarks.annotate(total_bookmarks_count=models.Count("bookmark_lists")).order_by(
+            "-total_bookmarks_count"
+        )[:3]
+        return render(
+            request,
+            "products/index.html",
+            {
+                "products": products,
+                "no_bookmarks": False,
+            },
         )
-        return render(request, "products/index.html", {
-            "products": products,
-            "no_bookmarks": False,
-        })
 
     # 북마크 1~2개 → 그대로 + 랜덤 추천 보완
     pick = list(my_bookmarks)
@@ -59,11 +54,14 @@ def index(request):
 
     products = pick[:3]
 
-    return render(request, "products/index.html", {
-        "products": products,
-        "no_bookmarks": len(my_bookmarks) == 0,
-    })
-
+    return render(
+        request,
+        "products/index.html",
+        {
+            "products": products,
+            "no_bookmarks": len(my_bookmarks) == 0,
+        },
+    )
 
 
 def search(request):

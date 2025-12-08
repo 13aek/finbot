@@ -77,7 +77,6 @@ class User(AbstractUser):
         return self.name
 
 
-
 class Bookmark(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="bookmark_lists")
     product = models.ForeignKey(
@@ -92,4 +91,3 @@ class Bookmark(models.Model):
     class Meta:
         db_table = "bookmark"
         ordering = ["-created_at"]
-
