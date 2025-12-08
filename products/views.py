@@ -16,6 +16,63 @@ def pick_one(queryset):
 
 
 def index(request):
+    """
+    메인 화면 추천 금융상품 목록을 생성하는 View.
+
+    사용자 북마크 정보와 금융상품 카테고리를 기반으로
+    '최대 3개의 상품'을 노출하는 추천 로직을 처리한다.
+
+    추천 규칙
+    ----------
+    1) 북마크 3개 이상
+        - bookmark_lists 기준으로 인기순(total_bm) 정렬
+        - TOP 3 상품만 노출
+
+    2) 북마크 1~2개
+        - 기존 북마크 상품을 우선 배치
+        - 중복을 제외한 전체 상품(all_products) 중 랜덤으로 부족한 개수 보충
+        - 항상 총 3개 유지
+
+    3) 북마크 0개
+        - 예금/적금/대출 각 카테고리에서 최대 1개씩 랜덤 추출
+        - 특정 카테고리 상품이 없을 수 있으므로 중간에 None 들어올 수 있음
+        - 만약 카테고리 랜덤 결과가 3개 미만이면 모든 상품에서 추가 랜덤 보충
+        - 최종적으로 항상 총 3개 유지
+
+    내부 로직
+    ----------
+    - Bookmark → FinProduct(FK: fin_prdt_cd) 매핑하여 내 북마크 상품 조회
+    - 중복 방지를 위해 selected 리스트와 picked_ids 세트를 유지
+    - pick_from_qs() 서브 함수로 QuerySet에서 랜덤한 상품을 limit 개수만큼 추출
+    - 카테고리 우선 / 전체 상품 fallback 구조로 안정적인 추천 보장
+
+    Parameters
+    ----------
+    request : HttpRequest
+        현재 요청 객체. 인증 여부를 통해 북마크 조회 여부를 판단함.
+
+    Returns
+    -------
+    HttpResponse
+        추천된 금융상품 리스트(products)와 북마크 유무(no_bookmarks)를 포함해
+        'products/index.html' 템플릿을 렌더링한 응답 객체.
+
+    Notes
+    -----
+    - FinProduct.fin_prdt_cd는 문자열 PK이므로 중복 제거 시 세트(picked_ids) 사용
+    - 카테고리 불균형(예: 적금만 많은 경우)에서도 항상 총 3개가 보장되도록 설계됨
+    - 비로그인 사용자는 북마크를 고려하지 않고 카테고리 기반 추천
+
+    Examples
+    --------
+    북마크 1개인 경우:
+        selected = [북마크1] + [랜덤2]
+
+    북마크 0개이고 예금/적금/대출 중 1개 카테고리가 비어 있는 경우:
+        selected = [예금1, 적금1, (대출 없음)]
+        → all_products에서 랜덤으로 나머지 1개 보충
+
+    """
     # 내 북마크 조회
     if request.user.is_authenticated:
         bookmark_ids = Bookmark.objects.filter(
