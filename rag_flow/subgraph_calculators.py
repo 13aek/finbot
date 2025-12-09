@@ -9,11 +9,7 @@ from pydantic import BaseModel
 
 from finbot.singleton.ai_client import ai_client
 from findata.config_manager import JsonConfigManager
-from rag_flow.calculators import (
-    calculator_fixed_deposit,
-    calculator_installment_deposit,
-    calculator_jeonse_loan,
-)
+from rag_flow.calculators import calculator_fixed_deposit, calculator_installment_deposit, calculator_jeonse_loan
 from rag_flow.decorators import timing_decorator
 
 

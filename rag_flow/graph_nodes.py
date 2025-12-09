@@ -10,11 +10,7 @@ from finbot.singleton.ai_client import ai_client
 from finbot.singleton.embedding_model import embed_model
 from finbot.singleton.vectordb import qdrant_client
 from findata.config_manager import JsonConfigManager
-from rag_flow.calculators import (
-    calculator_fixed_deposit,
-    calculator_installment_deposit,
-    calculator_jeonse_loan,
-)
+from rag_flow.calculators import calculator_fixed_deposit, calculator_installment_deposit, calculator_jeonse_loan
 from rag_flow.decorators import error_handling_decorator, timing_decorator
 from rag_flow.utils import number_to_korean_large
 
