@@ -52,9 +52,7 @@ class ChatSession:
         """
         # 히스토리가 DB에 있다면 old history로 추가
         if user_history:
-            self.state["history"].append(
-                {"role": "user", "content": user_history, "state": "old"}
-            )
+            self.state["history"].append({"role": "user", "content": user_history, "state": "old"})
             self.state["visited"] = True
 
     def ask(self, query: str, thread: dict, need_user_feedback: bool = False):
@@ -87,9 +85,7 @@ class ChatSession:
                 self.state = app_graph.invoke(self.state, thread)
             else:
                 self.state["query"] = query
-                self.state = app_graph.invoke(
-                    Command(resume=query, update=self.state), thread
-                )
+                self.state = app_graph.invoke(Command(resume=query, update=self.state), thread)
         return self.state
 
 

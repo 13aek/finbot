@@ -113,12 +113,7 @@ def calculator_installment_deposit(data: dict, use_favor: bool = False):
         if monthly_rate == 0:  # 금리가 0일 때
             maturity_before_tax = total_principal
         else:
-            maturity_before_tax = (
-                monthly
-                * ((1 + monthly_rate) ** months - 1)
-                / monthly_rate
-                * (1 + monthly_rate)
-            )
+            maturity_before_tax = monthly * ((1 + monthly_rate) ** months - 1) / monthly_rate * (1 + monthly_rate)
 
         interest = maturity_before_tax - total_principal
 

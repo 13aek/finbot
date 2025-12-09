@@ -61,33 +61,6 @@
   </section>
   {% endif %}
 
-
-
-  {# 관심 상품/추천 상품 리스트 #}
-  <section class="recommend-section">
-    {% if request.user.is_authenticated %}
-      <h2 class="recommend-title">
-        {{ request.user.display_name }}님의 <span class="highlight-title">관심 상품</span>
-      </h2>
-          
-      {% if no_bookmarks %}
-        <p class="no-item">아직 등록한 관심 상품이 없습니다.
-          마음에 드는 상품을 추가해 보세요.</p>
-      {% endif %}
-
-      <div class="card-container">
-        {% for product in page_obj %}
-          <div class="rec-card">
-            <div class="rec-card-inner">
-              <h3>{{ product.fin_prdt_nm }}</h3>
-              <p>{{ product.kor_co_nm }}</p>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
-  </section>
-
   {# 채팅 페이지 버튼 #}
   <a href="{% url 'chat:current_chat' %}" class="chatbot-btn">
     <img src="{% static 'images/finbot-btn-long.png' %}" alt="FINBOT Chat">
