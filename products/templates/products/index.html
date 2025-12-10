@@ -36,11 +36,13 @@
     <button type="submit" style="display: none;">검색</button>
   </form>
 
+
+  {# 추천 섹션 (비로그인 + 북마크 0) #}
   {% if recommended_products %}
   <section class="recommend-section">
     <h2 class="recommend-title">
       {% if request.user.is_authenticated %}
-        {{ request.user.display_name }}님께 추천하는
+        {{ request.user.display_name }}님께 추천드리는
         <span class="highlight-title">금융상품</span>
       {% else %}
         고객님께 추천드리는
@@ -52,12 +54,71 @@
       {% for p in recommended_products %}
         <div class="rec-card">
           <div class="rec-card-inner">
+
             <h3>{{ p.fin_prdt_nm }}</h3>
+
             <p>{{ p.kor_co_nm }}</p>
+
+            <p>{{ p.description }}</p>
+
           </div>
         </div>
       {% endfor %}
     </div>
+  </section>
+  {% endif %}
+
+  {# 관심상품 헤더 (로그인 + 북마크 ≥1) #}
+  {% if request.user.is_authenticated and page_obj.paginator.count > 0 %}
+  <section class="recommend-section">
+
+      <h2 class="recommend-title">
+        {{ request.user.display_name }}님의
+        <span class="highlight-title">관심상품</span>
+      </h2>
+
+
+    {# 관심상품 #}
+    <div class="card-container">
+      {% for p in page_obj %}
+      <div class="rec-card">
+        <div class="rec-card-inner">
+
+          <h3>{{ p.fin_prdt_nm }}</h3>
+
+          <p>{{ p.kor_co_nm }}</p>
+
+          <p>{{ p.description }}</p>
+
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {# 페이지네이션 #}
+    <div class="pagination">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">이전</a>
+      {% endif %}
+
+      <span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">다음</a>
+      {% endif %}
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
   </section>
   {% endif %}
 
