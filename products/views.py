@@ -1,12 +1,13 @@
 import random
 
 from django.core.paginator import Paginator
-from django.db.models import Count, Q, Value
+from django.db.models import Q, Value
 from django.db.models.functions import Replace
 from django.shortcuts import render
 
 from accounts.models import Bookmark
 from products.models import FinProduct
+
 
 # 추천 상품 로직
 def recommend_products(request):
