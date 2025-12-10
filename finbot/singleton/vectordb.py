@@ -32,4 +32,4 @@ def get_qdrant_client(category="all", save_to="server"):
 
 
 # 앱 전역에서 사용할 싱글톤 QdrantClient
-qdrant_client = get_qdrant_client(save_to="server")
+qdrant_client = get_qdrant_client(save_to="local")
