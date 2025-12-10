@@ -72,11 +72,18 @@ class User(AbstractUser):
 
     @property
     def display_name(self):
-        return self.name if self.name else self.username
+        # null, 빈 문자열, "None", "none", "NONE", 공백 모두 처리
+        if not self.name or str(self.name).strip().lower() in ["none", "", None]:
+            return self.username
+        return self.name
 
 
 class Bookmark(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="bookmark_lists")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="bookmark_lists",
+    )
     product = models.ForeignKey(
         FinProduct,
         to_field="fin_prdt_cd",

@@ -491,8 +491,31 @@ def classify_feedback(state: ChatState) -> ChatState:
     )
     # pos_or_neg = completion.choices[0].message.content
     pos_or_neg = completion.output_text
-    pos_word = ["yes", "sure", "긍정", "긍정.", "'긍정'", "'긍정.'", "계산", "계산.", "'계산'", "'계산.'"]
-    neg_word = ["no", "부정", "부정.", "'부정'", "'부정.'", "아니", "안", "기타", "기타.", "'기타'", "'기타.'"]
+    pos_word = [
+        "yes",
+        "sure",
+        "긍정",
+        "긍정.",
+        "'긍정'",
+        "'긍정.'",
+        "계산",
+        "계산.",
+        "'계산'",
+        "'계산.'",
+    ]
+    neg_word = [
+        "no",
+        "부정",
+        "부정.",
+        "'부정'",
+        "'부정.'",
+        "아니",
+        "안",
+        "기타",
+        "기타.",
+        "'기타'",
+        "'기타.'",
+    ]
     if any([word in pos_or_neg for word in pos_word]):
         pos_or_neg = "yes"
     elif any([word in pos_or_neg for word in neg_word]):

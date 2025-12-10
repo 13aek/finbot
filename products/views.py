@@ -1,12 +1,92 @@
+import random
+
 from django.core.paginator import Paginator
-from django.db.models import Q, Value
+from django.db.models import Count, Q, Value
 from django.db.models.functions import Replace
 from django.shortcuts import render
 
-from .models import FinProduct
+from accounts.models import Bookmark
+from products.models import FinProduct
 
 
-# Create your views here.
+# 추천 상품 로직
+def recommend_products(request):
+    """
+    홈 화면 추천 금융상품 총 3개 반환
+
+    추천 로직:
+    1) 내 북마크 3개 이상: 전체 상품 중 북마크 인기순 TOP3
+    2) 내 북마크 1~2개: 내 북마크 + "내가 북마크한 카테고리 제외" 추천
+    3) 내 북마크 0개: 예금/적금/대출 각각 1개씩 추천
+
+    Args:
+        request(HttpRequest): 클라이언트의 요청 객체
+    Returns:
+        list: 추천 금융상품 3개 리스트
+    """
+
+    # 내 북마크 조회
+    if request.user.is_authenticated:
+        bookmark_ids = Bookmark.objects.filter(user=request.user).values_list("product_id", flat=True)
+        my_bookmarks_qs = FinProduct.objects.filter(fin_prdt_cd__in=bookmark_ids)
+        my_bookmarks = list(my_bookmarks_qs)
+    else:
+        my_bookmarks_qs = FinProduct.objects.none()
+        my_bookmarks = []
+
+    bm_count = len(my_bookmarks)
+    selected = []
+    picked_ids = set()
+
+    # 랜덤 추출 유틸
+    def pick_random(qs, k):
+        pool = qs.exclude(fin_prdt_cd__in=picked_ids)
+        ids = list(pool.values_list("fin_prdt_cd", flat=True))
+        random.shuffle(ids)
+        chosen = ids[:k]
+        result = list(FinProduct.objects.filter(fin_prdt_cd__in=chosen))
+        for p in result:
+            picked_ids.add(p.fin_prdt_cd)
+        return result
+
+    # 북마크 3개 이상 → 전체 상품 기준 인기순 TOP3
+    if bm_count >= 3:
+        return FinProduct.objects.annotate(total_bm=Count("bookmark_lists")).order_by("-total_bm")[:3]
+
+    # 북마크 1~2개 → 내 북마크 + "북마크한 카테고리 제외" 추천
+    if 1 <= bm_count <= 2:
+        selected = list(my_bookmarks)
+        picked_ids = {p.fin_prdt_cd for p in selected}
+
+        # 내가 북마크한 카테고리
+        bm_categories = my_bookmarks_qs.values_list("category", flat=True)
+
+        # 다른 카테고리에서 추천
+        others = FinProduct.objects.exclude(category__in=bm_categories)
+
+        need = 3 - len(selected)
+        selected += pick_random(others, need)
+
+        return selected[:3]
+
+    # 북마크 0개 → 예금/적금/대출 각각 1개씩
+    deposits = FinProduct.objects.filter(category="fixed_deposit")
+    savings = FinProduct.objects.filter(category="installment_deposit")
+    loans = FinProduct.objects.filter(category="jeonse_loan")
+
+    selected = []
+    picked_ids = set()
+
+    selected += pick_random(deposits, 1)
+    selected += pick_random(savings, 1)
+    selected += pick_random(loans, 1)
+
+    # 부족하면 전체에서 보충
+    if len(selected) < 3:
+        all_qs = FinProduct.objects.exclude(fin_prdt_cd__in=picked_ids)
+        selected += pick_random(all_qs, 3 - len(selected))
+
+    return selected[:3]
 
 
 def index(request):
@@ -40,6 +120,8 @@ def index(request):
     previous_page = max(current_page - 1, 1)
     next_page = min(current_page + 1, paginator.num_pages)
 
+    recommended_products = recommend_products(request)
+
     show_previous_10 = current_page > 1  # 이전 10개 버튼을 표시할지 여부
     show_next_10 = current_page < paginator.num_pages
     context = {
@@ -50,6 +132,7 @@ def index(request):
         "next_page": next_page,
         "show_previous_10": show_previous_10,
         "show_next_10": show_next_10,
+        "recommended_products": recommended_products,
     }
     return render(request, "products/index.html", context)
 
