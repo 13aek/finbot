@@ -105,7 +105,7 @@ FinBot은 금융상품 탐색, 비교, 계산 과정을 하나의 흐름으로 �
 `추후 내용 추가`
 
 ## 7. 데이터 구조 (ERD)
-![erd](docs\images\finbot-erd.png)
+![erd](./docs/images/finbot-erd.png)
 
 ## 8. 팀 기여도 및 역할
 ### 백우성
