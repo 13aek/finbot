@@ -3,10 +3,22 @@ import random
 from django.core.paginator import Paginator
 from django.db.models import Q, Value
 from django.db.models.functions import Replace
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
 from accounts.models import Bookmark
 from products.models import FinProduct
+
+
+def landing(request):
+    """
+    랜딩 페이지 뷰
+
+    비로그인 사용자에게 서비스 소개 페이지를 보여줌
+    로그인 사용자는 홈(index)으로 리다이렉트
+    """
+    if request.user.is_authenticated:
+        return redirect("products:index")
+    return render(request, "products/landing.html")
 
 
 # 추천 상품 로직

@@ -1,0 +1,119 @@
+{# landing.html #}
+{# 비로그인 사용자를 위한 서비스 소개 랜딩 페이지 #}
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'products/css/landing.css' %}">
+{% endblock styles %}
+
+{% block content %}
+
+{# ───────────── 네비게이션 바 ───────────── #}
+<nav class="nav">
+  <a href="{% url 'products:landing' %}" class="nav-logo">
+    <img src="{% static 'images/logo-gray.png' %}" alt="FINBOT Logo">
+  </a>
+  <div class="nav-links">
+    <a href="{% url 'accounts:login' %}" class="nav-login">로그인</a>
+    <a href="{% url 'accounts:signup' %}" class="nav-signup">회원가입</a>
+  </div>
+</nav>
+
+{# ───────────── 히어로 섹션 ───────────── #}
+<section class="hero">
+  <div class="hero-content">
+    <p class="hero-eyebrow">AI 금융 어시스턴트</p>
+    <h1 class="hero-title">
+      복잡한 금융 상품,<br>
+      <span class="highlight">FINBOT</span>이 찾아드립니다
+    </h1>
+    <p class="hero-desc">
+      예금·적금·전세대출까지, AI 챗봇이 내 상황에 맞는<br>
+      최적의 금융 상품을 추천해드립니다.
+    </p>
+    <div class="hero-cta">
+      <a href="{% url 'accounts:signup' %}" class="cta-primary">무료로 시작하기</a>
+      <a href="{% url 'accounts:login' %}" class="cta-secondary">로그인</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="chat-mockup">
+      <div class="chat-header">
+        <div class="chat-dot red"></div>
+        <div class="chat-dot yellow"></div>
+        <div class="chat-dot green"></div>
+        <span class="chat-title">FINBOT Chat</span>
+      </div>
+      <div class="chat-body">
+        <div class="chat-bubble bot">
+          안녕하세요! 금융 상품 추천을 도와드릴게요. 어떤 상품이 궁금하신가요?
+        </div>
+        <div class="chat-bubble user">
+          연 3% 이상 적금 상품 추천해줘
+        </div>
+        <div class="chat-bubble bot">
+          고객님께 딱 맞는 적금 3가지를 찾았어요!<br>
+          <strong>KB Star 적금</strong> · 연 3.5%<br>
+          <strong>신한 쏠편한 적금</strong> · 연 3.2%<br>
+          <strong>하나 청년 적금</strong> · 연 4.0%
+        </div>
+        <div class="chat-typing">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ───────────── 기능 소개 섹션 ───────────── #}
+<section class="features">
+  <p class="section-label">주요 기능</p>
+  <h2 class="section-title">금융 생활, 이제 더 쉽게</h2>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">&#128269;</div>
+      <h3>스마트 검색</h3>
+      <p>상품명, 은행명으로 원하는 금융 상품을 빠르게 찾아보세요.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">&#129302;</div>
+      <h3>AI 챗봇 상담</h3>
+      <p>내 상황을 설명하면 AI가 최적의 금융 상품을 맞춤 추천해드립니다.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">&#10024;</div>
+      <h3>관심 상품 관리</h3>
+      <p>마음에 드는 상품을 북마크하고 한곳에서 비교해보세요.</p>
+    </div>
+  </div>
+</section>
+
+{# ───────────── 상품 카테고리 섹션 ───────────── #}
+<section class="categories">
+  <p class="section-label">지원 상품</p>
+  <h2 class="section-title">다양한 금융 상품을 한눈에</h2>
+
+  <div class="category-row">
+    <div class="category-pill">&#127968; 정기예금</div>
+    <div class="category-pill">&#128176; 적금</div>
+    <div class="category-pill">&#127968; 전세자금대출</div>
+  </div>
+</section>
+
+{# ───────────── CTA 섹션 ───────────── #}
+<section class="cta-section">
+  <h2 class="cta-title">지금 바로 시작해보세요</h2>
+  <p class="cta-desc">회원 가입 후 AI 챗봇과 함께 나에게 맞는 금융 상품을 찾아보세요.</p>
+  <a href="{% url 'accounts:signup' %}" class="cta-primary large">무료로 시작하기</a>
+</section>
+
+{# ───────────── 푸터 ───────────── #}
+<footer class="footer">
+  <img src="{% static 'images/logo-gray.png' %}" alt="FINBOT" class="footer-logo">
+  <p class="footer-copy">© 2025 FINBOT. All rights reserved.</p>
+</footer>
+
+{% endblock content %}
