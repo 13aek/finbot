@@ -7,6 +7,7 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{% static 'products/css/index.css' %}">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 {% endblock styles %}
 
 {% block content %}
@@ -30,7 +31,7 @@
   <form class="search-form" action="{% url 'products:search' %}" method="GET">
     <div class="search-input-wrapper">
       <input type="text" placeholder="검색어를 입력하세요" class="search-input" name="query">
-      <button type="submit" class="search-submit-btn">&#x2315;</button> 
+      <button type="submit" class="search-submit-btn"><i data-lucide="search"></i></button>
     </div>
 
     <button type="submit" style="display: none;">검색</button>
@@ -124,11 +125,13 @@
 
   {# 채팅 페이지 버튼 #}
   <a href="{% url 'chat:current_chat' %}" class="chatbot-btn">
-    <img src="{% static 'images/finbot-btn-long.png' %}" alt="FINBOT Chat">
+    <i data-lucide="bot-message-square"></i>
+    <span>AI 채팅</span>
   </a>
 </main>
 
 <script>
+  lucide.createIcons();
   {% if messages %}
     {% for msg in messages %}
       alert("{{ msg }}");

@@ -98,22 +98,21 @@ body {
     border: none;
     padding: 0;
     cursor: pointer;
-    
-    font-size: 30px;
     color: #A9A9A9;
     margin-right: 5px;
-    
-    height: 100%; 
+    height: 100%;
     display: flex;
     align-items: center;
-    
-    /* 좌우대칭 */
-    transform: scaleX(-1);
     transition: color 0.2s;
 }
 
+.search-submit-btn svg {
+    width: 22px;
+    height: 22px;
+}
+
 .search-submit-btn:hover {
-    color: #000000;
+    color: #333333;
 }
 
 .search-input {
@@ -234,10 +233,35 @@ body {
 
 .chatbot-btn {
     position: fixed;
-    bottom: 3%;
-    right: 2%;
-    display: block;
+    bottom: 28px;
+    right: 28px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #3F72AF;
+    color: #FFFFFF;
+    text-decoration: none;
+    padding: 13px 22px;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Pretendard', sans-serif;
+    box-shadow: 0 4px 16px rgba(63, 114, 175, 0.4);
+    transition: background-color 0.2s, transform 0.15s, box-shadow 0.2s;
     z-index: 1000;
+}
+
+.chatbot-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: #FFFFFF;
+    flex-shrink: 0;
+}
+
+.chatbot-btn:hover {
+    background-color: #2d5a8e;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(63, 114, 175, 0.45);
 }
 
 @media (max-height: 500px) {
